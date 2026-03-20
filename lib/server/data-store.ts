@@ -8,6 +8,10 @@ type StoreOptions = {
 };
 
 function getDataRoot(rootDir = process.cwd()) {
+  if (process.env.TRACKER_DATA_DIR) {
+    return path.resolve(rootDir, process.env.TRACKER_DATA_DIR);
+  }
+
   return path.join(rootDir, "data");
 }
 
