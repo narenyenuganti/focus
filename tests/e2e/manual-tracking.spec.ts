@@ -4,7 +4,8 @@ async function unlock(page: Page) {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
-  await expect(page.getByText("FOCUS SESSION")).toBeVisible();
+  await page.getByRole("button", { name: "Jump in" }).click();
+  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
 }
 
 test("logs sleep, workout, health, and daily reflection entries", async ({ page }) => {

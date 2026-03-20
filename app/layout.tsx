@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
+import { Onest } from "next/font/google";
 import "./globals.css";
+
+const onest = Onest({
+  subsets: ["latin"],
+  variable: "--font-onest",
+});
 
 export const metadata: Metadata = {
   title: "Naren Tracker",
@@ -13,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={onest.variable}>{children}</body>
     </html>
   );
 }

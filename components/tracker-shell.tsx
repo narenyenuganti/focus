@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
+import { AnnouncementModal } from "@/components/announcement-modal";
 import { DailyLogPanel } from "@/components/daily-log-panel";
 import { FocusTimer } from "@/components/focus-timer";
 import { HealthPanel } from "@/components/health-panel";
@@ -39,7 +40,7 @@ const NAV_ITEMS = [
 type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "daily-log";
 
 export function TrackerShell({ snapshot }: TrackerShellProps) {
-  const [activePanel, setActivePanel] = useState<ActivePanel>("statistics");
+  const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
   const statisticsCards = [
     {
       label: "today",
@@ -64,6 +65,10 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   ];
 
   function renderPanel() {
+    if (!activePanel) {
+      return null;
+    }
+
     if (activePanel === "statistics") {
       return (
         <div className="panel-shell panel-shell--statistics">
@@ -92,6 +97,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     <div className="hub-shell">
       <div className="hub-bg hub-bg--amber" />
       <div className="hub-bg hub-bg--teal" />
+      <AnnouncementModal />
 
       <header className="hub-topbar">
         {snapshot.topMetrics.map((metric) => (
@@ -102,7 +108,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         ))}
       </header>
 
-      <main className="hub-main">
+      <main className={activePanel ? "hub-main has-panel" : "hub-main is-focus-only"}>
         <section className="hub-focus-column">
           <div className="hub-dots" aria-hidden="true">
             <span className="is-active" />
@@ -114,7 +120,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             todaySessions={snapshot.focus.todaySessions}
           />
         </section>
-        <aside className="hub-panel-column">{renderPanel()}</aside>
+        <aside className={activePanel ? "hub-panel-column is-visible" : "hub-panel-column"}>
+          {renderPanel()}
+        </aside>
       </main>
 
       <div className="mini-player">
@@ -132,7 +140,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
           <button
             type="button"
             className={activePanel === "daily-log" ? "utility-button is-active" : "utility-button"}
-            onClick={() => setActivePanel("daily-log")}
+            onClick={() =>
+              setActivePanel((current) => (current === "daily-log" ? null : "daily-log"))
+            }
             aria-label="Daily log"
           >
             <ListTodo size={16} />
@@ -153,7 +163,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
                 key={item.key}
                 type="button"
                 className={active ? "nav-pill is-active" : "nav-pill"}
-                onClick={() => setActivePanel(item.key)}
+                onClick={() =>
+                  setActivePanel((current) => (current === item.key ? null : item.key))
+                }
               >
                 <Icon size={16} />
                 <span>{item.label}</span>

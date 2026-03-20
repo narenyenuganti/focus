@@ -101,11 +101,6 @@ export function buildDashboardSnapshot(input: DashboardInput) {
         value: `${focus.totalMinutes}m`,
         tone: "sky",
       },
-      {
-        label: "sleep avg",
-        value: `${sleepAverageHours}h`,
-        tone: "violet",
-      },
     ],
     focus,
     sleep: {

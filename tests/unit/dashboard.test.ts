@@ -48,7 +48,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     ],
   });
 
-  expect(snapshot.topMetrics.length).toBeGreaterThan(3);
+  expect(snapshot.topMetrics.length).toBe(3);
   expect(snapshot.sleep.averageHours).toBe(8);
   expect(snapshot.workouts.weeklyMinutes).toBe(60);
   expect(snapshot.health.latestWeight).toBe(175);

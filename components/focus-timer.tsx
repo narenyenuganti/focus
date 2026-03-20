@@ -142,7 +142,12 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
         </div>
       </div>
 
-      <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
+      <div className="focus-ring">
+        <div>
+          <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
+          <p className="focus-label">FOCUS SESSION</p>
+        </div>
+      </div>
       <p className="focus-feedback">{feedback}</p>
 
       <div className="preset-grid">
