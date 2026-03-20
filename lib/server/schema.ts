@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const focusSessionSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   startedAt: z.string(),
   endedAt: z.string(),
   durationMinutes: z.number(),
@@ -9,6 +9,7 @@ const focusSessionSchema = z.object({
 });
 
 const healthMetricSchema = z.object({
+  id: z.string().optional(),
   date: z.string(),
   weight: z.number().optional(),
   restingHeartRate: z.number().optional(),
@@ -17,6 +18,7 @@ const healthMetricSchema = z.object({
 });
 
 const sleepEntrySchema = z.object({
+  id: z.string().optional(),
   date: z.string(),
   hours: z.number(),
   bedtime: z.string().optional(),
@@ -26,6 +28,7 @@ const sleepEntrySchema = z.object({
 });
 
 const workoutEntrySchema = z.object({
+  id: z.string().optional(),
   date: z.string(),
   type: z.string(),
   durationMinutes: z.number(),
@@ -34,6 +37,7 @@ const workoutEntrySchema = z.object({
 });
 
 const dailyLogSchema = z.object({
+  id: z.string().optional(),
   date: z.string(),
   mood: z.number().min(1).max(10).optional(),
   gratitude: z.array(z.string()).default([]),
