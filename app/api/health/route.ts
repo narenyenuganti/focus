@@ -4,6 +4,7 @@ import { z } from "zod";
 import { isSessionTokenValid, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { readCollection, writeCollection } from "@/lib/server/data-store";
 import type { HealthMetric } from "@/lib/server/dashboard";
+import { parseJsonBody } from "@/lib/server/json-body";
 
 const healthMetricSchema = z.object({
   date: z.string(),
@@ -20,7 +21,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const payload = healthMetricSchema.parse(await request.json());
+  const payloadResult = await parseJsonBody(request, healthMetricSchema);
+
+  if (!payloadResult.ok) {
+    return payloadResult.response;
+  }
+
+  const payload = payloadResult.data;
   const currentEntries = (await readCollection("health/metrics")) as HealthMetric[];
   const nextEntry: HealthMetric = {
     id: crypto.randomUUID(),

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { isSessionTokenValid, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { readCollection, writeCollection } from "@/lib/server/data-store";
 import type { WorkoutEntry } from "@/lib/server/dashboard";
+import { parseJsonBody } from "@/lib/server/json-body";
 
 const workoutEntrySchema = z.object({
   date: z.string(),
@@ -20,7 +21,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const payload = workoutEntrySchema.parse(await request.json());
+  const payloadResult = await parseJsonBody(request, workoutEntrySchema);
+
+  if (!payloadResult.ok) {
+    return payloadResult.response;
+  }
+
+  const payload = payloadResult.data;
   const currentEntries = (await readCollection("workouts/entries")) as WorkoutEntry[];
   const nextEntry: WorkoutEntry = {
     id: crypto.randomUUID(),
