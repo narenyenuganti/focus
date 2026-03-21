@@ -1,5 +1,31 @@
 import { z } from "zod";
 
+export const focusPresetSchema = z.object({
+  label: z.string().min(1),
+  minutes: z.number().int().min(1),
+});
+
+export const settingsSchema = z.object({
+  displayName: z.string().min(1).default("Naren"),
+  weeklyFocusGoalMinutes: z.number().int().min(0).default(1200),
+  weeklyWorkoutGoalMinutes: z.number().int().min(0).default(180),
+  sleepGoalHours: z.number().min(0).default(8),
+  focusPresets: z.array(focusPresetSchema).default([
+    { label: "Classic Pomodoro", minutes: 25 },
+    { label: "Eisenhower", minutes: 50 },
+    { label: "52 / 17", minutes: 52 },
+    { label: "Deep Work", minutes: 90 },
+  ]),
+});
+
+export const settingsPatchSchema = z.object({
+  displayName: z.string().min(1).optional(),
+  weeklyFocusGoalMinutes: z.number().int().min(0).optional(),
+  weeklyWorkoutGoalMinutes: z.number().int().min(0).optional(),
+  sleepGoalHours: z.number().min(0).optional(),
+  focusPresets: z.array(focusPresetSchema).optional(),
+});
+
 const focusSessionSchema = z.object({
   id: z.string().optional(),
   startedAt: z.string(),
@@ -54,3 +80,4 @@ export const collectionDefinitions = {
 };
 
 export type CollectionName = keyof typeof collectionDefinitions;
+export type TrackerSettings = z.infer<typeof settingsSchema>;
