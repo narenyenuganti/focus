@@ -1,6 +1,9 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { readCollection } from "@/lib/server/data-store";
 import { buildFocusSummary, type FocusSessionRecord } from "@/lib/server/focus";
+import { buildInsightsSummary } from "@/lib/server/insights";
+import { readSettings } from "@/lib/server/settings";
+import type { TrackerSettings } from "@/lib/server/schema";
 
 export type SleepEntry = {
   id?: string;
@@ -45,6 +48,7 @@ type DashboardInput = {
   workouts: WorkoutEntry[];
   healthMetrics: HealthMetric[];
   dailyLogs: DailyLogEntry[];
+  settings: TrackerSettings;
 };
 
 function sortByDateDescending<T extends { date: string }>(entries: T[]) {
@@ -55,6 +59,15 @@ function getCurrentDay() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isInRollingWeek(date: string, today: string) {
+  const daysAgo = differenceInCalendarDays(
+    parseISO(`${today}T00:00:00.000Z`),
+    parseISO(`${date}T00:00:00.000Z`),
+  );
+
+  return daysAgo >= 0 && daysAgo < 7;
+}
+
 export function buildDashboardSnapshot(input: DashboardInput) {
   const today = getCurrentDay();
   const focus = buildFocusSummary(input.focusSessions, { today });
@@ -62,6 +75,7 @@ export function buildDashboardSnapshot(input: DashboardInput) {
   const workouts = sortByDateDescending(input.workouts);
   const healthMetrics = sortByDateDescending(input.healthMetrics);
   const dailyLogs = sortByDateDescending(input.dailyLogs);
+  const settings = input.settings;
 
   const sleepAverageHours =
     sleepEntries.length > 0
@@ -71,14 +85,23 @@ export function buildDashboardSnapshot(input: DashboardInput) {
         ) / 10
       : 0;
 
-  const weeklyWorkouts = workouts.filter((workout) => {
-    const daysAgo = differenceInCalendarDays(
-      parseISO(`${today}T00:00:00.000Z`),
-      parseISO(`${workout.date}T00:00:00.000Z`),
-    );
-
-    return daysAgo >= 0 && daysAgo < 7;
-  });
+  const weeklyWorkouts = workouts.filter((workout) => isInRollingWeek(workout.date, today));
+  const weeklyFocusSessions = input.focusSessions.filter((session) =>
+    isInRollingWeek(session.startedAt.slice(0, 10), today),
+  );
+  const insights = {
+    ...buildInsightsSummary({
+      today,
+      focusSessions: weeklyFocusSessions,
+      workouts: weeklyWorkouts,
+      goals: {
+        focusMinutes: settings.weeklyFocusGoalMinutes,
+        workoutMinutes: settings.weeklyWorkoutGoalMinutes,
+        workoutCount: Math.max(1, Math.ceil(settings.weeklyWorkoutGoalMinutes / 60)),
+      },
+    }),
+    focusStreakDays: focus.currentStreakDays,
+  };
 
   const latestHealth = healthMetrics[0];
   const latestSleep = sleepEntries[0];
@@ -103,6 +126,8 @@ export function buildDashboardSnapshot(input: DashboardInput) {
       },
     ],
     focus,
+    settings,
+    insights,
     sleep: {
       averageHours: sleepAverageHours,
       lastNightHours: latestSleep?.hours ?? 0,
@@ -134,13 +159,14 @@ export function buildDashboardSnapshot(input: DashboardInput) {
 }
 
 export async function getTrackerSnapshot() {
-  const [focusSessions, sleepEntries, workouts, healthMetrics, dailyLogs] =
+  const [focusSessions, sleepEntries, workouts, healthMetrics, dailyLogs, settings] =
     await Promise.all([
       readCollection("focus/sessions"),
       readCollection("sleep/entries"),
       readCollection("workouts/entries"),
       readCollection("health/metrics"),
       readCollection("journal/daily"),
+      readSettings(),
     ]);
 
   return buildDashboardSnapshot({
@@ -149,5 +175,6 @@ export async function getTrackerSnapshot() {
     workouts: workouts as WorkoutEntry[],
     healthMetrics: healthMetrics as HealthMetric[],
     dailyLogs: dailyLogs as DailyLogEntry[],
+    settings,
   });
 }

@@ -28,7 +28,7 @@ async function fetchSyncMetadata() {
 
 export function SyncButton() {
   const [status, setStatus] = useState("Manual sync");
-  const [historyOpen, setHistoryOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [metadata, setMetadata] = useState<GitSyncMetadata | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +46,7 @@ export function SyncButton() {
     if (result.ok) {
       setMetadata(result.metadata);
       setError(null);
+      setHistoryOpen(true);
     } else {
       setError(result.error);
     }
@@ -71,6 +72,13 @@ export function SyncButton() {
         <span>Sync</span>
       </button>
       <p>{status}</p>
+      <button
+        type="button"
+        className="ghost-button"
+        onClick={() => setHistoryOpen((current) => !current)}
+      >
+        {historyOpen ? "Hide history" : "View history"}
+      </button>
       {historyOpen ? (
         <div
           style={{

@@ -46,9 +46,22 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
         wins: ["Finished workout"],
       },
     ],
+    settings: {
+      displayName: "Naren",
+      weeklyFocusGoalMinutes: 120,
+      weeklyWorkoutGoalMinutes: 90,
+      sleepGoalHours: 8,
+      focusPresets: [
+        { label: "Classic Pomodoro", minutes: 25 },
+        { label: "Deep Work", minutes: 90 },
+      ],
+    },
   });
 
   expect(snapshot.topMetrics.length).toBe(3);
+  expect(snapshot.settings.displayName).toBe("Naren");
+  expect(snapshot.insights.focusStreakDays).toBe(snapshot.focus.currentStreakDays);
+  expect(snapshot.insights.goalProgress[0]?.percent).toBe(21);
   expect(snapshot.sleep.averageHours).toBe(8);
   expect(snapshot.workouts.weeklyMinutes).toBe(60);
   expect(snapshot.health.latestWeight).toBe(175);

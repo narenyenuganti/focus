@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { TrackerSettings } from "@/lib/server/schema";
 
@@ -21,6 +22,7 @@ function updatePreset(
 }
 
 export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps) {
+  const router = useRouter();
   const [settings, setSettings] = useState(initialSettings);
   const [status, setStatus] = useState("Local settings");
 
@@ -47,6 +49,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
     }
 
     setStatus("Settings saved");
+    router.refresh();
   }
 
   return (

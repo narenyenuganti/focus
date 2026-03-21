@@ -2,13 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-
-const PRESETS = [
-  { label: "Classic Pomodoro", minutes: 25 },
-  { label: "Eisenhower", minutes: 50 },
-  { label: "52 / 17", minutes: 52 },
-  { label: "Deep Work", minutes: 90 },
-];
+import type { TrackerSettings } from "@/lib/server/schema";
 
 function formatSeconds(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60)
@@ -24,16 +18,41 @@ function formatSeconds(totalSeconds: number) {
 type FocusTimerProps = {
   todayMinutes: number;
   todaySessions: number;
+  weeklyMinutes: number;
+  weeklyGoalMinutes: number;
+  presets: TrackerSettings["focusPresets"];
 };
 
-export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
+function buildIdleFeedback(
+  todaySessions: number,
+  todayMinutes: number,
+  weeklyMinutes: number,
+  weeklyGoalMinutes: number,
+) {
+  if (weeklyGoalMinutes <= 0) {
+    return `${todaySessions} sessions logged today • ${todayMinutes} focus minutes`;
+  }
+
+  const weeklyProgress = Math.min(100, Math.round((weeklyMinutes / weeklyGoalMinutes) * 100));
+
+  return `${todaySessions} sessions logged today • ${todayMinutes} focus minutes • ${weeklyProgress}% of weekly goal`;
+}
+
+export function FocusTimer({
+  todayMinutes,
+  todaySessions,
+  weeklyMinutes,
+  weeklyGoalMinutes,
+  presets,
+}: FocusTimerProps) {
   const router = useRouter();
-  const [selectedMinutes, setSelectedMinutes] = useState(PRESETS[0].minutes);
-  const [secondsRemaining, setSecondsRemaining] = useState(PRESETS[0].minutes * 60);
+  const fallbackMinutes = presets[0]?.minutes ?? 25;
+  const [selectedMinutes, setSelectedMinutes] = useState(fallbackMinutes);
+  const [secondsRemaining, setSecondsRemaining] = useState(fallbackMinutes * 60);
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "running" | "saving">("idle");
   const [feedback, setFeedback] = useState(
-    `${todaySessions} sessions logged today • ${todayMinutes} focus minutes`,
+    buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
   );
   const [isPending, startTransition] = useTransition();
   const selectedMinutesRef = useRef(selectedMinutes);
@@ -44,6 +63,18 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
   useEffect(() => {
     selectedMinutesRef.current = selectedMinutes;
   }, [selectedMinutes]);
+
+  useEffect(() => {
+    const selectedPresetStillExists = presets.some((preset) => preset.minutes === selectedMinutes);
+
+    if (selectedPresetStillExists) {
+      return;
+    }
+
+    const nextMinutes = presets[0]?.minutes ?? 25;
+    setSelectedMinutes(nextMinutes);
+    setSecondsRemaining(nextMinutes * 60);
+  }, [presets, selectedMinutes]);
 
   useEffect(() => {
     if (status !== "idle") {
@@ -129,6 +160,14 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
     return () => window.clearInterval(interval);
   }, [status]);
 
+  useEffect(() => {
+    if (status !== "idle") {
+      return;
+    }
+
+    setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
+  }, [status, todayMinutes, todaySessions, weeklyGoalMinutes, weeklyMinutes]);
+
   return (
     <section className="focus-panel">
       <div className="focus-panel__top">
@@ -137,8 +176,8 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
           <h2>FOCUS SESSION</h2>
         </div>
         <div className="focus-panel__ambient">
-          <span>Lofi Girl</span>
-          <span>Bell</span>
+          <span>{weeklyGoalMinutes}m weekly goal</span>
+          <span>{presets.length} presets</span>
         </div>
       </div>
 
@@ -151,9 +190,9 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
       <p className="focus-feedback">{feedback}</p>
 
       <div className="preset-grid">
-        {PRESETS.map((preset) => (
+        {presets.map((preset) => (
           <button
-            key={preset.minutes}
+            key={`${preset.label}-${preset.minutes}`}
             type="button"
             className={
               preset.minutes === selectedMinutes ? "preset-button is-active" : "preset-button"
@@ -197,9 +236,7 @@ export function FocusTimer({ todayMinutes, todaySessions }: FocusTimerProps) {
             setStatus("idle");
             setStartedAt(null);
             setSecondsRemaining(selectedMinutes * 60);
-            setFeedback(
-              `${todaySessions} sessions logged today • ${todayMinutes} focus minutes`,
-            );
+            setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
           }}
           disabled={status === "saving" || isPending}
         >

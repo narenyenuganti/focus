@@ -1,4 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import { resetTestData } from "./test-data";
+
+test.beforeEach(async () => {
+  await resetTestData();
+});
 
 async function unlock(page: Page) {
   await page.goto("/login");
@@ -33,4 +38,19 @@ test("logs sleep, workout, health, and daily reflection entries", async ({ page 
   await page.getByLabel("Wins (comma separated)").fill("Shipped tracker");
   await page.getByRole("button", { name: "Save daily log" }).click();
   await expect(page.locator(".panel-list").getByText(/gratitude items/).first()).toBeVisible();
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const focusGoalInput = page.getByLabel("Weekly focus goal minutes");
+  const firstPreset = page.locator(".panel-list article").first();
+  await focusGoalInput.fill("1500");
+  await firstPreset.getByLabel("Preset label").fill("Sprint");
+  await firstPreset.getByLabel("Minutes", { exact: true }).fill("40");
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Settings saved")).toBeVisible();
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Jump in" }).click();
+  await expect(page.getByText("1500m weekly goal")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Sprint/i })).toBeVisible();
+  await expect(page.getByText("40m")).toBeVisible();
 });

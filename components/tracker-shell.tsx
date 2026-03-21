@@ -9,6 +9,7 @@ import {
   LogOut,
   MoonStar,
   Music2,
+  Sparkles,
   Settings,
 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +19,8 @@ import { AnnouncementModal } from "@/components/announcement-modal";
 import { DailyLogPanel } from "@/components/daily-log-panel";
 import { FocusTimer } from "@/components/focus-timer";
 import { HealthPanel } from "@/components/health-panel";
+import { InsightsPanel } from "@/components/insights-panel";
+import { SettingsPanel } from "@/components/settings-panel";
 import { SleepPanel } from "@/components/sleep-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { SyncButton } from "@/components/sync-button";
@@ -32,12 +35,13 @@ type TrackerShellProps = {
 
 const NAV_ITEMS = [
   { key: "statistics", label: "Statistics", icon: BarChart3 },
+  { key: "insights", label: "Insights", icon: Sparkles },
   { key: "sleep", label: "Sleep", icon: MoonStar },
   { key: "workouts", label: "Workouts", icon: Dumbbell },
   { key: "health", label: "Health", icon: HeartPulse },
 ] as const;
 
-type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "daily-log";
+type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "daily-log" | "settings";
 
 export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
@@ -50,17 +54,17 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     {
       label: "this week",
       value: `${snapshot.focus.weeklyMinutes}m`,
-      detail: "rolling 7-day total",
+      detail: `${snapshot.insights.goalProgress[0]?.percent ?? 0}% of ${snapshot.settings.weeklyFocusGoalMinutes}m goal`,
     },
     {
       label: "sleep",
       value: `${snapshot.sleep.averageHours}h`,
-      detail: "average sleep duration",
+      detail: `${snapshot.settings.sleepGoalHours}h nightly target`,
     },
     {
       label: "workouts",
       value: `${snapshot.workouts.weeklyCount}`,
-      detail: `${snapshot.workouts.weeklyMinutes} minutes this week`,
+      detail: `${snapshot.workouts.weeklyMinutes} / ${snapshot.settings.weeklyWorkoutGoalMinutes} weekly minutes`,
     },
   ];
 
@@ -82,12 +86,20 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       return <SleepPanel summary={snapshot.sleep} />;
     }
 
+    if (activePanel === "insights") {
+      return <InsightsPanel summary={snapshot.insights} />;
+    }
+
     if (activePanel === "workouts") {
       return <WorkoutPanel summary={snapshot.workouts} />;
     }
 
     if (activePanel === "health") {
       return <HealthPanel summary={snapshot.health} />;
+    }
+
+    if (activePanel === "settings") {
+      return <SettingsPanel settings={snapshot.settings} />;
     }
 
     return <DailyLogPanel summary={snapshot.dailyLog} />;
@@ -118,6 +130,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
           <FocusTimer
             todayMinutes={snapshot.focus.todayMinutes}
             todaySessions={snapshot.focus.todaySessions}
+            weeklyMinutes={snapshot.focus.weeklyMinutes}
+            weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
+            presets={snapshot.settings.focusPresets}
           />
         </section>
         <aside className={activePanel ? "hub-panel-column is-visible" : "hub-panel-column"}>
@@ -175,7 +190,14 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         </nav>
 
         <div className="utility-cluster">
-          <button type="button" className="utility-button" aria-label="Info">
+          <button
+            type="button"
+            className={activePanel === "statistics" ? "utility-button is-active" : "utility-button"}
+            aria-label="Statistics overview"
+            onClick={() =>
+              setActivePanel((current) => (current === "statistics" ? null : "statistics"))
+            }
+          >
             <Info size={16} />
           </button>
           <form action={logoutTracker}>
@@ -183,7 +205,14 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
               <LogOut size={16} />
             </button>
           </form>
-          <button type="button" className="utility-button" aria-label="Settings">
+          <button
+            type="button"
+            className={activePanel === "settings" ? "utility-button is-active" : "utility-button"}
+            aria-label="Settings"
+            onClick={() =>
+              setActivePanel((current) => (current === "settings" ? null : "settings"))
+            }
+          >
             <Settings size={16} />
           </button>
         </div>

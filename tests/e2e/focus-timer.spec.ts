@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { resetTestData } from "./test-data";
+
+test.beforeEach(async () => {
+  await resetTestData();
+});
 
 test("logs a focus session from the dashboard", async ({ page }) => {
   await page.goto("/login");
@@ -20,4 +25,10 @@ test("logs a focus session from the dashboard", async ({ page }) => {
       return (await sessionsMetric.innerText()).trim();
     })
     .not.toBe(startingText);
+
+  await page.getByRole("button", { name: "View history" }).click();
+  await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Insights" }).click();
+  await expect(page.getByRole("heading", { name: "Where the habits compound" })).toBeVisible();
 });
