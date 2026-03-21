@@ -5,6 +5,20 @@ test.beforeEach(async () => {
   await resetTestData();
 });
 
+test("keeps the shell chrome visible while panels open", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel(/password/i).fill("tracker");
+  await page.getByRole("button", { name: "Unlock" }).click();
+  await page.getByRole("button", { name: "Jump in" }).click();
+
+  await expect(page.locator(".hub-topbar")).toBeVisible();
+  await expect(page.locator(".hub-bottombar")).toBeVisible();
+
+  await page.getByRole("button", { name: "Statistics", exact: true }).click();
+  await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+});
+
 test("logs a focus session from the dashboard", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");

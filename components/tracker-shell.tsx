@@ -120,7 +120,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         ))}
       </header>
 
-      <main className={activePanel ? "hub-main has-panel" : "hub-main is-focus-only"}>
+      <main className="hub-main">
         <section className="hub-focus-column">
           <div className="hub-dots" aria-hidden="true">
             <span className="is-active" />

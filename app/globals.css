@@ -353,7 +353,7 @@ h2 {
 
 .hub-shell {
   min-height: 100vh;
-  padding: 120px 24px 180px;
+  padding: 112px 20px 168px;
   position: relative;
   overflow: hidden;
 }
@@ -400,13 +400,13 @@ h2 {
 
 .hub-topbar {
   position: fixed;
-  top: 24px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
   display: flex;
-  gap: 12px;
-  padding: 10px;
+  gap: 8px;
+  padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(7, 6, 14, 0.68);
@@ -416,8 +416,8 @@ h2 {
 .metric-pill {
   display: grid;
   gap: 2px;
-  min-width: 108px;
-  padding: 10px 14px;
+  min-width: 96px;
+  padding: 8px 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
 }
@@ -450,32 +450,31 @@ h2 {
 .hub-main {
   position: relative;
   z-index: 5;
-  width: min(1240px, 100%);
+  width: min(980px, 100%);
   margin: 0 auto;
   display: grid;
-  gap: 24px;
+  gap: 20px;
   align-items: center;
   min-height: calc(100vh - 320px);
 }
 
-.hub-main.is-focus-only {
-  max-width: 980px;
-  grid-template-columns: 1fr;
-}
-
-.hub-main.has-panel {
-  grid-template-columns: minmax(0, 0.92fr) minmax(380px, 0.88fr);
-  align-items: start;
-}
-
 .hub-focus-column {
+  width: min(560px, 100%);
   display: grid;
-  gap: 24px;
+  gap: 20px;
   justify-items: center;
 }
 
 .hub-panel-column {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  width: min(372px, calc(100vw - 32px));
+  max-height: min(68vh, 680px);
+  overflow: auto;
   display: none;
+  z-index: 18;
 }
 
 .hub-panel-column.is-visible {
@@ -680,12 +679,12 @@ h2 {
   bottom: 24px;
   transform: translateX(-50%);
   z-index: 20;
-  width: min(1220px, calc(100% - 24px));
+  width: min(1120px, calc(100% - 20px));
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: 999px;
   background: rgba(7, 6, 14, 0.76);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -696,7 +695,7 @@ h2 {
 .nav-cluster {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .utility-button,
@@ -709,8 +708,8 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 12px;
   cursor: pointer;
 }
 
@@ -730,19 +729,19 @@ h2 {
 
 .sync-button {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .sync-button p {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: rgba(244, 239, 255, 0.68);
 }
 
 @media (max-width: 920px) {
   .hub-shell {
-    padding-top: 112px;
-    padding-bottom: 210px;
+    padding-top: 104px;
+    padding-bottom: 196px;
   }
 
   .hub-topbar,
@@ -762,12 +761,7 @@ h2 {
   }
 
   .hub-main {
-    grid-template-columns: 1fr;
     min-height: auto;
-  }
-
-  .hub-main.has-panel {
-    grid-template-columns: 1fr;
   }
 
   .hub-panel-column.is-visible {
@@ -812,5 +806,15 @@ h2 {
 
   .mini-player {
     bottom: 128px;
+  }
+
+  .hub-panel-column {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: 104px;
+    transform: none;
+    width: auto;
+    max-height: 42vh;
   }
 }
