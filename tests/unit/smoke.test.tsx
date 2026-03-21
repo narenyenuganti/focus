@@ -40,7 +40,9 @@ test("renders focus timer transport controls", async () => {
   expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Finish Session" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Reset" })).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /Classic Pomodoro 25m/i })).toBeInTheDocument();
+  expect(screen.getByText("Classic Pomodoro", { exact: true })).toBeInTheDocument();
+  expect(screen.getByText("25 minute block", { exact: true })).toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Switch focus preset" })).toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Start" }));
 
