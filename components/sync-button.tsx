@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCcw } from "lucide-react";
+import { History, RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SyncHistoryPanel } from "@/components/sync-history-panel";
 import type { GitSyncMetadata } from "@/lib/server/git-sync";
@@ -66,18 +66,39 @@ export function SyncButton() {
   }, []);
 
   return (
-    <div className="sync-button" style={{ position: "relative" }}>
-      <button type="button" className="utility-button" onClick={() => void sync()}>
-        <RefreshCcw size={16} />
-        <span>Sync</span>
-      </button>
-      <p>{status}</p>
+    <div className="sync-button" style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
       <button
         type="button"
-        className="ghost-button"
-        onClick={() => setHistoryOpen((current) => !current)}
+        className="utility-button"
+        onClick={() => void sync()}
+        aria-label="Sync tracker data"
       >
-        {historyOpen ? "Hide history" : "View history"}
+        <RefreshCcw size={16} />
+      </button>
+      <p
+        aria-live="polite"
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {status}
+      </p>
+      <button
+        type="button"
+        className="utility-button"
+        onClick={() => setHistoryOpen((current) => !current)}
+        aria-label={historyOpen ? "Hide sync history" : "View sync history"}
+        aria-expanded={historyOpen}
+      >
+        <History size={16} />
       </button>
       {historyOpen ? (
         <div

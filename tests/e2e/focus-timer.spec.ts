@@ -17,6 +17,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Next track" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Expand player" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
@@ -45,7 +48,7 @@ test("logs a focus session from the dashboard", async ({ page }) => {
     })
     .not.toBe(startingText);
 
-  await page.getByRole("button", { name: "View history" }).click();
+  await page.getByRole("button", { name: "View sync history", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
 
   await page.getByRole("button", { name: "Achievements", exact: true }).click();
