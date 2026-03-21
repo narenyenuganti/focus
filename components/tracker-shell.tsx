@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
-import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { AnnouncementModal } from "@/components/announcement-modal";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
@@ -40,16 +39,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       value: `${snapshot.focus.weeklyMinutes}m`,
       detail: `${snapshot.insights.goalProgress[0]?.percent ?? 0}% of ${snapshot.settings.weeklyFocusGoalMinutes}m goal`,
     },
-    {
-      label: "sleep",
-      value: `${snapshot.sleep.averageHours}h`,
-      detail: `${snapshot.settings.sleepGoalHours}h nightly target`,
-    },
-    {
-      label: "workouts",
-      value: `${snapshot.workouts.weeklyCount}`,
-      detail: `${snapshot.workouts.weeklyMinutes} / ${snapshot.settings.weeklyWorkoutGoalMinutes} weekly minutes`,
-    },
   ];
 
   function renderPanel() {
@@ -61,7 +50,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       return (
         <div className="panel-shell panel-shell--statistics">
           <StatsOverview cards={statisticsCards} />
-          <ActivityHeatmap entries={snapshot.focus.heatmap} />
         </div>
       );
     }

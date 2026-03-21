@@ -22,6 +22,11 @@ test("keeps the trimmed shell focused on statistics and settings", async ({
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
   await page.getByRole("button", { name: "Statistics" }).click();
   await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+  await expect(page.locator(".stat-card")).toHaveCount(2);
+  await expect(page.getByText("Watch your progress grow")).toHaveCount(0);
+  await expect(page.locator(".heatmap-panel")).toHaveCount(0);
+  await expect(page.locator(".stat-card").filter({ hasText: "sleep" })).toHaveCount(0);
+  await expect(page.locator(".stat-card").filter({ hasText: "workouts" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   const focusGoalInput = page.getByLabel("Weekly focus goal minutes");
