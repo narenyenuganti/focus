@@ -110,7 +110,7 @@ test("keeps mobile shell spacing clear", async ({ page }) => {
   expect(bottomBarBox).not.toBeNull();
   expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
-  await page.getByRole("button", { name: "Sync tracker data", exact: true }).dispatchEvent("click");
+  await page.getByRole("button", { name: "View sync history", exact: true }).dispatchEvent("click");
   const syncHistory = page.getByRole("region", { name: "Sync history" });
   await expect(syncHistory).toBeVisible();
 
@@ -136,7 +136,7 @@ test("keeps tablet shell spacing clear", async ({ page }) => {
   expect(bottomBarBox).not.toBeNull();
   expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
-  await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  await page.getByRole("button", { name: "View sync history", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
   await expect(syncHistory).toBeVisible();
 
@@ -162,7 +162,7 @@ test("keeps mid-range shell spacing clear", async ({ page }) => {
   expect(bottomBarBox).not.toBeNull();
   expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
-  await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  await page.getByRole("button", { name: "View sync history", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
   await expect(syncHistory).toBeVisible();
 
@@ -192,12 +192,10 @@ test("logs a focus session from the dashboard", async ({ page }) => {
     .not.toBe(startingText);
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
-  await expect(page.getByLabel("Sync history").getByText(/nothing to sync\.|sync complete\./i).first()).toBeVisible();
-
-  await page.getByRole("region", { name: "Sync history" }).getByRole("button", { name: "Hide sync history" }).click();
+  await expect(page.getByRole("region", { name: "Sync history" })).toHaveCount(0);
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
+  await expect(page.getByLabel("Sync history").getByText(/nothing to sync\.|sync complete\./i).first()).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
 });
