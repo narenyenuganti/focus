@@ -160,5 +160,8 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
 
   await page.getByRole("button", { name: "Achievements", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Where the habits compound" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Compound achievements" })).toBeVisible();
+  await expect(
+    page.getByText(/current streaks, progress, and milestone readouts/i),
+  ).toBeVisible();
 });
