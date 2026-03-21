@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { HealthPanelContent } from "@/components/health-panel";
 import { SleepPanelContent } from "@/components/sleep-panel";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
@@ -21,6 +21,39 @@ type LeaderboardTab = (typeof LEADERBOARD_TABS)[number]["id"];
 
 export function LeaderboardPanel({ sleep, health }: LeaderboardPanelProps) {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>("sleep");
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function moveFocus(nextIndex: number) {
+    const nextTab = LEADERBOARD_TABS[nextIndex];
+
+    setActiveTab(nextTab.id);
+    tabRefs.current[nextIndex]?.focus();
+  }
+
+  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "Home" && event.key !== "End") {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (event.key === "Home") {
+      moveFocus(0);
+      return;
+    }
+
+    if (event.key === "End") {
+      moveFocus(LEADERBOARD_TABS.length - 1);
+      return;
+    }
+
+    const nextIndex =
+      event.key === "ArrowRight"
+        ? (index + 1) % LEADERBOARD_TABS.length
+        : (index - 1 + LEADERBOARD_TABS.length) % LEADERBOARD_TABS.length;
+
+    moveFocus(nextIndex);
+  }
 
   return (
     <section className="panel-shell panel-shell--grouped">
@@ -47,7 +80,12 @@ export function LeaderboardPanel({ sleep, health }: LeaderboardPanelProps) {
         </article>
       </div>
 
-      <div className="panel-tabs" role="tablist" aria-label="Leaderboard tabs">
+      <div
+        className="panel-tabs"
+        role="tablist"
+        aria-label="Leaderboard tabs"
+        aria-orientation="horizontal"
+      >
         {LEADERBOARD_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -56,8 +94,18 @@ export function LeaderboardPanel({ sleep, health }: LeaderboardPanelProps) {
             aria-selected={activeTab === tab.id}
             aria-controls={`leaderboard-panel-${tab.id}`}
             id={`leaderboard-tab-${tab.id}`}
+            tabIndex={activeTab === tab.id ? 0 : -1}
             className={activeTab === tab.id ? "panel-tab is-active" : "panel-tab"}
+            ref={(node) => {
+              tabRefs.current[LEADERBOARD_TABS.findIndex((item) => item.id === tab.id)] = node;
+            }}
             onClick={() => setActiveTab(tab.id)}
+            onKeyDown={(event) =>
+              handleTabKeyDown(
+                event,
+                LEADERBOARD_TABS.findIndex((item) => item.id === tab.id),
+              )
+            }
           >
             {tab.label}
           </button>
