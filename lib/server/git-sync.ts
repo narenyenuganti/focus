@@ -10,6 +10,34 @@ type SyncDependencies = {
   exec?: ExecFn;
 };
 
+type PendingFileStatus = {
+  path: string;
+  status:
+    | "added"
+    | "copied"
+    | "deleted"
+    | "changed"
+    | "modified"
+    | "renamed"
+    | "typechange"
+    | "untracked";
+  label: string | null;
+};
+
+type RecentSyncCommit = {
+  sha: string;
+  date: string;
+  subject: string;
+  labels: string[];
+};
+
+type SyncMetadataDependencies = {
+  rootDir?: string;
+  listPendingFiles?: () => Promise<PendingFileStatus[]>;
+  listRecentSyncCommits?: () => Promise<RecentSyncCommit[]>;
+  exec?: ExecFn;
+};
+
 export type GitSyncPlan =
   | {
       kind: "noop";
@@ -22,6 +50,14 @@ export type GitSyncPlan =
       files: string[];
       commitMessage: string;
     };
+
+export type GitSyncMetadata = {
+  pendingFiles: PendingFileStatus[];
+  pendingCount: number;
+  recentCommits: RecentSyncCommit[];
+  lastSyncedAt: string | null;
+  lastSyncedCommit: RecentSyncCommit | null;
+};
 
 function uniqueSorted(values: string[]) {
   return [...new Set(values)].sort((left, right) => left.localeCompare(right));
@@ -38,6 +74,70 @@ function toDataLabel(filePath: string) {
   const relativePath = filePath.slice(dataPrefix.length);
   const [section] = relativePath.split("/", 1);
   return section || path.parse(relativePath).name;
+}
+
+function parseStatusCode(statusCode: string): PendingFileStatus["status"] {
+  if (statusCode === "??") {
+    return "untracked";
+  }
+
+  if (statusCode.includes("R")) {
+    return "renamed";
+  }
+
+  if (statusCode.includes("C")) {
+    return "copied";
+  }
+
+  if (statusCode.includes("A")) {
+    return "added";
+  }
+
+  if (statusCode.includes("D")) {
+    return "deleted";
+  }
+
+  if (statusCode.includes("T")) {
+    return "typechange";
+  }
+
+  if (statusCode.includes("M")) {
+    return "modified";
+  }
+
+  return "changed";
+}
+
+function parseStatusLine(line: string): PendingFileStatus | null {
+  const statusCode = line.slice(0, 2);
+  const entry = line.slice(3).trim();
+
+  if (!entry) {
+    return null;
+  }
+
+  const pathName = entry.includes(" -> ") ? entry.split(" -> ").at(-1) ?? entry : entry;
+
+  return {
+    path: pathName,
+    status: parseStatusCode(statusCode),
+    label: toDataLabel(pathName),
+  };
+}
+
+function extractCommitLabels(subject: string) {
+  const match = subject.match(/\((.*)\)$/);
+
+  if (!match) {
+    return [];
+  }
+
+  return uniqueSorted(
+    match[1]
+      .split(",")
+      .map((label) => label.trim())
+      .filter(Boolean),
+  );
 }
 
 export function buildSyncCommitMessage(labels: string[]) {
@@ -88,6 +188,80 @@ export async function createGitSyncPlan({
     message: "Tracker data ready to sync.",
     files: changedFiles,
     commitMessage: buildSyncCommitMessage(labels),
+  };
+}
+
+export async function createGitSyncMetadata({
+  rootDir = process.cwd(),
+  listPendingFiles = async () => {
+    const { stdout } = await execFileAsync("git", [
+      "-C",
+      rootDir,
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--",
+      "data/",
+    ]);
+
+    return stdout
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .filter(Boolean)
+      .map((line) => parseStatusLine(line))
+      .filter((entry): entry is PendingFileStatus => Boolean(entry));
+  },
+  listRecentSyncCommits = async () => {
+    const { stdout } = await execFileAsync("git", [
+      "-C",
+      rootDir,
+      "log",
+      "--date=iso-strict",
+      "--format=%H%x1f%cI%x1f%s",
+      "--grep=^sync: update tracker data",
+      "--",
+      "data/",
+    ]);
+
+    return stdout
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .filter(Boolean)
+      .map((line) => {
+        const [sha, date, subject] = line.split("\x1f");
+
+        return {
+          sha,
+          date,
+          subject,
+          labels: extractCommitLabels(subject),
+        };
+      });
+  },
+}: SyncMetadataDependencies = {}): Promise<GitSyncMetadata> {
+  const [pendingFiles, recentCommits] = await Promise.all([
+    listPendingFiles(),
+    listRecentSyncCommits(),
+  ]);
+
+  const trackedPendingFiles = uniqueSorted(
+    pendingFiles.filter((file) => file.path.startsWith("data/")).map((file) => file.path),
+  ).map((filePath) => {
+    const entry = pendingFiles.find((file) => file.path === filePath);
+
+    return {
+      path: filePath,
+      status: entry?.status ?? "changed",
+      label: toDataLabel(filePath),
+    };
+  });
+
+  return {
+    pendingFiles: trackedPendingFiles,
+    pendingCount: trackedPendingFiles.length,
+    recentCommits,
+    lastSyncedAt: recentCommits[0]?.date ?? null,
+    lastSyncedCommit: recentCommits[0] ?? null,
   };
 }
 

@@ -5,6 +5,7 @@ import { beforeEach, afterEach, expect, test, vi } from "vitest";
 import {
   buildSyncCommitMessage,
   createGitSyncPlan,
+  createGitSyncMetadata,
   runGitSync,
 } from "@/lib/server/git-sync";
 
@@ -85,4 +86,38 @@ test("runs the planned git sync commands without touching the real repo", async 
       args: ["commit", "-m", "sync: update tracker data (focus)"],
     },
   ]);
+});
+
+test("collects sync metadata without creating a commit", async () => {
+  const result = await createGitSyncMetadata({
+    rootDir,
+    listPendingFiles: async () => [
+      { path: "data/focus/sessions.json", status: "modified" },
+      { path: "app/page.tsx", status: "modified" },
+      { path: "data/sleep/entries.json", status: "untracked" },
+    ],
+    listRecentSyncCommits: async () => [
+      {
+        sha: "abc1234",
+        date: "2026-03-20T10:00:00.000Z",
+        subject: "sync: update tracker data (focus, sleep)",
+        labels: ["focus", "sleep"],
+      },
+      {
+        sha: "def5678",
+        date: "2026-03-19T10:00:00.000Z",
+        subject: "sync: update tracker data (workouts)",
+        labels: ["workouts"],
+      },
+    ],
+  });
+
+  expect(result.pendingCount).toBe(2);
+  expect(result.pendingFiles).toEqual([
+    { path: "data/focus/sessions.json", status: "modified", label: "focus" },
+    { path: "data/sleep/entries.json", status: "untracked", label: "sleep" },
+  ]);
+  expect(result.lastSyncedAt).toBe("2026-03-20T10:00:00.000Z");
+  expect(result.lastSyncedCommit?.sha).toBe("abc1234");
+  expect(result.recentCommits[0].labels).toEqual(["focus", "sleep"]);
 });
