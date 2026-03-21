@@ -16,10 +16,10 @@ export function InsightsPanel({ summary }: InsightsPanelProps) {
   return (
     <section className="panel-shell">
       <div className="section-copy">
-        <p className="eyebrow">Personal insights</p>
-        <h2>Where the habits compound</h2>
+        <p className="eyebrow">Achievements</p>
+        <h2>Compound achievements</h2>
         <p className="lede">
-          A compact readout of the patterns your local tracker has already captured.
+          The current streaks, progress, and milestone readouts collected from the local tracker.
         </p>
       </div>
 

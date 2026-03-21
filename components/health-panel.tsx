@@ -13,7 +13,7 @@ type HealthPanelProps = {
   };
 };
 
-export function HealthPanel({ summary }: HealthPanelProps) {
+export function HealthPanelContent({ summary }: HealthPanelProps) {
   const router = useRouter();
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -46,7 +46,7 @@ export function HealthPanel({ summary }: HealthPanelProps) {
   }
 
   return (
-    <section className="panel-shell">
+    <>
       <div className="panel-metrics">
         <article>
           <span>Weight</span>
@@ -130,6 +130,14 @@ export function HealthPanel({ summary }: HealthPanelProps) {
           </article>
         ))}
       </div>
+    </>
+  );
+}
+
+export function HealthPanel({ summary }: HealthPanelProps) {
+  return (
+    <section className="panel-shell">
+      <HealthPanelContent summary={summary} />
     </section>
   );
 }

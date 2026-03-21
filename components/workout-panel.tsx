@@ -13,7 +13,7 @@ type WorkoutPanelProps = {
   };
 };
 
-export function WorkoutPanel({ summary }: WorkoutPanelProps) {
+export function WorkoutPanelContent({ summary }: WorkoutPanelProps) {
   const router = useRouter();
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -42,7 +42,7 @@ export function WorkoutPanel({ summary }: WorkoutPanelProps) {
   }
 
   return (
-    <section className="panel-shell">
+    <>
       <div className="panel-metrics">
         <article>
           <span>This week</span>
@@ -120,6 +120,14 @@ export function WorkoutPanel({ summary }: WorkoutPanelProps) {
           </article>
         ))}
       </div>
+    </>
+  );
+}
+
+export function WorkoutPanel({ summary }: WorkoutPanelProps) {
+  return (
+    <section className="panel-shell">
+      <WorkoutPanelContent summary={summary} />
     </section>
   );
 }

@@ -16,15 +16,13 @@ import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { AnnouncementModal } from "@/components/announcement-modal";
-import { DailyLogPanel } from "@/components/daily-log-panel";
 import { FocusTimer } from "@/components/focus-timer";
-import { HealthPanel } from "@/components/health-panel";
+import { GroupsPanel } from "@/components/groups-panel";
 import { InsightsPanel } from "@/components/insights-panel";
+import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { SettingsPanel } from "@/components/settings-panel";
-import { SleepPanel } from "@/components/sleep-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { SyncButton } from "@/components/sync-button";
-import { WorkoutPanel } from "@/components/workout-panel";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
@@ -40,22 +38,10 @@ const NAV_ITEMS = [
   { key: "leaderboard", label: "Leaderboard", icon: Trophy },
 ] as const;
 
-type ActivePanel =
-  | (typeof NAV_ITEMS)[number]["key"]
-  | "sleep"
-  | "workouts"
-  | "health"
-  | "daily-log"
-  | "settings";
+type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "settings";
 
 export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
-  const activeNavKey =
-    activePanel === "sleep" || activePanel === "workouts" || activePanel === "health"
-      ? "groups"
-      : activePanel === "daily-log"
-        ? "leaderboard"
-        : activePanel;
   const statisticsCards = [
     {
       label: "today",
@@ -94,68 +80,22 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     }
 
     if (activePanel === "groups") {
-      return (
-        <section className="panel-shell">
-          <div className="section-copy">
-            <p className="eyebrow">Groups</p>
-            <h2>Manual tracking</h2>
-            <p className="lede">Open the sleep, workout, and health forms from here.</p>
-          </div>
-
-          <div className="panel-list" aria-label="Group shortcuts">
-            <button type="button" className="nav-pill" onClick={() => setActivePanel("sleep")}>
-              Sleep
-            </button>
-            <button type="button" className="nav-pill" onClick={() => setActivePanel("workouts")}>
-              Workouts
-            </button>
-            <button type="button" className="nav-pill" onClick={() => setActivePanel("health")}>
-              Health
-            </button>
-          </div>
-        </section>
-      );
+      return <GroupsPanel dailyLog={snapshot.dailyLog} workouts={snapshot.workouts} />;
     }
 
     if (activePanel === "leaderboard") {
-      return (
-        <section className="panel-shell">
-          <div className="section-copy">
-            <p className="eyebrow">Leaderboard</p>
-            <h2>Daily log</h2>
-            <p className="lede">Use this surface to open the reflection form.</p>
-          </div>
-
-          <div className="panel-list" aria-label="Leaderboard shortcuts">
-            <button type="button" className="nav-pill" onClick={() => setActivePanel("daily-log")}>
-              Daily log
-            </button>
-          </div>
-        </section>
-      );
-    }
-
-    if (activePanel === "sleep") {
-      return <SleepPanel summary={snapshot.sleep} />;
+      return <LeaderboardPanel sleep={snapshot.sleep} health={snapshot.health} />;
     }
 
     if (activePanel === "achievements") {
       return <InsightsPanel summary={snapshot.insights} />;
     }
 
-    if (activePanel === "workouts") {
-      return <WorkoutPanel summary={snapshot.workouts} />;
-    }
-
-    if (activePanel === "health") {
-      return <HealthPanel summary={snapshot.health} />;
-    }
-
     if (activePanel === "settings") {
       return <SettingsPanel settings={snapshot.settings} />;
     }
 
-    return <DailyLogPanel summary={snapshot.dailyLog} />;
+    return null;
   }
 
   return (
@@ -222,7 +162,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         <nav className="nav-cluster" aria-label="Tracker panels">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = item.key === activeNavKey;
+            const active = item.key === activePanel;
 
             return (
               <button

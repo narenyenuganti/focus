@@ -13,7 +13,7 @@ type SleepPanelProps = {
   };
 };
 
-export function SleepPanel({ summary }: SleepPanelProps) {
+export function SleepPanelContent({ summary }: SleepPanelProps) {
   const router = useRouter();
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -44,7 +44,7 @@ export function SleepPanel({ summary }: SleepPanelProps) {
   }
 
   return (
-    <section className="panel-shell">
+    <>
       <div className="panel-metrics">
         <article>
           <span>Average</span>
@@ -133,6 +133,14 @@ export function SleepPanel({ summary }: SleepPanelProps) {
           </article>
         ))}
       </div>
+    </>
+  );
+}
+
+export function SleepPanel({ summary }: SleepPanelProps) {
+  return (
+    <section className="panel-shell">
+      <SleepPanelContent summary={summary} />
     </section>
   );
 }

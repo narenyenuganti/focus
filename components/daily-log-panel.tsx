@@ -13,7 +13,7 @@ type DailyLogPanelProps = {
   };
 };
 
-export function DailyLogPanel({ summary }: DailyLogPanelProps) {
+export function DailyLogPanelContent({ summary }: DailyLogPanelProps) {
   const router = useRouter();
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -48,7 +48,7 @@ export function DailyLogPanel({ summary }: DailyLogPanelProps) {
   }
 
   return (
-    <section className="panel-shell">
+    <>
       <div className="panel-metrics">
         <article>
           <span>Mood</span>
@@ -123,6 +123,14 @@ export function DailyLogPanel({ summary }: DailyLogPanelProps) {
           </article>
         ))}
       </div>
+    </>
+  );
+}
+
+export function DailyLogPanel({ summary }: DailyLogPanelProps) {
+  return (
+    <section className="panel-shell">
+      <DailyLogPanelContent summary={summary} />
     </section>
   );
 }
