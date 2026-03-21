@@ -272,3 +272,10 @@ Expected: PASS
 git add README.md docs/plans/2026-03-20-personal-tracker-copy-pass-2.md
 git commit -m "docs: record copy pass notes"
 ```
+
+## Follow-Up Notes
+
+- Live comparison on 2026-03-20: the local shell now tracks the Peazehub layout closely, but the hosted product still has richer typography, motion, and marketing composition around the overlay and top-level shell.
+- The local build intentionally replaces hosted auth and cloud persistence with a single-user password gate plus repo-native JSON storage and manual git sync.
+- `Groups` and `Leaderboard` are preserved as personal single-user containers for daily-log, workout, sleep, and health flows. They do not attempt to recreate Peazehub's networked social behavior.
+- The focus appliance, bottom bar, and utility cluster are visually much closer after this pass, but some pixel-level spacing, iconography, and micro-interactions remain approximate rather than exact.
