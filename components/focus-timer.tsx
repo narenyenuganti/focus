@@ -55,6 +55,7 @@ export function FocusTimer({
     buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
   );
   const [isPending, startTransition] = useTransition();
+  const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
   const selectedMinutesRef = useRef(selectedMinutes);
   const saveSessionRef = useRef(
     async (_durationMinutes: number, _completedFullSession: boolean) => {},
@@ -189,24 +190,32 @@ export function FocusTimer({
       </div>
       <p className="focus-feedback">{feedback}</p>
 
-      <div className="preset-grid">
-        {presets.map((preset) => (
-          <button
-            key={`${preset.label}-${preset.minutes}`}
-            type="button"
-            className={
-              preset.minutes === selectedMinutes ? "preset-button is-active" : "preset-button"
-            }
-            onClick={() => setSelectedMinutes(preset.minutes)}
+      <div className="focus-preset-strip" aria-label="Focus presets">
+        <div className="focus-preset-strip__copy">
+          <p className="eyebrow">Preset</p>
+          <strong>{activePreset?.label ?? "Focus block"}</strong>
+          <span>
+            {activePreset ? `${activePreset.minutes} minute block` : `${presets.length} options`}
+          </span>
+        </div>
+        <label className="focus-preset-strip__control">
+          <span className="sr-only">Switch focus preset</span>
+          <select
+            value={selectedMinutes}
+            onChange={(event) => setSelectedMinutes(Number(event.target.value))}
             disabled={status === "running" || status === "saving" || isPending}
+            aria-label="Switch focus preset"
           >
-            <span>{preset.label}</span>
-            <strong>{preset.minutes}m</strong>
-          </button>
-        ))}
+            {presets.map((preset) => (
+              <option key={`${preset.label}-${preset.minutes}`} value={preset.minutes}>
+                {preset.label} • {preset.minutes}m
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
-      <div className="timer-actions" aria-label="Timer controls">
+      <div className={status === "idle" ? "timer-actions is-idle" : "timer-actions"} aria-label="Timer controls">
         <button
           type="button"
           className="primary-button primary-button--focus"

@@ -76,34 +76,21 @@ export function SyncButton() {
   }, []);
 
   return (
-    <div className="sync-button" style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
+    <div className="sync-button">
       <button
         type="button"
-        className="utility-button"
+        className="utility-button utility-button--sync"
         onClick={() => void sync()}
         aria-label="Sync tracker data"
       >
         <RefreshCcw size={16} />
       </button>
-      <p
-        aria-live="polite"
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          padding: 0,
-          margin: -1,
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-      >
+      <p className="sr-only" aria-live="polite">
         {status}
       </p>
       <button
         type="button"
-        className="utility-button"
+        className="utility-button utility-button--history"
         onClick={() => setHistoryOpen((current) => !current)}
         aria-label={historyOpen ? "Hide sync history" : "View sync history"}
         aria-expanded={historyOpen}
@@ -111,15 +98,7 @@ export function SyncButton() {
         <History size={16} />
       </button>
       {historyOpen ? (
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: "calc(100% + 12px)",
-            width: "min(360px, calc(100vw - 32px))",
-            zIndex: 30,
-          }}
-        >
+        <div className="sync-button__popover">
           <SyncHistoryPanel
             metadata={metadata}
             loading={!metadata && !error}

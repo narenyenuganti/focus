@@ -194,19 +194,21 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       </main>
 
       <div className="mini-player" aria-label="Ambient player">
-        <button type="button" className="mini-player__button" aria-label="Play ambient track">
-          <Play size={16} />
-        </button>
         <div className="mini-player__track">
           <span className="mini-player__eyebrow">Ambient mix</span>
           <span className="mini-player__title">Lofi Girl</span>
         </div>
-        <button type="button" className="mini-player__button" aria-label="Next track">
-          <SkipForward size={16} />
-        </button>
-        <button type="button" className="mini-player__expand" aria-label="Expand player">
-          <ChevronUp size={16} />
-        </button>
+        <div className="mini-player__controls">
+          <button type="button" className="mini-player__button" aria-label="Play ambient track">
+            <Play size={16} />
+          </button>
+          <button type="button" className="mini-player__button" aria-label="Next track">
+            <SkipForward size={16} />
+          </button>
+          <button type="button" className="mini-player__expand" aria-label="Expand player">
+            <ChevronUp size={16} />
+          </button>
+        </div>
       </div>
 
       <footer className="hub-bottombar">

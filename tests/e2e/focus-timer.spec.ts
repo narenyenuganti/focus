@@ -13,11 +13,15 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
 
   await expect(page.locator(".hub-topbar")).toBeVisible();
   await expect(page.locator(".hub-bottombar")).toBeVisible();
+  await expect(page.locator(".hub-bottombar .utility-cluster")).toHaveCount(2);
+  await expect(page.locator(".hub-bottombar .nav-cluster")).toBeVisible();
   await expect(page.getByRole("button", { name: "Play ambient track" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next track" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Expand player" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Classic Pomodoro/i })).toHaveCount(0);
+  await expect(page.locator(".mini-player")).toBeVisible();
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
