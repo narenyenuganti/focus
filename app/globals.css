@@ -1036,6 +1036,26 @@ h2 {
     min-height: auto;
   }
 
+  .mini-player {
+    bottom: 176px;
+    width: calc(100% - 40px);
+    justify-content: center;
+  }
+
+  .mini-player__track {
+    min-width: 0;
+  }
+
+  .sync-button__popover {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 260px;
+    width: auto;
+    max-height: calc(100vh - 280px);
+    overflow: auto;
+  }
+
   .hub-panel-column.is-visible {
     display: block;
   }
@@ -1097,13 +1117,8 @@ h2 {
   }
 
   .sync-button__popover {
-    position: fixed;
-    left: 12px;
-    right: 12px;
     bottom: 272px;
-    width: auto;
     max-height: calc(100vh - 292px);
-    overflow: auto;
   }
 
   .hub-panel-column {
