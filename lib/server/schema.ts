@@ -8,8 +8,6 @@ export const focusPresetSchema = z.object({
 export const settingsSchema = z.object({
   displayName: z.string().min(1).default("Naren"),
   weeklyFocusGoalMinutes: z.number().int().min(0).default(1200),
-  weeklyWorkoutGoalMinutes: z.number().int().min(0).default(180),
-  sleepGoalHours: z.number().min(0).default(8),
   focusPresets: z.array(focusPresetSchema).default([
     { label: "Classic Pomodoro", minutes: 25 },
     { label: "Eisenhower", minutes: 50 },
@@ -21,8 +19,6 @@ export const settingsSchema = z.object({
 export const settingsPatchSchema = z.object({
   displayName: z.string().min(1).optional(),
   weeklyFocusGoalMinutes: z.number().int().min(0).optional(),
-  weeklyWorkoutGoalMinutes: z.number().int().min(0).optional(),
-  sleepGoalHours: z.number().min(0).optional(),
   focusPresets: z.array(focusPresetSchema).optional(),
 });
 

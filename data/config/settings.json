@@ -1,8 +1,6 @@
 {
   "displayName": "Naren",
   "weeklyFocusGoalMinutes": 1200,
-  "weeklyWorkoutGoalMinutes": 180,
-  "sleepGoalHours": 8,
   "focusPresets": [
     {
       "label": "Classic Pomodoro",

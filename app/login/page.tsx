@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <p className="eyebrow">Local-first personal dashboard</p>
         <h1>Unlock your tracker</h1>
         <p className="lede">
-          Focus sessions, sleep, workouts, and health metrics live in this repo.
+          Focus sessions live in this repo and sync back through git.
         </p>
         <form action={unlockTracker} className="unlock-form">
           <label className="field">

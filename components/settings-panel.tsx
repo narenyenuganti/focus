@@ -63,10 +63,6 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
           <span>Focus goal</span>
           <strong>{settings.weeklyFocusGoalMinutes}m</strong>
         </article>
-        <article>
-          <span>Sleep goal</span>
-          <strong>{settings.sleepGoalHours}h</strong>
-        </article>
       </div>
 
       <div className="panel-form-grid">
@@ -89,35 +85,6 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
               setSettings((current) => ({
                 ...current,
                 weeklyFocusGoalMinutes: Number(event.target.value),
-              }))
-            }
-          />
-        </label>
-        <label className="field">
-          <span>Weekly workout goal minutes</span>
-          <input
-            type="number"
-            min="0"
-            value={settings.weeklyWorkoutGoalMinutes}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                weeklyWorkoutGoalMinutes: Number(event.target.value),
-              }))
-            }
-          />
-        </label>
-        <label className="field">
-          <span>Sleep goal hours</span>
-          <input
-            type="number"
-            min="0"
-            step="0.5"
-            value={settings.sleepGoalHours}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                sleepGoalHours: Number(event.target.value),
               }))
             }
           />

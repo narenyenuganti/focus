@@ -34,7 +34,16 @@ afterEach(async () => {
 test("returns sensible defaults when the settings file is missing", async () => {
   const settings = await readSettings({ rootDir });
 
-  expect(settings).toEqual(getDefaultSettings());
+  expect(settings).toEqual({
+    displayName: "Naren",
+    weeklyFocusGoalMinutes: 1200,
+    focusPresets: [
+      { label: "Classic Pomodoro", minutes: 25 },
+      { label: "Eisenhower", minutes: 50 },
+      { label: "52 / 17", minutes: 52 },
+      { label: "Deep Work", minutes: 90 },
+    ],
+  });
 });
 
 test("reads and writes repo-native settings", async () => {
@@ -42,8 +51,6 @@ test("reads and writes repo-native settings", async () => {
     {
       displayName: "Naren",
       weeklyFocusGoalMinutes: 1800,
-      weeklyWorkoutGoalMinutes: 240,
-      sleepGoalHours: 7.5,
       focusPresets: [
         { label: "Deep Work", minutes: 90 },
         { label: "Sprint", minutes: 45 },
@@ -88,8 +95,6 @@ test("serves and updates settings through the authenticated route", async () => 
     settings: {
       displayName: "Naren",
       weeklyFocusGoalMinutes: 1500,
-      weeklyWorkoutGoalMinutes: 210,
-      sleepGoalHours: 8.5,
       focusPresets: [{ label: "Deep Work", minutes: 90 }],
     },
   });

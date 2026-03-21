@@ -49,8 +49,6 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     settings: {
       displayName: "Naren",
       weeklyFocusGoalMinutes: 120,
-      weeklyWorkoutGoalMinutes: 90,
-      sleepGoalHours: 8,
       focusPresets: [
         { label: "Classic Pomodoro", minutes: 25 },
         { label: "Deep Work", minutes: 90 },

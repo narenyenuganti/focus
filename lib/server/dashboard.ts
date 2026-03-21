@@ -96,8 +96,8 @@ export function buildDashboardSnapshot(input: DashboardInput) {
       workouts: weeklyWorkouts,
       goals: {
         focusMinutes: settings.weeklyFocusGoalMinutes,
-        workoutMinutes: settings.weeklyWorkoutGoalMinutes,
-        workoutCount: Math.max(1, Math.ceil(settings.weeklyWorkoutGoalMinutes / 60)),
+        workoutMinutes: 0,
+        workoutCount: 0,
       },
     }),
     focusStreakDays: focus.currentStreakDays,

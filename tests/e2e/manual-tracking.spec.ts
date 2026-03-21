@@ -29,6 +29,9 @@ test("keeps the trimmed shell focused on statistics and settings", async ({
   await expect(page.locator(".stat-card").filter({ hasText: "workouts" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByText("Sleep goal")).toHaveCount(0);
+  await expect(page.getByText("Sleep goal hours")).toHaveCount(0);
+  await expect(page.getByText("Weekly workout goal minutes")).toHaveCount(0);
   const focusGoalInput = page.getByLabel("Weekly focus goal minutes");
   const firstPreset = page.locator(".panel-list article").first();
   await focusGoalInput.fill("1500");
