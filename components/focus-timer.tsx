@@ -4,6 +4,17 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { TrackerSettings } from "@/lib/server/schema";
 
+const PRESET_GUIDANCE: Record<string, string> = {
+  "classic pomodoro":
+    "A short sprint with frequent resets. Use it when you need urgency, momentum, and a clean break before attention drifts.",
+  eisenhower:
+    "A longer planning-first block for important work that needs room to think. It fits tasks that are too meaningful for a rushed 25-minute pass.",
+  "52 / 17":
+    "A balanced rhythm of sustained focus followed by a real break. It works well when Pomodoro feels too short but a deep-work block feels excessive.",
+  "deep work":
+    "A long uninterrupted session for cognitively demanding work with one clear objective. Best when you can shut off notifications and stay on a single problem.",
+};
+
 function formatSeconds(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60)
     .toString()
@@ -38,6 +49,10 @@ function buildIdleFeedback(
   return `${todaySessions} sessions logged today • ${todayMinutes} focus minutes • ${weeklyProgress}% of weekly goal`;
 }
 
+function getPresetGuidance(label: string) {
+  return PRESET_GUIDANCE[label.trim().toLowerCase()] ?? null;
+}
+
 export function FocusTimer({
   todayMinutes,
   todaySessions,
@@ -54,8 +69,10 @@ export function FocusTimer({
   const [feedback, setFeedback] = useState(
     buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
   );
+  const [isPresetInfoOpen, setIsPresetInfoOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
+  const activePresetGuidance = activePreset ? getPresetGuidance(activePreset.label) : null;
   const selectedMinutesRef = useRef(selectedMinutes);
   const secondsRemainingRef = useRef(secondsRemaining);
   const saveSessionRef = useRef(
@@ -179,6 +196,14 @@ export function FocusTimer({
     setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
   }, [status, todayMinutes, todaySessions, weeklyGoalMinutes, weeklyMinutes]);
 
+  useEffect(() => {
+    setIsPresetInfoOpen(false);
+  }, [activePreset?.label]);
+
+  const tooltipId = activePreset
+    ? `preset-tooltip-${activePreset.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
+    : undefined;
+
   return (
     <section className="focus-panel">
       <div className="focus-panel__top">
@@ -256,7 +281,36 @@ export function FocusTimer({
       <div className="focus-preset-strip" aria-label="Focus presets">
         <div className="focus-preset-strip__copy">
           <p className="eyebrow">Preset</p>
-          <strong>{activePreset?.label ?? "Focus block"}</strong>
+          <div className="focus-preset-strip__headline">
+            <strong>{activePreset?.label ?? "Focus block"}</strong>
+            {activePreset && activePresetGuidance ? (
+              <span
+                className="focus-preset-strip__tooltip-shell"
+                onMouseEnter={() => setIsPresetInfoOpen(true)}
+                onMouseLeave={() => setIsPresetInfoOpen(false)}
+              >
+                <button
+                  type="button"
+                  className={isPresetInfoOpen ? "preset-info-button is-open" : "preset-info-button"}
+                  aria-label={`About ${activePreset.label}`}
+                  aria-describedby={isPresetInfoOpen ? tooltipId : undefined}
+                  aria-expanded={isPresetInfoOpen}
+                  onMouseEnter={() => setIsPresetInfoOpen(true)}
+                  onMouseLeave={() => setIsPresetInfoOpen(false)}
+                  onFocus={() => setIsPresetInfoOpen(true)}
+                  onBlur={() => setIsPresetInfoOpen(false)}
+                  onClick={() => setIsPresetInfoOpen(true)}
+                >
+                  i
+                </button>
+                {isPresetInfoOpen ? (
+                  <span id={tooltipId} role="tooltip" className="preset-info-tooltip">
+                    {activePresetGuidance}
+                  </span>
+                ) : null}
+              </span>
+            ) : null}
+          </div>
           <span>
             {activePreset ? `${activePreset.minutes} minute block` : `${presets.length} options`}
           </span>

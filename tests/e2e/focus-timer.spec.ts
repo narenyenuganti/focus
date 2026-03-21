@@ -25,7 +25,7 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByText("25 minute block", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Switch focus preset")).toBeVisible();
   await expect(page.locator(".focus-ring__svg")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Classic Pomodoro/i })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Classic Pomodoro", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Tracking" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Groups" })).toHaveCount(0);
@@ -200,4 +200,24 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
+});
+
+test("shows short guidance for the selected preset", async ({ page }) => {
+  await unlock(page);
+
+  await page.getByLabel("Switch focus preset").selectOption("50");
+  const eisenhowerInfo = page.getByRole("button", { name: "About Eisenhower" });
+  await expect(eisenhowerInfo).toBeVisible();
+  await eisenhowerInfo.click();
+  await expect(page.getByRole("tooltip")).toContainText(
+    "A longer planning-first block for important work that needs room to think.",
+  );
+
+  await page.getByLabel("Switch focus preset").selectOption("90");
+  const deepWorkInfo = page.getByRole("button", { name: "About Deep Work" });
+  await expect(deepWorkInfo).toBeVisible();
+  await deepWorkInfo.click();
+  await expect(page.getByRole("tooltip")).toContainText(
+    "A long uninterrupted session for cognitively demanding work with one clear objective.",
+  );
 });
