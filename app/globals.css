@@ -1037,7 +1037,7 @@ h2 {
   }
 
   .mini-player {
-    bottom: 176px;
+    bottom: 208px;
     width: calc(100% - 40px);
     justify-content: center;
   }
@@ -1050,9 +1050,9 @@ h2 {
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 260px;
+    bottom: 292px;
     width: auto;
-    max-height: calc(100vh - 280px);
+    max-height: calc(100vh - 312px);
     overflow: auto;
   }
 

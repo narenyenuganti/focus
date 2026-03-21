@@ -101,6 +101,35 @@ test("keeps tablet shell spacing clear", async ({ page }) => {
   expect(syncHistoryBox!.x + syncHistoryBox!.width).toBeLessThanOrEqual(768);
 });
 
+test("keeps mid-range shell spacing clear", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel(/password/i).fill("tracker");
+  await page.getByRole("button", { name: "Unlock" }).click();
+  await page.getByRole("button", { name: "Jump in" }).click();
+  await page.setViewportSize({ width: 700, height: 900 });
+
+  const miniPlayer = page.locator(".mini-player");
+  const bottomBar = page.locator(".hub-bottombar");
+  await expect(miniPlayer).toBeVisible();
+  await expect(bottomBar).toBeVisible();
+
+  const miniPlayerBox = await miniPlayer.boundingBox();
+  const bottomBarBox = await bottomBar.boundingBox();
+  expect(miniPlayerBox).not.toBeNull();
+  expect(bottomBarBox).not.toBeNull();
+  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
+
+  await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  const syncHistory = page.getByRole("region", { name: "Sync history" });
+  await expect(syncHistory).toBeVisible();
+
+  const syncHistoryBox = await syncHistory.boundingBox();
+  expect(syncHistoryBox).not.toBeNull();
+  expect(syncHistoryBox!.x).toBeGreaterThanOrEqual(0);
+  expect(syncHistoryBox!.y).toBeGreaterThanOrEqual(0);
+  expect(syncHistoryBox!.x + syncHistoryBox!.width).toBeLessThanOrEqual(700);
+});
+
 test("logs a focus session from the dashboard", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
