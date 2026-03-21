@@ -861,7 +861,7 @@ h2 {
 .mini-player {
   position: fixed;
   left: 50%;
-  bottom: 104px;
+  bottom: 116px;
   transform: translateX(-50%);
   z-index: 20;
   display: inline-flex;
@@ -984,9 +984,9 @@ h2 {
 }
 
 .sync-button {
-  display: grid;
-  gap: 6px;
-  justify-items: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   position: relative;
 }
 

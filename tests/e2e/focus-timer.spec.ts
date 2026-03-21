@@ -24,7 +24,15 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByText("25 minute block", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Switch focus preset")).toBeVisible();
   await expect(page.getByRole("button", { name: /Classic Pomodoro/i })).toHaveCount(0);
-  await expect(page.locator(".mini-player")).toBeVisible();
+  const miniPlayer = page.locator(".mini-player");
+  const bottomBar = page.locator(".hub-bottombar");
+  await expect(miniPlayer).toBeVisible();
+  await expect(bottomBar).toBeVisible();
+  const miniPlayerBox = await miniPlayer.boundingBox();
+  const bottomBarBox = await bottomBar.boundingBox();
+  expect(miniPlayerBox).not.toBeNull();
+  expect(bottomBarBox).not.toBeNull();
+  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
