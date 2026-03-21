@@ -40,3 +40,12 @@ test("renders the unlock screen", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
 });
+
+test("moves keyboard focus into the announcement dialog", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel(/password/i).fill("tracker");
+  await page.getByRole("button", { name: "Unlock" }).click();
+
+  await expect(page.getByRole("dialog", { name: "Tracker announcement" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close announcement" })).toBeFocused();
+});

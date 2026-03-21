@@ -1,13 +1,22 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PROOF_CHIPS = ["75 Hard", "Dopamine Detox", "Huberman Protocol", "Streak Tracking"];
 const STAGE_CHIPS = ["Focus", "Recovery", "Momentum"];
 
 export function AnnouncementModal() {
   const [open, setOpen] = useState(true);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    closeButtonRef.current?.focus();
+  }, [open]);
 
   if (!open) {
     return null;
@@ -26,6 +35,7 @@ export function AnnouncementModal() {
           Tracker announcement
         </h2>
         <button
+          ref={closeButtonRef}
           type="button"
           className="utility-button announcement-close"
           aria-label="Close announcement"
