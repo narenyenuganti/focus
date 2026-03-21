@@ -21,6 +21,7 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();

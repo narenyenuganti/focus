@@ -35,4 +35,5 @@ test("renders the unlock screen", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Workouts" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Daily log" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
 });
