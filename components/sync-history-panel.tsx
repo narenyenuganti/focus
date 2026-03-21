@@ -7,6 +7,7 @@ type SyncHistoryPanelProps = {
   metadata: GitSyncMetadata | null;
   loading?: boolean;
   error?: string | null;
+  notice?: string | null;
   onDismiss: () => void;
 };
 
@@ -26,6 +27,7 @@ export function SyncHistoryPanel({
   metadata,
   loading = false,
   error = null,
+  notice = null,
   onDismiss,
 }: SyncHistoryPanelProps) {
   return (
@@ -56,8 +58,16 @@ export function SyncHistoryPanel({
         </button>
       </div>
 
+      {notice ? (
+        <p
+          className={error ? "error-message" : "focus-feedback"}
+          aria-live="polite"
+          style={{ marginTop: 0 }}
+        >
+          {notice}
+        </p>
+      ) : null}
       {loading ? <p className="focus-feedback">Loading sync history...</p> : null}
-      {error ? <p className="error-message">{error}</p> : null}
 
       {metadata ? (
         <>

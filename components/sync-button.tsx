@@ -33,22 +33,31 @@ export function SyncButton() {
   const [error, setError] = useState<string | null>(null);
 
   async function sync() {
+    setHistoryOpen(true);
     setStatus("Syncing tracker data...");
+    setError(null);
+    setMetadata(null);
 
-    const response = await fetch("/api/sync", {
-      method: "POST",
-    });
-    const payload = (await response.json()) as { message?: string };
+    try {
+      const response = await fetch("/api/sync", {
+        method: "POST",
+      });
+      const payload = (await response.json()) as { message?: string };
 
-    setStatus(payload.message ?? "Sync complete");
-    const result = await fetchSyncMetadata();
+      setStatus(payload.message ?? "Sync complete");
+      const result = await fetchSyncMetadata();
 
-    if (result.ok) {
-      setMetadata(result.metadata);
-      setError(null);
-      setHistoryOpen(true);
-    } else {
-      setError(result.error);
+      if (result.ok) {
+        setMetadata(result.metadata);
+        setError(null);
+      } else {
+        setError(result.error);
+        setStatus(result.error);
+      }
+    } catch {
+      const message = "Could not sync tracker data.";
+      setStatus(message);
+      setError(message);
     }
   }
 
@@ -61,6 +70,7 @@ export function SyncButton() {
         setError(null);
       } else {
         setError(result.error);
+        setStatus(result.error);
       }
     })();
   }, []);
@@ -114,6 +124,7 @@ export function SyncButton() {
             metadata={metadata}
             loading={!metadata && !error}
             error={error}
+            notice={status}
             onDismiss={() => setHistoryOpen(false)}
           />
         </div>

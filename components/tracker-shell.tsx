@@ -50,6 +50,12 @@ type ActivePanel =
 
 export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
+  const activeNavKey =
+    activePanel === "sleep" || activePanel === "workouts" || activePanel === "health"
+      ? "groups"
+      : activePanel === "daily-log"
+        ? "leaderboard"
+        : activePanel;
   const statisticsCards = [
     {
       label: "today",
@@ -214,7 +220,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         <nav className="nav-cluster" aria-label="Tracker panels">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = item.key === activePanel;
+            const active = item.key === activeNavKey;
 
             return (
               <button
