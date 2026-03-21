@@ -202,3 +202,12 @@ Expected: PASS
 git add README.md docs/plans/2026-03-20-personal-tracker-parity.md
 git commit -m "docs: update tracker parity notes"
 ```
+
+## Follow-up Notes
+
+- Compared the live Peazehub capture at `/Users/narenyenuganti/repo/peazehub-hub.png` against the local shell capture at `/Users/narenyenuganti/repo/local-tracker-hub.png`.
+- The shell is materially closer now: the centered timer, top metrics bar, bottom glass bar, warmer amber/green atmosphere, richer mini-player, and product-style promo overlay all read as the same family of UI rather than a generic tracker dashboard.
+- The biggest remaining gap is still navigation semantics. The local app keeps `Insights`, `Sleep`, `Workouts`, and `Health` as first-class center-nav destinations, while Peazehub keeps a tighter four-pill center cluster. The next parity pass should likely collapse these into `Achievements`, `Recovery`, and `Workouts`, leaving the rest in utility controls.
+- The timer is closer, but still more feature-forward than Peazehub. Persistent presets, the `Finish Session` button, and the visible sync text/history controls make the experience feel more like a tracker shell than a minimal timer appliance.
+- The background now evokes the same warm/cool contrast, but it is still clearly generated atmosphere rather than a convincing blurred-room scene. If visual fidelity matters more than originality, the next pass should push harder on silhouetted room cues and directional light.
+- The modal hierarchy is much closer, but the phone-card artwork remains an abstract stand-in rather than a convincing mock-product composition. That is the biggest remaining gap in the overlay itself.
