@@ -183,7 +183,7 @@ export function FocusTimer({
       </div>
 
       <div className="focus-ring">
-        <div>
+        <div className="focus-ring__content">
           <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
           <p className="focus-label">FOCUS SESSION</p>
         </div>

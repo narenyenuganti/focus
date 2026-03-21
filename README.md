@@ -2,12 +2,12 @@
 
 Local-first personal tracking app built with Next.js.
 
-The current parity pass pushes the authenticated shell closer to Peazehub with a timer-first dashboard, four central destinations (`Statistics`, `Groups`, `Achievements`, `Leaderboard`), and utility-driven sync while keeping storage, auth, and sync strictly local-first.
+The current shell keeps the timer-first dashboard and utility-driven sync, but simplifies the product into a single-user workspace with three central destinations: `Statistics`, `Tracking`, and `Achievements`.
 
 ## What It Tracks
 
 - Focus sessions with configurable presets and weekly goals
-- Sleep, workouts, health metrics, and daily reflections routed through grouped panels
+- Sleep, workouts, health metrics, and daily reflections routed through one personal `Tracking` panel
 - Achievement-style streaks and milestones derived from your tracker data
 - Manual git-based sync history for repo-native persistence
 

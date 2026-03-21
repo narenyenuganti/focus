@@ -2,27 +2,21 @@
 
 import {
   BarChart3,
-  ChevronUp,
   Award,
+  ClipboardList,
   LogOut,
-  Music2,
-  Play,
-  SkipForward,
   Settings,
-  Trophy,
-  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { AnnouncementModal } from "@/components/announcement-modal";
 import { FocusTimer } from "@/components/focus-timer";
-import { GroupsPanel } from "@/components/groups-panel";
 import { InsightsPanel } from "@/components/insights-panel";
-import { LeaderboardPanel } from "@/components/leaderboard-panel";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { SyncButton } from "@/components/sync-button";
+import { TrackingPanel } from "@/components/tracking-panel";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
@@ -33,9 +27,8 @@ type TrackerShellProps = {
 
 const NAV_ITEMS = [
   { key: "statistics", label: "Statistics", icon: BarChart3 },
-  { key: "groups", label: "Groups", icon: Users },
+  { key: "tracking", label: "Tracking", icon: ClipboardList },
   { key: "achievements", label: "Achievements", icon: Award },
-  { key: "leaderboard", label: "Leaderboard", icon: Trophy },
 ] as const;
 
 type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "settings";
@@ -79,12 +72,15 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       );
     }
 
-    if (activePanel === "groups") {
-      return <GroupsPanel dailyLog={snapshot.dailyLog} workouts={snapshot.workouts} />;
-    }
-
-    if (activePanel === "leaderboard") {
-      return <LeaderboardPanel sleep={snapshot.sleep} health={snapshot.health} />;
+    if (activePanel === "tracking") {
+      return (
+        <TrackingPanel
+          dailyLog={snapshot.dailyLog}
+          workouts={snapshot.workouts}
+          sleep={snapshot.sleep}
+          health={snapshot.health}
+        />
+      );
     }
 
     if (activePanel === "achievements") {
@@ -133,30 +129,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         </aside>
       </main>
 
-      <div className="mini-player" aria-label="Ambient player">
-        <div className="mini-player__track">
-          <span className="mini-player__eyebrow">Ambient mix</span>
-          <span className="mini-player__title">Lofi Girl</span>
-        </div>
-        <div className="mini-player__controls">
-          <button type="button" className="mini-player__button" aria-label="Play ambient track">
-            <Play size={16} />
-          </button>
-          <button type="button" className="mini-player__button" aria-label="Next track">
-            <SkipForward size={16} />
-          </button>
-          <button type="button" className="mini-player__expand" aria-label="Expand player">
-            <ChevronUp size={16} />
-          </button>
-        </div>
-      </div>
-
       <footer className="hub-bottombar">
         <div className="utility-cluster">
           <SyncButton />
-          <button type="button" className="utility-button" aria-label="Music">
-            <Music2 size={16} />
-          </button>
         </div>
 
         <nav className="nav-cluster" aria-label="Tracker panels">

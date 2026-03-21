@@ -247,7 +247,12 @@ h2 {
   line-height: 0.88;
   letter-spacing: -0.06em;
   font-weight: 700;
+  display: block;
+  width: 5ch;
+  margin: 0 auto;
   text-align: center;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
   text-shadow: 0 10px 32px rgba(0, 0, 0, 0.38);
 }
 
@@ -279,6 +284,12 @@ h2 {
     inset 0 0 0 20px rgba(255, 255, 255, 0.018),
     inset 0 0 48px rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
+}
+
+.focus-ring__content {
+  width: 100%;
+  display: grid;
+  justify-items: center;
 }
 
 .focus-label {
@@ -553,6 +564,7 @@ h2 {
   display: grid;
   gap: 20px;
   align-items: center;
+  justify-items: center;
   min-height: calc(100vh - 320px);
 }
 
@@ -612,7 +624,6 @@ h2 {
 
 .announcement-backdrop ~ .hub-topbar,
 .announcement-backdrop ~ .hub-main,
-.announcement-backdrop ~ .mini-player,
 .announcement-backdrop ~ .hub-bottombar {
   opacity: 0;
   visibility: hidden;
@@ -956,32 +967,9 @@ h2 {
   gap: 24px;
 }
 
-.leaderboard-ranks {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.leaderboard-ranks article {
-  padding: 16px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
-  display: grid;
-  gap: 6px;
-}
-
-.leaderboard-ranks span {
-  color: rgba(244, 239, 255, 0.72);
-  font-size: 0.92rem;
-}
-
-.leaderboard-ranks strong {
-  font-size: 1.4rem;
-}
-
 .panel-metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
 }
 
@@ -1035,73 +1023,6 @@ h2 {
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
-}
-
-.mini-player {
-  position: fixed;
-  left: 50%;
-  bottom: 116px;
-  transform: translateX(-50%);
-  z-index: 20;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 24px;
-  background: rgba(6, 7, 10, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(20px);
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-.mini-player__controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.mini-player__button,
-.mini-player__expand {
-  width: 38px;
-  height: 38px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.mini-player__button:first-of-type {
-  background: rgba(34, 197, 94, 0.18);
-  border-color: rgba(34, 197, 94, 0.24);
-}
-
-.mini-player__track {
-  display: grid;
-  gap: 2px;
-  min-width: 150px;
-  padding: 0 4px 0 0;
-}
-
-.mini-player__eyebrow {
-  font-size: 0.64rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(244, 239, 255, 0.54);
-}
-
-.mini-player__title {
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-
-.mini-player__expand {
-  background: transparent;
 }
 
 .hub-bottombar {
@@ -1192,12 +1113,11 @@ h2 {
 @media (max-width: 920px) {
   .hub-shell {
     padding-top: 104px;
-    padding-bottom: 196px;
+    padding-bottom: 164px;
   }
 
   .hub-topbar,
-  .hub-bottombar,
-  .mini-player {
+  .hub-bottombar {
     width: calc(100% - 24px);
     left: 12px;
     right: 12px;
@@ -1215,23 +1135,13 @@ h2 {
     min-height: auto;
   }
 
-  .mini-player {
-    bottom: 208px;
-    width: calc(100% - 40px);
-    justify-content: center;
-  }
-
-  .mini-player__track {
-    min-width: 0;
-  }
-
   .sync-button__popover {
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 292px;
+    bottom: 124px;
     width: auto;
-    max-height: calc(100vh - 312px);
+    max-height: calc(100vh - 144px);
     overflow: auto;
   }
 
@@ -1289,19 +1199,9 @@ h2 {
     bottom: 16px;
   }
 
-  .mini-player {
-    bottom: 208px;
-    width: calc(100% - 40px);
-    justify-content: center;
-  }
-
-  .mini-player__track {
-    min-width: 0;
-  }
-
   .sync-button__popover {
-    bottom: 272px;
-    max-height: calc(100vh - 292px);
+    bottom: 112px;
+    max-height: calc(100vh - 132px);
   }
 
   .hub-panel-column {

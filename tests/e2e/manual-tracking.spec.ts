@@ -13,12 +13,12 @@ async function unlock(page: Page) {
   await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
 }
 
-test("keeps personal tracking reachable through the grouped surfaces", async ({
+test("keeps personal tracking reachable through the single-user tracking surface", async ({
   page,
 }) => {
   await unlock(page);
 
-  await page.getByRole("button", { name: "Groups" }).click();
+  await page.getByRole("button", { name: "Tracking" }).click();
   await page.getByRole("tab", { name: "Daily log" }).click();
   await page.getByLabel("Mood").fill("9");
   await page.getByLabel("Gratitude (comma separated)").fill("Focused, Calm");
@@ -34,7 +34,6 @@ test("keeps personal tracking reachable through the grouped surfaces", async ({
   await page.getByRole("button", { name: "Save workout" }).click();
   await expect(page.locator(".panel-list").getByText("Run").first()).toBeVisible();
 
-  await page.getByRole("button", { name: "Leaderboard" }).click();
   await page.getByRole("tab", { name: "Sleep" }).click();
   await page.getByLabel("Hours").fill("7.5");
   await page.getByLabel("Quality").fill("9");

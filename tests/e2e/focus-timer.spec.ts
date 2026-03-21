@@ -1,42 +1,77 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { resetTestData } from "./test-data";
 
 test.beforeEach(async () => {
   await resetTestData();
 });
 
-test("keeps the shell chrome visible while panels open", async ({ page }) => {
+async function unlock(page: Page) {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
   await page.getByRole("button", { name: "Jump in" }).click();
+}
+
+test("keeps the shell chrome visible while panels open", async ({ page }) => {
+  await unlock(page);
 
   await expect(page.locator(".hub-topbar")).toBeVisible();
   await expect(page.locator(".hub-bottombar")).toBeVisible();
   await expect(page.locator(".hub-bottombar .utility-cluster")).toHaveCount(2);
   await expect(page.locator(".hub-bottombar .nav-cluster")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Play ambient track" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Next track" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Expand player" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
   await expect(page.getByText("Classic Pomodoro", { exact: true })).toBeVisible();
   await expect(page.getByText("25 minute block", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Switch focus preset")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tracking", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /Classic Pomodoro/i })).toHaveCount(0);
-  const miniPlayer = page.locator(".mini-player");
+  await expect(page.getByRole("button", { name: "Groups" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Leaderboard" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Play ambient track" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Next track" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Expand player" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Music" })).toHaveCount(0);
+  await expect(page.locator(".mini-player")).toHaveCount(0);
   const bottomBar = page.locator(".hub-bottombar");
-  await expect(miniPlayer).toBeVisible();
+  const main = page.locator(".hub-main");
+  const focusColumn = page.locator(".hub-focus-column");
   await expect(bottomBar).toBeVisible();
-  const miniPlayerBox = await miniPlayer.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(miniPlayerBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
+  const mainBox = await main.boundingBox();
+  const focusColumnBox = await focusColumn.boundingBox();
+  expect(mainBox).not.toBeNull();
+  expect(focusColumnBox).not.toBeNull();
+  expect(
+    Math.abs(
+      focusColumnBox!.x +
+        focusColumnBox!.width / 2 -
+        (mainBox!.x + mainBox!.width / 2),
+    ),
+  ).toBeLessThan(2);
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
+
+  const timer = page.locator(".timer-display");
+  await page.getByRole("button", { name: "Start" }).click();
+  const measurements = [];
+  for (let index = 0; index < 4; index += 1) {
+    await page.waitForTimeout(1100);
+    measurements.push(await timer.boundingBox());
+  }
+  const widths = measurements
+    .filter((measurement): measurement is NonNullable<typeof measurement> => measurement !== null)
+    .map((measurement) => measurement.width);
+  const leftEdges = measurements
+    .filter((measurement): measurement is NonNullable<typeof measurement> => measurement !== null)
+    .map((measurement) => measurement.x);
+  expect(widths.length).toBeGreaterThan(0);
+  expect(leftEdges.length).toBeGreaterThan(0);
+  expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(2);
+  expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
@@ -44,22 +79,19 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
 });
 
 test("keeps mobile shell spacing clear", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel(/password/i).fill("tracker");
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
+  await unlock(page);
   await page.setViewportSize({ width: 390, height: 844 });
 
-  const miniPlayer = page.locator(".mini-player");
+  const focusRing = page.locator(".focus-ring");
   const bottomBar = page.locator(".hub-bottombar");
-  await expect(miniPlayer).toBeVisible();
+  await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const miniPlayerBox = await miniPlayer.boundingBox();
+  const focusRingBox = await focusRing.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(miniPlayerBox).not.toBeNull();
+  expect(focusRingBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -73,22 +105,19 @@ test("keeps mobile shell spacing clear", async ({ page }) => {
 });
 
 test("keeps tablet shell spacing clear", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel(/password/i).fill("tracker");
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
+  await unlock(page);
   await page.setViewportSize({ width: 768, height: 900 });
 
-  const miniPlayer = page.locator(".mini-player");
+  const focusRing = page.locator(".focus-ring");
   const bottomBar = page.locator(".hub-bottombar");
-  await expect(miniPlayer).toBeVisible();
+  await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const miniPlayerBox = await miniPlayer.boundingBox();
+  const focusRingBox = await focusRing.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(miniPlayerBox).not.toBeNull();
+  expect(focusRingBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -102,22 +131,19 @@ test("keeps tablet shell spacing clear", async ({ page }) => {
 });
 
 test("keeps mid-range shell spacing clear", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel(/password/i).fill("tracker");
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
+  await unlock(page);
   await page.setViewportSize({ width: 700, height: 900 });
 
-  const miniPlayer = page.locator(".mini-player");
+  const focusRing = page.locator(".focus-ring");
   const bottomBar = page.locator(".hub-bottombar");
-  await expect(miniPlayer).toBeVisible();
+  await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const miniPlayerBox = await miniPlayer.boundingBox();
+  const focusRingBox = await focusRing.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(miniPlayerBox).not.toBeNull();
+  expect(focusRingBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(miniPlayerBox!.y + miniPlayerBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -131,10 +157,7 @@ test("keeps mid-range shell spacing clear", async ({ page }) => {
 });
 
 test("logs a focus session from the dashboard", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel(/password/i).fill("tracker");
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
+  await unlock(page);
 
   await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
 
