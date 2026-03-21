@@ -2,6 +2,8 @@
 
 Local-first personal tracking app built with Next.js.
 
+The current parity pass focuses on the authenticated shell so it feels closer to Peazehub while keeping storage, auth, and sync strictly local-first.
+
 ## What It Tracks
 
 - Focus sessions with configurable presets and weekly goals

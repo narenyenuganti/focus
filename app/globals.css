@@ -4,12 +4,12 @@
 
 :root {
   color-scheme: dark;
-  --bg: #06010d;
-  --card: rgba(32, 18, 54, 0.72);
-  --border: rgba(180, 135, 255, 0.18);
+  --bg: #050606;
+  --card: rgba(16, 14, 18, 0.78);
+  --border: rgba(255, 255, 255, 0.12);
   --text: #f7f3ff;
   --muted: #c9bddf;
-  --accent: #a855f7;
+  --accent: #2dd4bf;
 }
 
 * {
@@ -21,8 +21,9 @@ body {
   margin: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(168, 85, 247, 0.24), transparent 35%),
-    radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.22), transparent 32%),
+    radial-gradient(circle at 16% 18%, rgba(246, 135, 67, 0.18), transparent 24%),
+    radial-gradient(circle at 78% 20%, rgba(24, 145, 96, 0.16), transparent 20%),
+    linear-gradient(180deg, rgba(5, 6, 6, 0.94), rgba(3, 4, 4, 1)),
     var(--bg);
   color: var(--text);
   font-family: var(--font-onest), ui-sans-serif, system-ui, -apple-system,
@@ -407,19 +408,18 @@ h2 {
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(6, 7, 10, 0.42), rgba(6, 7, 10, 0.66)),
-    radial-gradient(circle at 14% 16%, rgba(245, 121, 61, 0.44), transparent 20%),
-    radial-gradient(circle at 28% 72%, rgba(24, 145, 96, 0.18), transparent 18%),
-    radial-gradient(circle at 72% 20%, rgba(32, 163, 98, 0.28), transparent 24%),
-    radial-gradient(circle at 80% 70%, rgba(52, 211, 153, 0.12), transparent 18%),
+    linear-gradient(180deg, rgba(5, 6, 7, 0.26), rgba(5, 6, 7, 0.74)),
+    radial-gradient(circle at 14% 18%, rgba(239, 122, 58, 0.5), transparent 18%),
+    radial-gradient(circle at 72% 22%, rgba(25, 121, 88, 0.34), transparent 22%),
+    radial-gradient(circle at 82% 62%, rgba(95, 175, 133, 0.16), transparent 18%),
     linear-gradient(
-      90deg,
-      rgba(18, 12, 10, 0.72) 0 23%,
-      rgba(22, 18, 16, 0.28) 23% 44%,
-      rgba(17, 24, 20, 0.22) 44% 66%,
-      rgba(10, 16, 12, 0.5) 66% 100%
+      95deg,
+      rgba(26, 17, 12, 0.84) 0 22%,
+      rgba(31, 25, 19, 0.3) 22% 48%,
+      rgba(18, 28, 24, 0.26) 48% 68%,
+      rgba(10, 18, 14, 0.58) 68% 100%
     );
-  filter: blur(52px) saturate(1.1);
+  filter: blur(58px) saturate(0.96);
   transform: scale(1.04);
 }
 
@@ -427,17 +427,17 @@ h2 {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  filter: blur(90px);
-  opacity: 0.45;
+  filter: blur(110px);
+  opacity: 0.38;
 }
 
 .hub-bg--amber {
-  background: radial-gradient(circle at 18% 20%, rgba(244, 114, 46, 0.62), transparent 30%);
+  background: radial-gradient(circle at 18% 18%, rgba(244, 114, 46, 0.72), transparent 24%);
 }
 
 .hub-bg--teal {
-  background: radial-gradient(circle at 78% 25%, rgba(45, 212, 191, 0.32), transparent 28%),
-    radial-gradient(circle at 70% 75%, rgba(59, 130, 246, 0.28), transparent 24%);
+  background: radial-gradient(circle at 76% 24%, rgba(45, 212, 191, 0.22), transparent 24%),
+    radial-gradient(circle at 72% 72%, rgba(95, 175, 133, 0.18), transparent 18%);
 }
 
 .hub-topbar {
@@ -449,10 +449,13 @@ h2 {
   display: flex;
   gap: 8px;
   padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  background: rgba(7, 6, 14, 0.68);
-  backdrop-filter: blur(18px);
+  background: rgba(6, 8, 10, 0.56);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px);
 }
 
 .metric-pill {
@@ -461,7 +464,8 @@ h2 {
   min-width: 96px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .metric-pill strong {
@@ -547,19 +551,31 @@ h2 {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(3, 3, 8, 0.52);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 4, 5, 0.64);
+  backdrop-filter: blur(18px);
+}
+
+.announcement-backdrop ~ .hub-topbar,
+.announcement-backdrop ~ .hub-main,
+.announcement-backdrop ~ .mini-player,
+.announcement-backdrop ~ .hub-bottombar {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .announcement-modal {
-  width: min(520px, 100%);
+  width: min(540px, 100%);
   display: grid;
-  gap: 18px;
-  padding: 24px;
+  gap: 14px;
+  padding: 18px 18px 18px;
   border-radius: 28px;
-  background: rgba(8, 7, 16, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 90px rgba(2, 2, 8, 0.42);
+  background: rgba(5, 6, 8, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 30px 96px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  max-height: min(92vh, 700px);
 }
 
 .announcement-close {
@@ -568,58 +584,147 @@ h2 {
 
 .announcement-visual {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 12px;
-  min-height: 150px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 180px;
 }
 
-.announcement-visual div {
-  border-radius: 20px;
+.announcement-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  border-radius: 18px;
+  padding: 12px 10px 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(255, 255, 255, 0.02);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.announcement-visual div:first-child {
-  background:
-    radial-gradient(circle at 30% 30%, rgba(45, 212, 191, 0.34), transparent 28%),
-    linear-gradient(160deg, rgba(251, 146, 60, 0.28), rgba(15, 12, 23, 0.95));
+.announcement-card strong {
+  font-size: 0.66rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.announcement-visual div:nth-child(2) {
-  background:
-    radial-gradient(circle at 60% 30%, rgba(192, 132, 252, 0.34), transparent 34%),
-    rgba(20, 16, 33, 0.96);
+.announcement-card span {
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: rgba(244, 239, 255, 0.58);
 }
 
-.announcement-visual div:nth-child(3) {
+.announcement-card__mock {
+  min-height: 108px;
+  border-radius: 14px;
+  padding: 10px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.28), transparent 34%),
-    rgba(20, 16, 33, 0.96);
+    radial-gradient(circle at 50% 18%, rgba(244, 114, 46, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(18, 19, 21, 0.96), rgba(8, 10, 12, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.announcement-card:nth-child(2) .announcement-card__mock {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(160, 120, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(18, 19, 21, 0.96), rgba(8, 10, 12, 0.96));
+}
+
+.announcement-card:nth-child(3) .announcement-card__mock {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(45, 212, 191, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(18, 19, 21, 0.96), rgba(8, 10, 12, 0.96));
+}
+
+.announcement-card:nth-child(4) .announcement-card__mock {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(96, 165, 250, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(18, 19, 21, 0.96), rgba(8, 10, 12, 0.96));
+}
+
+.announcement-card__screen {
+  height: 100%;
+  border-radius: 12px;
+  padding: 10px 9px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  background: rgba(4, 4, 5, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.announcement-card__screen > span {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.announcement-card__screen > span:nth-child(2) {
+  width: 84%;
+}
+
+.announcement-card__screen > span:nth-child(3) {
+  width: 62%;
+}
+
+.announcement-card__screen > div {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.announcement-card__screen > div em {
+  display: block;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .announcement-copy {
   display: grid;
-  gap: 8px;
+  gap: 6px;
+  text-align: center;
 }
 
 .announcement-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: center;
 }
 
 .announcement-tags span {
   border-radius: 999px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(244, 239, 255, 0.86);
-  font-size: 0.84rem;
+  padding: 8px 11px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(244, 239, 255, 0.8);
+  font-size: 0.76rem;
 }
 
 .announcement-meta {
   margin: 0;
-  color: rgba(244, 239, 255, 0.7);
+  color: rgba(244, 239, 255, 0.6);
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.announcement-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.announcement-primary {
+  min-width: 160px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(230, 230, 230, 0.94));
+  color: #070808;
+}
+
+.announcement-secondary {
+  min-width: 120px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .panel-shell {
@@ -628,9 +733,11 @@ h2 {
   padding: 28px;
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(6, 8, 12, 0.64);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 24px 90px rgba(2, 2, 8, 0.32);
+  background: rgba(6, 8, 12, 0.66);
+  backdrop-filter: blur(22px);
+  box-shadow:
+    0 24px 90px rgba(2, 2, 8, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .panel-shell--statistics {
@@ -773,9 +880,12 @@ h2 {
   gap: 16px;
   padding: 10px 12px;
   border-radius: 999px;
-  background: rgba(7, 6, 14, 0.76);
+  background: rgba(6, 8, 10, 0.68);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px);
 }
 
 .utility-cluster,
@@ -787,8 +897,8 @@ h2 {
 
 .utility-button,
 .nav-pill {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   border-radius: 999px;
   display: inline-flex;
@@ -798,6 +908,7 @@ h2 {
   min-height: 40px;
   padding: 0 12px;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .utility-button {
@@ -866,6 +977,15 @@ h2 {
     top: 16px;
     gap: 8px;
     padding: 12px;
+  }
+
+  .announcement-visual {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: auto;
+  }
+
+  .announcement-actions {
+    flex-direction: column-reverse;
   }
 
   .metric-pill {
