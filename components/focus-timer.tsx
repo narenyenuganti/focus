@@ -206,10 +206,10 @@ export function FocusTimer({
         ))}
       </div>
 
-      <div className="timer-actions">
+      <div className="timer-actions" aria-label="Timer controls">
         <button
           type="button"
-          className="primary-button"
+          className="primary-button primary-button--focus"
           onClick={() => {
             setStartedAt(new Date().toISOString());
             setStatus("running");
@@ -221,7 +221,7 @@ export function FocusTimer({
         </button>
         <button
           type="button"
-          className="secondary-button"
+          className="secondary-button secondary-button--focus"
           onClick={() => {
             void saveSession(selectedMinutes, false);
           }}
@@ -231,7 +231,7 @@ export function FocusTimer({
         </button>
         <button
           type="button"
-          className="ghost-button"
+          className="ghost-button ghost-button--focus"
           onClick={() => {
             setStatus("idle");
             setStartedAt(null);

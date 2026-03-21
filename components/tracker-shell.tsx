@@ -4,11 +4,14 @@ import {
   BarChart3,
   Dumbbell,
   HeartPulse,
+  ChevronUp,
   Info,
   ListTodo,
   LogOut,
   MoonStar,
   Music2,
+  Play,
+  SkipForward,
   Sparkles,
   Settings,
 } from "lucide-react";
@@ -140,13 +143,19 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         </aside>
       </main>
 
-      <div className="mini-player">
-        <button type="button" className="utility-button">
-          <Music2 size={16} />
+      <div className="mini-player" aria-label="Ambient player">
+        <button type="button" className="mini-player__button" aria-label="Play ambient track">
+          <Play size={16} />
         </button>
-        <span>Lofi Girl</span>
-        <button type="button" className="utility-button">
-          <Music2 size={16} />
+        <div className="mini-player__track">
+          <span className="mini-player__eyebrow">Ambient mix</span>
+          <span className="mini-player__title">Lofi Girl</span>
+        </div>
+        <button type="button" className="mini-player__button" aria-label="Next track">
+          <SkipForward size={16} />
+        </button>
+        <button type="button" className="mini-player__expand" aria-label="Expand player">
+          <ChevronUp size={16} />
         </button>
       </div>
 

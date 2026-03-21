@@ -13,6 +13,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
 
   await expect(page.locator(".hub-topbar")).toBeVisible();
   await expect(page.locator(".hub-bottombar")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play ambient track" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next track" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Expand player" })).toBeVisible();
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
