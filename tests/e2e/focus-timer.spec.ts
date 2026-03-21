@@ -16,6 +16,8 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Play ambient track" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next track" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Expand player" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
@@ -46,6 +48,6 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await page.getByRole("button", { name: "View history" }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Insights" }).click();
+  await page.getByRole("button", { name: "Achievements", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Where the habits compound" })).toBeVisible();
 });

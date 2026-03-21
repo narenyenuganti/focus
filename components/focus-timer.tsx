@@ -219,29 +219,35 @@ export function FocusTimer({
         >
           Start
         </button>
-        <button
-          type="button"
-          className="secondary-button secondary-button--focus"
-          onClick={() => {
-            void saveSession(selectedMinutes, false);
-          }}
-          disabled={status !== "running" || isPending}
-        >
-          Finish Session
-        </button>
-        <button
-          type="button"
-          className="ghost-button ghost-button--focus"
-          onClick={() => {
-            setStatus("idle");
-            setStartedAt(null);
-            setSecondsRemaining(selectedMinutes * 60);
-            setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
-          }}
-          disabled={status === "saving" || isPending}
-        >
-          Reset
-        </button>
+        {status === "idle" ? null : (
+          <>
+            <button
+              type="button"
+              className="secondary-button secondary-button--focus"
+              onClick={() => {
+                void saveSession(selectedMinutes, false);
+              }}
+              disabled={status !== "running" || isPending}
+            >
+              Finish Session
+            </button>
+            <button
+              type="button"
+              className="ghost-button ghost-button--focus"
+              onClick={() => {
+                setStatus("idle");
+                setStartedAt(null);
+                setSecondsRemaining(selectedMinutes * 60);
+                setFeedback(
+                  buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
+                );
+              }}
+              disabled={status === "saving" || isPending}
+            >
+              Reset
+            </button>
+          </>
+        )}
       </div>
     </section>
   );

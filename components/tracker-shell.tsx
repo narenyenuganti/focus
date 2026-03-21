@@ -2,18 +2,15 @@
 
 import {
   BarChart3,
-  Dumbbell,
-  HeartPulse,
   ChevronUp,
-  Info,
-  ListTodo,
+  Award,
   LogOut,
-  MoonStar,
   Music2,
   Play,
   SkipForward,
-  Sparkles,
   Settings,
+  Trophy,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
@@ -38,13 +35,18 @@ type TrackerShellProps = {
 
 const NAV_ITEMS = [
   { key: "statistics", label: "Statistics", icon: BarChart3 },
-  { key: "insights", label: "Insights", icon: Sparkles },
-  { key: "sleep", label: "Sleep", icon: MoonStar },
-  { key: "workouts", label: "Workouts", icon: Dumbbell },
-  { key: "health", label: "Health", icon: HeartPulse },
+  { key: "groups", label: "Groups", icon: Users },
+  { key: "achievements", label: "Achievements", icon: Award },
+  { key: "leaderboard", label: "Leaderboard", icon: Trophy },
 ] as const;
 
-type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "daily-log" | "settings";
+type ActivePanel =
+  | (typeof NAV_ITEMS)[number]["key"]
+  | "sleep"
+  | "workouts"
+  | "health"
+  | "daily-log"
+  | "settings";
 
 export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
@@ -85,11 +87,53 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       );
     }
 
+    if (activePanel === "groups") {
+      return (
+        <section className="panel-shell">
+          <div className="section-copy">
+            <p className="eyebrow">Groups</p>
+            <h2>Manual tracking</h2>
+            <p className="lede">Open the sleep, workout, and health forms from here.</p>
+          </div>
+
+          <div className="panel-list" aria-label="Group shortcuts">
+            <button type="button" className="nav-pill" onClick={() => setActivePanel("sleep")}>
+              Sleep
+            </button>
+            <button type="button" className="nav-pill" onClick={() => setActivePanel("workouts")}>
+              Workouts
+            </button>
+            <button type="button" className="nav-pill" onClick={() => setActivePanel("health")}>
+              Health
+            </button>
+          </div>
+        </section>
+      );
+    }
+
+    if (activePanel === "leaderboard") {
+      return (
+        <section className="panel-shell">
+          <div className="section-copy">
+            <p className="eyebrow">Leaderboard</p>
+            <h2>Daily log</h2>
+            <p className="lede">Use this surface to open the reflection form.</p>
+          </div>
+
+          <div className="panel-list" aria-label="Leaderboard shortcuts">
+            <button type="button" className="nav-pill" onClick={() => setActivePanel("daily-log")}>
+              Daily log
+            </button>
+          </div>
+        </section>
+      );
+    }
+
     if (activePanel === "sleep") {
       return <SleepPanel summary={snapshot.sleep} />;
     }
 
-    if (activePanel === "insights") {
+    if (activePanel === "achievements") {
       return <InsightsPanel summary={snapshot.insights} />;
     }
 
@@ -161,16 +205,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
 
       <footer className="hub-bottombar">
         <div className="utility-cluster">
-          <button
-            type="button"
-            className={activePanel === "daily-log" ? "utility-button is-active" : "utility-button"}
-            onClick={() =>
-              setActivePanel((current) => (current === "daily-log" ? null : "daily-log"))
-            }
-            aria-label="Daily log"
-          >
-            <ListTodo size={16} />
-          </button>
           <SyncButton />
           <button type="button" className="utility-button" aria-label="Music">
             <Music2 size={16} />
@@ -199,16 +233,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         </nav>
 
         <div className="utility-cluster">
-          <button
-            type="button"
-            className={activePanel === "statistics" ? "utility-button is-active" : "utility-button"}
-            aria-label="Statistics overview"
-            onClick={() =>
-              setActivePanel((current) => (current === "statistics" ? null : "statistics"))
-            }
-          >
-            <Info size={16} />
-          </button>
           <form action={logoutTracker}>
             <button type="submit" className="utility-button danger" aria-label="Log out">
               <LogOut size={16} />

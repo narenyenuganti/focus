@@ -20,4 +20,17 @@ test("renders the unlock screen", async ({ page }) => {
 
   await expect(page.locator(".hub-topbar")).toBeVisible();
   await expect(page.locator(".hub-bottombar")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Expand player", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sync" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Statistics", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Groups", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Achievements", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Leaderboard", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Insights" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Sleep" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Health" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Workouts" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Daily log" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
 });
