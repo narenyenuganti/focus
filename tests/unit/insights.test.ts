@@ -112,8 +112,11 @@ test("renders the insights panel from derived summary data", () => {
 
   render(React.createElement(InsightsPanel, { summary }));
 
-  expect(screen.getByText("Personal insights")).toBeInTheDocument();
-  expect(screen.getByRole("heading", { name: "Where the habits compound" })).toBeInTheDocument();
+  expect(screen.getByText("Achievements")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Compound achievements" })).toBeInTheDocument();
+  expect(
+    screen.getByText(/current streaks, progress, and milestone readouts/i),
+  ).toBeInTheDocument();
   expect(screen.getByText("1 day streak")).toBeInTheDocument();
   expect(screen.getAllByText("Focus minutes").length).toBeGreaterThan(0);
   expect(screen.queryByText("No milestones yet")).not.toBeInTheDocument();
