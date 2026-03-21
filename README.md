@@ -2,13 +2,13 @@
 
 Local-first personal tracking app built with Next.js.
 
-The current shell keeps the timer-first dashboard and utility-driven sync, but simplifies the product into a single-user workspace with three central destinations: `Statistics`, `Tracking`, and `Achievements`.
+The current shell keeps the timer-first dashboard and utility-driven sync, but trims the main chrome down to `Statistics` plus `Settings` for a single-user workflow.
 
 ## What It Tracks
 
 - Focus sessions with configurable presets and weekly goals
-- Sleep, workouts, health metrics, and daily reflections routed through one personal `Tracking` panel
-- Achievement-style streaks and milestones derived from your tracker data
+- Sleep, workouts, health metrics, and daily reflections persisted locally in the repo
+- Settings for focus presets and weekly goals
 - Manual git-based sync history for repo-native persistence
 
 ## Local Setup

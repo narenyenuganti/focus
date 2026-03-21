@@ -2,8 +2,6 @@
 
 import {
   BarChart3,
-  Award,
-  ClipboardList,
   LogOut,
   Settings,
 } from "lucide-react";
@@ -12,11 +10,9 @@ import { logoutTracker } from "@/app/actions/auth";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { AnnouncementModal } from "@/components/announcement-modal";
 import { FocusTimer } from "@/components/focus-timer";
-import { InsightsPanel } from "@/components/insights-panel";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { SyncButton } from "@/components/sync-button";
-import { TrackingPanel } from "@/components/tracking-panel";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
@@ -27,8 +23,6 @@ type TrackerShellProps = {
 
 const NAV_ITEMS = [
   { key: "statistics", label: "Statistics", icon: BarChart3 },
-  { key: "tracking", label: "Tracking", icon: ClipboardList },
-  { key: "achievements", label: "Achievements", icon: Award },
 ] as const;
 
 type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "settings";
@@ -70,21 +64,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
           <ActivityHeatmap entries={snapshot.focus.heatmap} />
         </div>
       );
-    }
-
-    if (activePanel === "tracking") {
-      return (
-        <TrackingPanel
-          dailyLog={snapshot.dailyLog}
-          workouts={snapshot.workouts}
-          sleep={snapshot.sleep}
-          health={snapshot.health}
-        />
-      );
-    }
-
-    if (activePanel === "achievements") {
-      return <InsightsPanel summary={snapshot.insights} />;
     }
 
     if (activePanel === "settings") {

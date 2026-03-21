@@ -50,20 +50,30 @@ export function FocusTimer({
   const [selectedMinutes, setSelectedMinutes] = useState(fallbackMinutes);
   const [secondsRemaining, setSecondsRemaining] = useState(fallbackMinutes * 60);
   const [startedAt, setStartedAt] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "running" | "saving">("idle");
+  const [status, setStatus] = useState<"idle" | "running" | "paused" | "saving">("idle");
   const [feedback, setFeedback] = useState(
     buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
   );
   const [isPending, startTransition] = useTransition();
   const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
   const selectedMinutesRef = useRef(selectedMinutes);
+  const secondsRemainingRef = useRef(secondsRemaining);
   const saveSessionRef = useRef(
     async (_durationMinutes: number, _completedFullSession: boolean) => {},
   );
+  const totalSeconds = selectedMinutes * 60;
+  const progress =
+    totalSeconds > 0 ? Math.min(1, Math.max(0, 1 - secondsRemaining / totalSeconds)) : 0;
+  const ringRadius = 156;
+  const ringCircumference = 2 * Math.PI * ringRadius;
 
   useEffect(() => {
     selectedMinutesRef.current = selectedMinutes;
   }, [selectedMinutes]);
+
+  useEffect(() => {
+    secondsRemainingRef.current = secondsRemaining;
+  }, [secondsRemaining]);
 
   useEffect(() => {
     const selectedPresetStillExists = presets.some((preset) => preset.minutes === selectedMinutes);
@@ -88,13 +98,13 @@ export function FocusTimer({
   const saveSession = useCallback(
     async (durationMinutes: number, completedFullSession = false) => {
       const sessionStartedAt = startedAt ?? new Date().toISOString();
-      const now = new Date();
+      const elapsedSeconds = completedFullSession
+        ? durationMinutes * 60
+        : Math.max(60, durationMinutes * 60 - secondsRemainingRef.current);
+      const endedAt = new Date(new Date(sessionStartedAt).getTime() + elapsedSeconds * 1000);
       const elapsedMinutes = completedFullSession
         ? durationMinutes
-        : Math.max(
-            1,
-            Math.round((now.getTime() - new Date(sessionStartedAt).getTime()) / 60000),
-          );
+        : Math.max(1, Math.round(elapsedSeconds / 60));
 
       setStatus("saving");
       setFeedback("Saving your focus session...");
@@ -106,7 +116,7 @@ export function FocusTimer({
         },
         body: JSON.stringify({
           startedAt: sessionStartedAt,
-          endedAt: now.toISOString(),
+          endedAt: endedAt.toISOString(),
           durationMinutes: elapsedMinutes,
           mode: "focus",
         }),
@@ -183,6 +193,59 @@ export function FocusTimer({
       </div>
 
       <div className="focus-ring">
+        <svg
+          className="focus-ring__svg"
+          viewBox="0 0 360 360"
+          aria-hidden="true"
+        >
+          <defs>
+            <radialGradient id="focus-ring-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(99, 102, 241, 0.34)" />
+              <stop offset="55%" stopColor="rgba(99, 102, 241, 0.12)" />
+              <stop offset="100%" stopColor="rgba(99, 102, 241, 0)" />
+            </radialGradient>
+            <linearGradient id="focus-ring-progress" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="55%" stopColor="#60a5fa" />
+              <stop offset="100%" stopColor="#8b5cf6" />
+            </linearGradient>
+            <filter id="focus-ring-blur" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="28" />
+            </filter>
+          </defs>
+          <circle cx="180" cy="180" r="122" fill="url(#focus-ring-glow)" filter="url(#focus-ring-blur)" />
+          <circle
+            className="focus-ring__track"
+            cx="180"
+            cy="180"
+            r={ringRadius}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="10"
+          />
+          <circle
+            className="focus-ring__progress"
+            cx="180"
+            cy="180"
+            r={ringRadius}
+            fill="none"
+            stroke="url(#focus-ring-progress)"
+            strokeWidth="12"
+            strokeLinecap="round"
+            strokeDasharray={ringCircumference}
+            strokeDashoffset={ringCircumference * (1 - progress)}
+            transform="rotate(-90 180 180)"
+          />
+          <circle
+            className="focus-ring__inner"
+            cx="180"
+            cy="180"
+            r="138"
+            fill="none"
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="1.5"
+          />
+        </svg>
         <div className="focus-ring__content">
           <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
           <p className="focus-label">FOCUS SESSION</p>
@@ -203,7 +266,7 @@ export function FocusTimer({
           <select
             value={selectedMinutes}
             onChange={(event) => setSelectedMinutes(Number(event.target.value))}
-            disabled={status === "running" || status === "saving" || isPending}
+            disabled={status !== "idle" || isPending}
             aria-label="Switch focus preset"
           >
             {presets.map((preset) => (
@@ -220,13 +283,17 @@ export function FocusTimer({
           type="button"
           className="primary-button primary-button--focus"
           onClick={() => {
-            setStartedAt(new Date().toISOString());
+            if (status === "idle") {
+              setStartedAt(new Date().toISOString());
+              setSecondsRemaining(selectedMinutes * 60);
+            }
+
             setStatus("running");
             setFeedback("Timer running. Stay with the work.");
           }}
-          disabled={status === "running" || status === "saving" || isPending}
+          disabled={status === "saving" || isPending}
         >
-          Start
+          {status === "paused" ? "Resume" : "Start"}
         </button>
         {status === "idle" ? null : (
           <>
@@ -234,12 +301,30 @@ export function FocusTimer({
               type="button"
               className="secondary-button secondary-button--focus"
               onClick={() => {
+                if (status === "running") {
+                  setStatus("paused");
+                  setFeedback("Timer paused. Resume when ready.");
+                  return;
+                }
+
                 void saveSession(selectedMinutes, false);
               }}
-              disabled={status !== "running" || isPending}
+              disabled={status === "saving" || isPending}
             >
-              Finish Session
+              {status === "running" ? "Pause" : "Finish Session"}
             </button>
+            {status === "running" ? (
+              <button
+                type="button"
+                className="secondary-button secondary-button--focus"
+                onClick={() => {
+                  void saveSession(selectedMinutes, false);
+                }}
+                disabled={status !== "running" || isPending}
+              >
+                Finish Session
+              </button>
+            ) : null}
             <button
               type="button"
               className="ghost-button ghost-button--focus"

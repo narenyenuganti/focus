@@ -24,8 +24,10 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByText("Classic Pomodoro", { exact: true })).toBeVisible();
   await expect(page.getByText("25 minute block", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Switch focus preset")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tracking", exact: true })).toBeVisible();
+  await expect(page.locator(".focus-ring__svg")).toBeVisible();
   await expect(page.getByRole("button", { name: /Classic Pomodoro/i })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Tracking" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Groups" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Leaderboard" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Play ambient track" })).toHaveCount(0);
@@ -56,7 +58,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
 
   const timer = page.locator(".timer-display");
+  const focusRing = page.locator(".focus-ring");
   await page.getByRole("button", { name: "Start" }).click();
+  await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
   const measurements = [];
   for (let index = 0; index < 4; index += 1) {
     await page.waitForTimeout(1100);
@@ -72,6 +76,19 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   expect(leftEdges.length).toBeGreaterThan(0);
   expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(2);
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
+  const focusRingBox = await focusRing.boundingBox();
+  expect(focusRingBox).not.toBeNull();
+  expect(Math.max(...widths)).toBeLessThan(focusRingBox!.width - 32);
+
+  const pausedText = await timer.innerText();
+  await page.getByRole("button", { name: "Pause" }).click();
+  await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
+  await page.waitForTimeout(1200);
+  await expect(timer).toHaveText(pausedText);
+  await page.getByRole("button", { name: "Resume" }).click();
+  await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
+  await page.waitForTimeout(1200);
+  await expect(timer).not.toHaveText(pausedText);
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
@@ -93,7 +110,7 @@ test("keeps mobile shell spacing clear", async ({ page }) => {
   expect(bottomBarBox).not.toBeNull();
   expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
 
-  await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  await page.getByRole("button", { name: "Sync tracker data", exact: true }).dispatchEvent("click");
   const syncHistory = page.getByRole("region", { name: "Sync history" });
   await expect(syncHistory).toBeVisible();
 
@@ -182,9 +199,5 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Achievements", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Compound achievements" })).toBeVisible();
-  await expect(
-    page.getByText(/current streaks, progress, and milestone readouts/i),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
 });

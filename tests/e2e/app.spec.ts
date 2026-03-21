@@ -7,7 +7,9 @@ test.beforeEach(async () => {
 
 test("renders the unlock screen", async ({ page }) => {
   await page.goto("/");
+  await expect(page).toHaveTitle("Naren");
   await expect(page.getByText(/unlock your tracker/i)).toBeVisible();
+  await expect(page.locator('link[rel="icon"]').first()).toHaveAttribute("href", /%F0%9F%91%91/);
 
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
@@ -27,8 +29,8 @@ test("renders the unlock screen", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Statistics", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tracking", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Achievements", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tracking" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Sync", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Music" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Play ambient track" })).toHaveCount(0);
@@ -47,6 +49,7 @@ test("renders the unlock screen", async ({ page }) => {
 
 test("moves keyboard focus into the announcement dialog", async ({ page }) => {
   await page.goto("/login");
+  await expect(page).toHaveTitle("Naren");
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
 
