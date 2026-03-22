@@ -210,7 +210,6 @@ export function FocusTimer({
       <div className="focus-panel__top">
         <div>
           <p className="eyebrow">Focus session</p>
-          <h2>FOCUS SESSION</h2>
         </div>
         <div className="focus-panel__ambient">
           <span>{weeklyGoalMinutes}m weekly goal</span>

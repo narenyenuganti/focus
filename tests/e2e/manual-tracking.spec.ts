@@ -10,7 +10,7 @@ async function unlock(page: Page) {
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
   await page.getByRole("button", { name: "Jump in" }).click();
-  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+  await expect(page.getByText("FOCUS SESSION", { exact: true })).toHaveCount(1);
 }
 
 test("keeps the trimmed shell focused on statistics and settings", async ({
@@ -21,7 +21,7 @@ test("keeps the trimmed shell focused on statistics and settings", async ({
   await expect(page.getByRole("button", { name: "Tracking" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
   await page.getByRole("button", { name: "Statistics" }).click();
-  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+  await expect(page.getByText("FOCUS SESSION", { exact: true })).toHaveCount(1);
   await expect(page.locator(".stat-card")).toHaveCount(2);
   await expect(page.getByText("Watch your progress grow")).toHaveCount(0);
   await expect(page.locator(".heatmap-panel")).toHaveCount(0);

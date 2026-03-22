@@ -95,7 +95,7 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
 
   await page.getByRole("button", { name: "Statistics", exact: true }).click();
   await expect(page.locator(".hub-panel-column.is-visible")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+  await expect(page.getByText("FOCUS SESSION", { exact: true })).toHaveCount(1);
 });
 
 test("keeps mobile shell spacing clear", async ({ page }) => {
@@ -179,7 +179,7 @@ test("keeps mid-range shell spacing clear", async ({ page }) => {
 test("logs a focus session from the dashboard", async ({ page }) => {
   await unlock(page);
 
-  await expect(page.getByRole("heading", { name: "FOCUS SESSION" })).toBeVisible();
+  await expect(page.getByText("FOCUS SESSION", { exact: true })).toHaveCount(1);
 
   const sessionsMetric = page.locator(".metric-pill").filter({ hasText: "sessions" }).first();
   const startingText = (await sessionsMetric.innerText()).trim();
