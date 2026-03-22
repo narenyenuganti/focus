@@ -83,6 +83,7 @@ export function FocusTimer({
     totalSeconds > 0 ? Math.min(1, Math.max(0, 1 - secondsRemaining / totalSeconds)) : 0;
   const ringRadius = 156;
   const ringCircumference = 2 * Math.PI * ringRadius;
+  const controlsDisabled = status === "saving" || isPending;
 
   useEffect(() => {
     selectedMinutesRef.current = selectedMinutes;
@@ -333,52 +334,57 @@ export function FocusTimer({
       </div>
 
       <div className={status === "idle" ? "timer-actions is-idle" : "timer-actions"} aria-label="Timer controls">
-        <button
-          type="button"
-          className="primary-button primary-button--focus"
-          onClick={() => {
-            if (status === "idle") {
+        {status === "idle" ? (
+          <button
+            type="button"
+            className="primary-button primary-button--focus"
+            onClick={() => {
               setStartedAt(new Date().toISOString());
               setSecondsRemaining(selectedMinutes * 60);
-            }
-
-            setStatus("running");
-            setFeedback("Timer running. Stay with the work.");
-          }}
-          disabled={status === "saving" || isPending}
-        >
-          {status === "paused" ? "Resume" : "Start"}
-        </button>
-        {status === "idle" ? null : (
+              setStatus("running");
+              setFeedback("Timer running. Stay with the work.");
+            }}
+            disabled={controlsDisabled}
+          >
+            Start
+          </button>
+        ) : null}
+        {status === "running" ? (
+          <button
+            type="button"
+            className="secondary-button secondary-button--focus"
+            onClick={() => {
+              setStatus("paused");
+              setFeedback("Timer paused. Resume when ready.");
+            }}
+            disabled={controlsDisabled}
+          >
+            Pause
+          </button>
+        ) : null}
+        {status === "paused" ? (
           <>
+            <button
+              type="button"
+              className="primary-button primary-button--focus"
+              onClick={() => {
+                setStatus("running");
+                setFeedback("Timer running. Stay with the work.");
+              }}
+              disabled={controlsDisabled}
+            >
+              Resume
+            </button>
             <button
               type="button"
               className="secondary-button secondary-button--focus"
               onClick={() => {
-                if (status === "running") {
-                  setStatus("paused");
-                  setFeedback("Timer paused. Resume when ready.");
-                  return;
-                }
-
                 void saveSession(selectedMinutes, false);
               }}
-              disabled={status === "saving" || isPending}
+              disabled={controlsDisabled}
             >
-              {status === "running" ? "Pause" : "Finish Session"}
+              Finish Session
             </button>
-            {status === "running" ? (
-              <button
-                type="button"
-                className="secondary-button secondary-button--focus"
-                onClick={() => {
-                  void saveSession(selectedMinutes, false);
-                }}
-                disabled={status !== "running" || isPending}
-              >
-                Finish Session
-              </button>
-            ) : null}
             <button
               type="button"
               className="ghost-button ghost-button--focus"
@@ -390,12 +396,12 @@ export function FocusTimer({
                   buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
                 );
               }}
-              disabled={status === "saving" || isPending}
+              disabled={controlsDisabled}
             >
               Reset
             </button>
           </>
-        )}
+        ) : null}
       </div>
     </section>
   );

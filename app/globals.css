@@ -164,6 +164,7 @@ h2 {
   padding: 0;
   display: grid;
   gap: 16px;
+  width: min(540px, 100%);
   max-width: 540px;
   margin: 0 auto;
   background: transparent;

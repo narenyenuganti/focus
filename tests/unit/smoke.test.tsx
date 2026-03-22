@@ -47,8 +47,9 @@ test("renders focus timer transport controls", async () => {
   await user.click(screen.getByRole("button", { name: "Start" }));
 
   expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Finish Session" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Start" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Finish Session" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Reset" })).not.toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Pause" }));
 

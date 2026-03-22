@@ -61,6 +61,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   const focusRing = page.locator(".focus-ring");
   await page.getByRole("button", { name: "Start" }).click();
   await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
   const measurements = [];
   for (let index = 0; index < 4; index += 1) {
     await page.waitForTimeout(1100);
@@ -182,6 +185,7 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   const startingText = (await sessionsMetric.innerText()).trim();
 
   await page.getByRole("button", { name: "Start" }).click();
+  await page.getByRole("button", { name: "Pause" }).click();
   await page.getByRole("button", { name: "Finish Session" }).click();
 
   await expect(page.getByText(/sessions logged today/i)).toBeVisible();
