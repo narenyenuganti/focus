@@ -9,7 +9,6 @@ async function unlock(page: Page) {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
   await expect(page.getByText("FOCUS SESSION", { exact: true })).toHaveCount(1);
 }
 
@@ -41,7 +40,6 @@ test("keeps the trimmed shell focused on statistics and settings", async ({
   await expect(page.getByText("Settings saved")).toBeVisible();
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Jump in" }).click();
   await expect(page.getByText("1500m weekly goal")).toBeVisible();
   await expect(page.locator(".focus-preset-strip").getByText("Sprint").first()).toBeVisible();
   await expect(page.getByText("40 minute block")).toBeVisible();

@@ -9,7 +9,6 @@ async function unlock(page: Page) {
   await page.goto("/login");
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
-  await page.getByRole("button", { name: "Jump in" }).click();
 }
 
 test("keeps the shell chrome visible while panels open", async ({ page }) => {

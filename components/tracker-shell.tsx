@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
-import { AnnouncementModal } from "@/components/announcement-modal";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
@@ -65,7 +64,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     <div className="hub-shell">
       <div className="hub-bg hub-bg--amber" />
       <div className="hub-bg hub-bg--teal" />
-      <AnnouncementModal />
 
       <header className="hub-topbar">
         {snapshot.topMetrics.map((metric) => (
