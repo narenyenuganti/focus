@@ -195,6 +195,9 @@ test("logs a focus session from the dashboard", async ({ page }) => {
     .not.toBe(startingText);
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  const syncStatus = page.getByRole("region", { name: "Sync status" });
+  await expect(syncStatus).toBeVisible();
+  await expect(syncStatus.getByRole("heading", { name: /tracker data committed|already synced/i })).toBeVisible();
   await expect(page.getByRole("region", { name: "Sync history" })).toHaveCount(0);
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
@@ -211,6 +214,7 @@ test("keeps sync history closed when syncing from an open history state", async 
 
   await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
   await expect(page.getByRole("region", { name: "Sync history" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Sync status" })).toBeVisible();
 });
 
 test("shows short guidance for the selected preset", async ({ page }) => {

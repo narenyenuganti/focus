@@ -1154,11 +1154,21 @@ h2 {
   color: #fb7185;
 }
 
+.utility-button[disabled] {
+  opacity: 0.68;
+  cursor: wait;
+}
+
 .sync-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   position: relative;
+}
+
+.sync-button__spinner,
+.sync-status-panel__spinner {
+  animation: sync-spin 1s linear infinite;
 }
 
 .sync-button__popover {
@@ -1167,6 +1177,73 @@ h2 {
   bottom: calc(100% + 12px);
   width: min(360px, calc(100vw - 32px));
   z-index: 30;
+}
+
+.sync-status-panel {
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+  box-shadow: 0 18px 50px rgba(2, 2, 8, 0.32);
+}
+
+.sync-status-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sync-status-panel__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.sync-status-panel__summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.sync-status-panel__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  color: #f8fafc;
+}
+
+.sync-status-panel__summary.is-loading .sync-status-panel__icon {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.sync-status-panel__summary.is-success .sync-status-panel__icon,
+.sync-status-panel__summary.is-noop .sync-status-panel__icon {
+  background: rgba(16, 185, 129, 0.18);
+  color: #86efac;
+}
+
+.sync-status-panel__summary.is-error .sync-status-panel__icon {
+  background: rgba(251, 113, 133, 0.16);
+  color: #fda4af;
+}
+
+.sync-status-panel .panel-list article span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@keyframes sync-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .sr-only {
