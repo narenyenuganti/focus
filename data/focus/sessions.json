@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "341cca2e-0251-4cd6-bedd-1f4944977081",
+    "startedAt": "2026-03-21T05:13:30.608Z",
+    "endedAt": "2026-03-21T05:14:13.537Z",
+    "durationMinutes": 1,
+    "mode": "focus"
+  },
+  {
+    "id": "d96bf20e-aa9f-4fc0-b56b-473a2d4b31f7",
+    "startedAt": "2026-03-21T05:34:02.130Z",
+    "endedAt": "2026-03-21T05:35:02.130Z",
+    "durationMinutes": 1,
+    "mode": "focus"
+  }
+]
