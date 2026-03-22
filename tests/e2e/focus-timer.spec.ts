@@ -201,7 +201,12 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Sync history" })).toHaveCount(0);
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Local sync metadata" })).toBeVisible();
-  await expect(page.getByLabel("Sync history").getByText(/nothing to sync\.|sync complete\./i).first()).toBeVisible();
+  await expect(
+    page
+      .getByLabel("Sync history")
+      .getByText(/nothing to sync\.|tracker data committed\.|already synced/i)
+      .first(),
+  ).toBeVisible();
 
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
 });

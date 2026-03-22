@@ -1,4 +1,5 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { beforeEach, afterEach, expect, test, vi } from "vitest";
@@ -57,6 +58,29 @@ test("plans a commit for changed data files only", async () => {
     expect(result.commitMessage).toBe(
       "sync: update tracker data (focus, sleep)",
     );
+  }
+});
+
+test("detects modified tracked data files from porcelain output", async () => {
+  const focusDir = path.join(rootDir, "data", "focus");
+  const sessionPath = path.join(focusDir, "sessions.json");
+
+  await mkdir(focusDir, { recursive: true });
+  await writeFile(sessionPath, '{"sessions":[]}\n');
+
+  execFileSync("git", ["init"], { cwd: rootDir });
+  execFileSync("git", ["config", "user.name", "Tracker Tests"], { cwd: rootDir });
+  execFileSync("git", ["config", "user.email", "tracker@example.com"], { cwd: rootDir });
+  execFileSync("git", ["add", "--", "data/focus/sessions.json"], { cwd: rootDir });
+  execFileSync("git", ["commit", "-m", "seed"], { cwd: rootDir });
+
+  await writeFile(sessionPath, '{"sessions":[{"minutes":25}]}\n');
+
+  const result = await createGitSyncPlan({ rootDir });
+
+  expect(result.kind).toBe("commit");
+  if (result.kind === "commit") {
+    expect(result.files).toEqual(["data/focus/sessions.json"]);
   }
 });
 

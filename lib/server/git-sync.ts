@@ -165,10 +165,10 @@ export async function createGitSyncPlan({
 
     return stdout
       .split("\n")
-      .map((line) => line.trim())
+      .map((line) => line.trimEnd())
       .filter(Boolean)
-      .map((line) => line.slice(3).trim())
-      .filter(Boolean);
+      .map((line) => parseStatusLine(line)?.path ?? null)
+      .filter((filePath): filePath is string => Boolean(filePath));
   },
 }: SyncDependencies = {}): Promise<GitSyncPlan> {
   const changedFiles = uniqueSorted((await listChangedFiles()).filter((file) => file.startsWith("data/")));
