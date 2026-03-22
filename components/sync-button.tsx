@@ -33,6 +33,7 @@ export function SyncButton() {
   const [error, setError] = useState<string | null>(null);
 
   async function sync() {
+    setHistoryOpen(false);
     setStatus("Syncing tracker data...");
     setError(null);
     setMetadata(null);

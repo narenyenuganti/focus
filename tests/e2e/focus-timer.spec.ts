@@ -204,6 +204,16 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
 });
 
+test("keeps sync history closed when syncing from an open history state", async ({ page }) => {
+  await unlock(page);
+
+  await page.getByRole("button", { name: "View sync history", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Sync history" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Sync tracker data", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Sync history" })).toHaveCount(0);
+});
+
 test("shows short guidance for the selected preset", async ({ page }) => {
   await unlock(page);
 
