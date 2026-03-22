@@ -76,11 +76,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
 
       <main className="hub-main">
         <section className="hub-focus-column">
-          <div className="hub-dots" aria-hidden="true">
-            <span className="is-active" />
-            <span />
-            <span />
-          </div>
           <FocusTimer
             todayMinutes={snapshot.focus.todayMinutes}
             todaySessions={snapshot.focus.todaySessions}
