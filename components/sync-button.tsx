@@ -6,6 +6,8 @@ import { SyncHistoryPanel } from "@/components/sync-history-panel";
 import { SyncStatusPanel } from "@/components/sync-status-panel";
 import type { GitSyncMetadata } from "@/lib/server/git-sync";
 
+export const MIN_SYNC_NOTICE_MS = 900;
+
 async function fetchSyncMetadata() {
   const response = await fetch("/api/sync");
   const payload = (await response.json()) as {
@@ -27,6 +29,18 @@ async function fetchSyncMetadata() {
   };
 }
 
+function waitForMinimumNotice(startedAt: number) {
+  const elapsed = Date.now() - startedAt;
+
+  if (elapsed >= MIN_SYNC_NOTICE_MS) {
+    return Promise.resolve();
+  }
+
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, MIN_SYNC_NOTICE_MS - elapsed);
+  });
+}
+
 export function SyncButton() {
   const [status, setStatus] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -41,6 +55,8 @@ export function SyncButton() {
   } | null>(null);
 
   async function sync() {
+    const startedAt = Date.now();
+
     setHistoryOpen(false);
     setStatusOpen(true);
     setIsSyncing(true);
@@ -77,6 +93,9 @@ export function SyncButton() {
         return;
       }
 
+      const result = await fetchSyncMetadata();
+      await waitForMinimumNotice(startedAt);
+
       if (payload.kind === "noop") {
         const message = payload.message ?? "Nothing to sync.";
         setStatus(message);
@@ -100,8 +119,6 @@ export function SyncButton() {
         });
       }
 
-      const result = await fetchSyncMetadata();
-
       if (result.ok) {
         setMetadata(result.metadata);
         setError(null);
@@ -117,6 +134,7 @@ export function SyncButton() {
       }
     } catch {
       const message = "Could not sync tracker data.";
+      await waitForMinimumNotice(startedAt);
       setStatus(message);
       setError(message);
       setSyncNotice({
