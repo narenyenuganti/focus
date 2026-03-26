@@ -109,6 +109,10 @@ test("runs the planned git sync commands without touching the real repo", async 
       command: "git",
       args: ["commit", "-m", "sync: update tracker data (focus)"],
     },
+    {
+      command: "git",
+      args: ["push", "origin", "main"],
+    },
   ]);
 });
 

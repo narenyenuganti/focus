@@ -9,7 +9,7 @@ The current shell keeps the timer-first dashboard and utility-driven sync, but t
 - Focus sessions with configurable presets and weekly goals
 - Sleep, workouts, health metrics, and daily reflections persisted locally in the repo
 - Settings for focus presets and weekly goals
-- Manual git-based sync history for repo-native persistence
+- Manual git-based sync history that pushes tracker data to `origin/main`
 
 ## Local Setup
 
@@ -34,7 +34,7 @@ Tracker state lives directly in the repo under `data/`:
 - `data/journal/daily.json`
 - `data/config/settings.json`
 
-Manual sync creates commits for changed tracker files under `data/`, so repo history doubles as your change log.
+Manual sync creates commits for changed tracker files under `data/` and then pushes `main` to `origin`, so repo history doubles as your change log.
 
 ## Development
 

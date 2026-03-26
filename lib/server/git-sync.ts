@@ -281,6 +281,7 @@ export async function runGitSync({
 
   await exec("git", ["add", "--", ...plan.files]);
   await exec("git", ["commit", "-m", plan.commitMessage]);
+  await exec("git", ["push", "origin", "main"]);
 
   return plan;
 }
