@@ -75,6 +75,8 @@ export function FocusTimer({
   const activePresetGuidance = activePreset ? getPresetGuidance(activePreset.label) : null;
   const selectedMinutesRef = useRef(selectedMinutes);
   const secondsRemainingRef = useRef(secondsRemaining);
+  const elapsedRunningSecondsRef = useRef(0);
+  const currentRunStartedAtRef = useRef<number | null>(null);
   const saveSessionRef = useRef(
     async (_durationMinutes: number, _completedFullSession: boolean) => {},
   );
@@ -112,6 +114,29 @@ export function FocusTimer({
 
     setSecondsRemaining(selectedMinutes * 60);
   }, [selectedMinutes, status]);
+
+  const getCountdownSnapshot = useCallback((now = Date.now()) => {
+    const totalSelectedSeconds = selectedMinutesRef.current * 60;
+    const currentRunElapsedSeconds =
+      currentRunStartedAtRef.current === null
+        ? 0
+        : Math.floor((now - currentRunStartedAtRef.current) / 1000);
+    const elapsedSeconds = Math.min(
+      totalSelectedSeconds,
+      elapsedRunningSecondsRef.current + currentRunElapsedSeconds,
+    );
+
+    return {
+      elapsedSeconds,
+      secondsRemaining: Math.max(0, totalSelectedSeconds - elapsedSeconds),
+    };
+  }, []);
+
+  const syncCountdown = useCallback((now = Date.now()) => {
+    const snapshot = getCountdownSnapshot(now);
+    setSecondsRemaining(snapshot.secondsRemaining);
+    return snapshot;
+  }, [getCountdownSnapshot]);
 
   const saveSession = useCallback(
     async (durationMinutes: number, completedFullSession = false) => {
@@ -155,6 +180,8 @@ export function FocusTimer({
 
       setStatus("idle");
       setStartedAt(null);
+      elapsedRunningSecondsRef.current = 0;
+      currentRunStartedAtRef.current = null;
       setSecondsRemaining(selectedMinutes * 60);
       setFeedback(
         `${payload.summary.todaySessions} sessions logged today • ${payload.summary.todayMinutes} focus minutes`,
@@ -174,20 +201,37 @@ export function FocusTimer({
       return;
     }
 
-    const interval = window.setInterval(() => {
-      setSecondsRemaining((current) => {
-        if (current <= 1) {
-          window.clearInterval(interval);
-          void saveSessionRef.current(selectedMinutesRef.current, true);
-          return 0;
-        }
+    let interval = 0;
 
-        return current - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const snapshot = syncCountdown();
 
-    return () => window.clearInterval(interval);
-  }, [status]);
+      if (snapshot.secondsRemaining > 0) {
+        return;
+      }
+
+      elapsedRunningSecondsRef.current = selectedMinutesRef.current * 60;
+      currentRunStartedAtRef.current = null;
+      window.clearInterval(interval);
+      void saveSessionRef.current(selectedMinutesRef.current, true);
+    };
+
+    interval = window.setInterval(tick, 1000);
+    tick();
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        tick();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [status, syncCountdown]);
 
   useEffect(() => {
     if (status !== "idle") {
@@ -338,6 +382,8 @@ export function FocusTimer({
             type="button"
             className="primary-button primary-button--focus"
             onClick={() => {
+              elapsedRunningSecondsRef.current = 0;
+              currentRunStartedAtRef.current = Date.now();
               setStartedAt(new Date().toISOString());
               setSecondsRemaining(selectedMinutes * 60);
               setStatus("running");
@@ -353,6 +399,9 @@ export function FocusTimer({
             type="button"
             className="secondary-button secondary-button--focus"
             onClick={() => {
+              const snapshot = syncCountdown();
+              elapsedRunningSecondsRef.current = snapshot.elapsedSeconds;
+              currentRunStartedAtRef.current = null;
               setStatus("paused");
               setFeedback("Timer paused. Resume when ready.");
             }}
@@ -367,6 +416,7 @@ export function FocusTimer({
               type="button"
               className="primary-button primary-button--focus"
               onClick={() => {
+                currentRunStartedAtRef.current = Date.now();
                 setStatus("running");
                 setFeedback("Timer running. Stay with the work.");
               }}
@@ -388,6 +438,8 @@ export function FocusTimer({
               type="button"
               className="ghost-button ghost-button--focus"
               onClick={() => {
+                elapsedRunningSecondsRef.current = 0;
+                currentRunStartedAtRef.current = null;
                 setStatus("idle");
                 setStartedAt(null);
                 setSecondsRemaining(selectedMinutes * 60);
