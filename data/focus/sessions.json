@@ -12,5 +12,12 @@
     "endedAt": "2026-03-21T05:35:02.130Z",
     "durationMinutes": 1,
     "mode": "focus"
+  },
+  {
+    "id": "77973e42-9987-4a0b-81a5-ad426e7b2daa",
+    "startedAt": "2026-03-26T19:07:06.830Z",
+    "endedAt": "2026-03-26T19:32:06.830Z",
+    "durationMinutes": 25,
+    "mode": "focus"
   }
 ]
