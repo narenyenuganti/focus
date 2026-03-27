@@ -97,7 +97,7 @@ export function buildFocusSummary(
     weeklyMinutes: focusSessions.reduce((total, session) => {
       const daysAgo = differenceInCalendarDays(
         parseISO(`${today}T00:00:00.000Z`),
-        parseISO(session.startedAt),
+        parseISO(`${toDayKey(session.startedAt)}T00:00:00.000Z`),
       );
 
       if (daysAgo >= 0 && daysAgo < 7) {
