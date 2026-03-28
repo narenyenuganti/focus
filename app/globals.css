@@ -300,7 +300,7 @@ h2 {
 }
 
 .timer-display {
-  font-size: clamp(4rem, 10.5vw, 5.95rem);
+  font-size: clamp(3.2rem, 8.5vw, 4.8rem);
   line-height: 0.84;
   letter-spacing: -0.08em;
   font-weight: 700;
