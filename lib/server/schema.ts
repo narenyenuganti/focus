@@ -14,12 +14,14 @@ export const settingsSchema = z.object({
     { label: "52 / 17", minutes: 52 },
     { label: "Deep Work", minutes: 90 },
   ]),
+  completionSound: z.string().default("secret-discovered"),
 });
 
 export const settingsPatchSchema = z.object({
   displayName: z.string().min(1).optional(),
   weeklyFocusGoalMinutes: z.number().int().min(0).optional(),
   focusPresets: z.array(focusPresetSchema).optional(),
+  completionSound: z.string().optional(),
 });
 
 const focusSessionSchema = z.object({
