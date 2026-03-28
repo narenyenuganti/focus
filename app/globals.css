@@ -1070,7 +1070,7 @@ h2 {
 }
 
 .sound-picker select {
-  flex: 1;
+  width: auto;
 }
 
 .field select,
