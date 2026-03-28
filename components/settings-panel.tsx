@@ -93,9 +93,9 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
         </label>
       </div>
 
-      <div className="field">
-        <span>Completion sound</span>
-        <div className="sound-picker">
+      <div className="panel-form-grid">
+        <label className="field">
+          <span>Completion sound</span>
           <select
             value={settings.completionSound}
             onChange={(event) =>
@@ -108,6 +108,9 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
               </option>
             ))}
           </select>
+        </label>
+        <div className="field">
+          <span>Preview</span>
           <button
             type="button"
             className="secondary-button"
