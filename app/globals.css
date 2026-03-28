@@ -1063,6 +1063,16 @@ h2 {
   gap: 14px;
 }
 
+.sound-picker {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sound-picker select {
+  flex: 1;
+}
+
 .field select,
 .field textarea {
   width: 100%;
