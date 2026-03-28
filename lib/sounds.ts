@@ -40,42 +40,46 @@ function playNotes(notes: Note[], wave: OscillatorType = "triangle", volume = 0.
 }
 
 function playSecretDiscovered() {
-  // G5 F#5 D#5 A4 G#4 E5 G#5 C6
+  // Confirmed: G5 F#5 D#5 A4 | E5 G#5 C6
+  // First 4 from D# diminished, last 3 are E augmented triad
   playNotes([
-    { freq: 784, start: 0, dur: 0.12 },
-    { freq: 740, start: 0.12, dur: 0.12 },
-    { freq: 622, start: 0.24, dur: 0.12 },
-    { freq: 440, start: 0.36, dur: 0.12 },
-    { freq: 415, start: 0.48, dur: 0.12 },
-    { freq: 659, start: 0.6, dur: 0.12 },
-    { freq: 831, start: 0.72, dur: 0.12 },
-    { freq: 1047, start: 0.84, dur: 0.4 },
+    { freq: 784, start: 0, dur: 0.12 },     // G5
+    { freq: 740, start: 0.12, dur: 0.12 },  // F#5
+    { freq: 622, start: 0.24, dur: 0.12 },  // D#5
+    { freq: 440, start: 0.36, dur: 0.12 },  // A4
+    { freq: 659, start: 0.48, dur: 0.12 },  // E5
+    { freq: 831, start: 0.6, dur: 0.12 },   // G#5
+    { freq: 1047, start: 0.72, dur: 0.45 }, // C6 (held)
   ]);
 }
 
 function playItemGet() {
-  // Quick ascending fanfare: D5 A5 D6
+  // Da da da DAAA — quick ascending G major arpeggio
   playNotes([
-    { freq: 587, start: 0, dur: 0.1 },
-    { freq: 880, start: 0.1, dur: 0.1 },
-    { freq: 1175, start: 0.2, dur: 0.5 },
+    { freq: 392, start: 0, dur: 0.08 },    // G4
+    { freq: 494, start: 0.08, dur: 0.08 },  // B4
+    { freq: 587, start: 0.16, dur: 0.08 },  // D5
+    { freq: 784, start: 0.24, dur: 0.55 },  // G5 (held)
   ]);
 }
 
 function playChestOpen() {
-  // Slow dramatic build: G4 G#4 A4 A#4 B4 C5 ... up to E5
+  // Chromatic ascending pairs (Gb-E pattern) building tension
   playNotes(
     [
-      { freq: 392, start: 0, dur: 0.15 },
-      { freq: 415, start: 0.15, dur: 0.15 },
-      { freq: 440, start: 0.3, dur: 0.15 },
-      { freq: 466, start: 0.45, dur: 0.15 },
-      { freq: 494, start: 0.6, dur: 0.15 },
-      { freq: 523, start: 0.75, dur: 0.15 },
-      { freq: 554, start: 0.9, dur: 0.15 },
-      { freq: 587, start: 1.05, dur: 0.15 },
-      { freq: 622, start: 1.2, dur: 0.15 },
-      { freq: 659, start: 1.35, dur: 0.6 },
+      { freq: 370, start: 0, dur: 0.1 },     // F#4
+      { freq: 330, start: 0.1, dur: 0.1 },    // E4
+      { freq: 392, start: 0.22, dur: 0.1 },   // G4
+      { freq: 349, start: 0.32, dur: 0.1 },   // F4
+      { freq: 415, start: 0.44, dur: 0.1 },   // G#4
+      { freq: 370, start: 0.54, dur: 0.1 },   // F#4
+      { freq: 440, start: 0.66, dur: 0.1 },   // A4
+      { freq: 392, start: 0.76, dur: 0.1 },   // G4
+      { freq: 466, start: 0.88, dur: 0.1 },   // Bb4
+      { freq: 415, start: 0.98, dur: 0.1 },   // G#4
+      { freq: 494, start: 1.1, dur: 0.1 },    // B4
+      { freq: 440, start: 1.2, dur: 0.1 },    // A4
+      { freq: 523, start: 1.32, dur: 0.5 },   // C5 (resolve)
     ],
     "square",
     0.15,
@@ -83,19 +87,22 @@ function playChestOpen() {
 }
 
 function playFairyFountain() {
-  // Gentle arpeggio: A4 C#5 E5 A5 E5 C#5 A4 (cycled)
+  // D minor arpeggio — A D G pattern, ethereal staccato
   playNotes(
     [
-      { freq: 440, start: 0, dur: 0.18 },
-      { freq: 554, start: 0.15, dur: 0.18 },
-      { freq: 659, start: 0.3, dur: 0.18 },
-      { freq: 880, start: 0.45, dur: 0.22 },
-      { freq: 659, start: 0.65, dur: 0.18 },
-      { freq: 554, start: 0.8, dur: 0.18 },
-      { freq: 440, start: 0.95, dur: 0.18 },
-      { freq: 554, start: 1.1, dur: 0.18 },
-      { freq: 659, start: 1.25, dur: 0.18 },
-      { freq: 880, start: 1.4, dur: 0.4 },
+      { freq: 880, start: 0, dur: 0.15 },     // A5
+      { freq: 587, start: 0.13, dur: 0.15 },  // D5
+      { freq: 784, start: 0.26, dur: 0.15 },  // G5
+      { freq: 587, start: 0.39, dur: 0.15 },  // D5
+      { freq: 698, start: 0.52, dur: 0.15 },  // F5
+      { freq: 587, start: 0.65, dur: 0.15 },  // D5
+      { freq: 784, start: 0.78, dur: 0.15 },  // G5
+      { freq: 587, start: 0.91, dur: 0.15 },  // D5
+      { freq: 880, start: 1.04, dur: 0.15 },  // A5
+      { freq: 587, start: 1.17, dur: 0.15 },  // D5
+      { freq: 784, start: 1.3, dur: 0.15 },   // G5
+      { freq: 587, start: 1.43, dur: 0.15 },  // D5
+      { freq: 880, start: 1.56, dur: 0.35 },  // A5 (held)
     ],
     "sine",
     0.2,
@@ -103,12 +110,14 @@ function playFairyFountain() {
 }
 
 function playHeartContainer() {
-  // Triumphant: C5 E5 G5 C6 (hold)
+  // Triumphant Bb major ascending resolution
   playNotes([
-    { freq: 523, start: 0, dur: 0.2 },
-    { freq: 659, start: 0.2, dur: 0.2 },
-    { freq: 784, start: 0.4, dur: 0.2 },
-    { freq: 1047, start: 0.6, dur: 0.6 },
+    { freq: 466, start: 0, dur: 0.15 },     // Bb4
+    { freq: 587, start: 0.15, dur: 0.15 },  // D5
+    { freq: 698, start: 0.3, dur: 0.15 },   // F5
+    { freq: 932, start: 0.45, dur: 0.15 },  // Bb5
+    { freq: 1175, start: 0.6, dur: 0.15 },  // D6
+    { freq: 1397, start: 0.75, dur: 0.55 }, // F6 (held)
   ]);
 }
 
