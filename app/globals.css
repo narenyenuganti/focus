@@ -1071,6 +1071,7 @@ h2 {
 
 .sound-picker select {
   width: auto;
+  padding: 8px 12px;
 }
 
 .field select,
