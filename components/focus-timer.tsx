@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { TrackerSettings } from "@/lib/server/schema";
+import { playSound } from "@/lib/sounds";
+import type { SoundId } from "@/lib/sounds";
 
 const PRESET_GUIDANCE: Record<string, string> = {
   "classic pomodoro":
@@ -14,40 +16,6 @@ const PRESET_GUIDANCE: Record<string, string> = {
   "deep work":
     "A long uninterrupted session for cognitively demanding work with one clear objective. Best when you can shut off notifications and stay on a single problem.",
 };
-
-function playZeldaChime() {
-  const ctx = new AudioContext();
-  const gain = ctx.createGain();
-  gain.connect(ctx.destination);
-  gain.gain.setValueAtTime(0.25, ctx.currentTime);
-
-  // Zelda "secret discovered" jingle: G5 F#5 D#5 A4 G#4 E5 G#5 C6
-  const notes = [
-    { freq: 784, start: 0, dur: 0.12 },
-    { freq: 740, start: 0.12, dur: 0.12 },
-    { freq: 622, start: 0.24, dur: 0.12 },
-    { freq: 440, start: 0.36, dur: 0.12 },
-    { freq: 415, start: 0.48, dur: 0.12 },
-    { freq: 659, start: 0.6, dur: 0.12 },
-    { freq: 831, start: 0.72, dur: 0.12 },
-    { freq: 1047, start: 0.84, dur: 0.4 },
-  ];
-
-  for (const note of notes) {
-    const osc = ctx.createOscillator();
-    const noteGain = ctx.createGain();
-    osc.type = "triangle";
-    osc.frequency.value = note.freq;
-    noteGain.gain.setValueAtTime(0.3, ctx.currentTime + note.start);
-    noteGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.start + note.dur + 0.1);
-    osc.connect(noteGain);
-    noteGain.connect(gain);
-    osc.start(ctx.currentTime + note.start);
-    osc.stop(ctx.currentTime + note.start + note.dur + 0.15);
-  }
-
-  setTimeout(() => void ctx.close(), 2000);
-}
 
 function formatSeconds(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60)
@@ -66,6 +34,7 @@ type FocusTimerProps = {
   weeklyMinutes: number;
   weeklyGoalMinutes: number;
   presets: TrackerSettings["focusPresets"];
+  completionSound: string;
 };
 
 function buildIdleFeedback(
@@ -93,6 +62,7 @@ export function FocusTimer({
   weeklyMinutes,
   weeklyGoalMinutes,
   presets,
+  completionSound,
 }: FocusTimerProps) {
   const router = useRouter();
   const fallbackMinutes = presets[0]?.minutes ?? 25;
@@ -247,7 +217,7 @@ export function FocusTimer({
       elapsedRunningSecondsRef.current = selectedMinutesRef.current * 60;
       currentRunStartedAtRef.current = null;
       window.clearInterval(interval);
-      playZeldaChime();
+      playSound(completionSound as SoundId);
       void saveSessionRef.current(selectedMinutesRef.current, true);
     };
 

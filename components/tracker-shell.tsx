@@ -82,6 +82,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             weeklyMinutes={snapshot.focus.weeklyMinutes}
             weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
             presets={snapshot.settings.focusPresets}
+            completionSound={snapshot.settings.completionSound}
           />
         </section>
         <aside className={activePanel ? "hub-panel-column is-visible" : "hub-panel-column"}>
