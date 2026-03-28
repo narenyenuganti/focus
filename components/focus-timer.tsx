@@ -234,6 +234,14 @@ export function FocusTimer({
   }, [status, syncCountdown]);
 
   useEffect(() => {
+    if (status === "running" || status === "paused") {
+      document.title = `${formatSeconds(secondsRemaining)} — Naren`;
+    } else {
+      document.title = "Naren";
+    }
+  }, [status, secondsRemaining]);
+
+  useEffect(() => {
     if (status !== "idle") {
       return;
     }
