@@ -58,25 +58,12 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
     <section className="panel-shell">
       <div className="panel-metrics">
         <article>
-          <span>Name</span>
-          <strong>{settings.displayName}</strong>
-        </article>
-        <article>
           <span>Focus goal</span>
           <strong>{settings.weeklyFocusGoalMinutes}m</strong>
         </article>
       </div>
 
       <div className="panel-form-grid">
-        <label className="field field--wide">
-          <span>Display name</span>
-          <input
-            value={settings.displayName}
-            onChange={(event) =>
-              setSettings((current) => ({ ...current, displayName: event.target.value }))
-            }
-          />
-        </label>
         <label className="field">
           <span>Weekly focus goal minutes</span>
           <input
