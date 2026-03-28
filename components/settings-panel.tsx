@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { TrackerSettings } from "@/lib/server/schema";
+import { SOUND_LIBRARY, playSound } from "@/lib/sounds";
+import type { SoundId } from "@/lib/sounds";
 
 type SettingsPanelProps = {
   settings: TrackerSettings;
@@ -89,6 +91,34 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             }
           />
         </label>
+      </div>
+
+      <div className="panel-form-grid">
+        <label className="field">
+          <span>Completion sound</span>
+          <select
+            value={settings.completionSound}
+            onChange={(event) =>
+              setSettings((current) => ({ ...current, completionSound: event.target.value }))
+            }
+          >
+            {SOUND_LIBRARY.map((sound) => (
+              <option key={sound.id} value={sound.id}>
+                {sound.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="field">
+          <span>Preview</span>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => playSound(settings.completionSound as SoundId)}
+          >
+            &#9654; Play
+          </button>
+        </div>
       </div>
 
       <div className="panel-list">
