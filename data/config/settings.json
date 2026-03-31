@@ -19,5 +19,9 @@
       "minutes": 90
     }
   ],
-  "completionSound": "secret-discovered"
+  "completionSound": "secret-discovered",
+  "ambientMusic": true,
+  "breakDurationMinutes": 5,
+  "breakEndChime": true,
+  "theme": "zelda"
 }
