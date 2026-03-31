@@ -40,5 +40,26 @@
     "endedAt": "2026-03-29T04:20:59.898Z",
     "durationMinutes": 25,
     "mode": "focus"
+  },
+  {
+    "id": "25c98733-4078-4f21-b5df-4f3f3d5d167c",
+    "startedAt": "2026-03-31T07:31:20.372Z",
+    "endedAt": "2026-03-31T07:32:20.372Z",
+    "durationMinutes": 1,
+    "mode": "focus"
+  },
+  {
+    "id": "85f87639-3abc-4a82-8a88-defeb689467b",
+    "startedAt": "2026-03-31T07:32:02.127Z",
+    "endedAt": "2026-03-31T07:33:02.127Z",
+    "durationMinutes": 1,
+    "mode": "focus"
+  },
+  {
+    "id": "56d85f6b-0a86-41c6-8b42-fa51c6edc7f1",
+    "startedAt": "2026-03-31T07:32:20.740Z",
+    "endedAt": "2026-03-31T07:33:20.740Z",
+    "durationMinutes": 1,
+    "mode": "focus"
   }
 ]
