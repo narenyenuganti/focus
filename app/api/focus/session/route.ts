@@ -5,9 +5,9 @@ import { isSessionTokenValid, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import {
   appendFocusSession,
   buildFocusSummary,
+  getFocusSessions,
   type FocusSessionRecord,
 } from "@/lib/server/focus";
-import { readCollection } from "@/lib/server/data-store";
 
 const createFocusSessionSchema = z.object({
   startedAt: z.string(),
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   await appendFocusSession(record);
 
-  const sessions = (await readCollection("focus/sessions")) as FocusSessionRecord[];
+  const sessions = getFocusSessions();
   const summary = buildFocusSummary(sessions);
 
   return NextResponse.json({

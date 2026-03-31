@@ -1,6 +1,5 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { readCollection } from "@/lib/server/data-store";
-import { buildFocusSummary, type FocusSessionRecord } from "@/lib/server/focus";
+import { buildFocusSummary, getFocusSessions, type FocusSessionRecord } from "@/lib/server/focus";
 import { buildInsightsSummary } from "@/lib/server/insights";
 import { readSettings } from "@/lib/server/settings";
 import { readWallet, readInventory, readRoomPlacements } from "@/lib/server/economy";
@@ -161,25 +160,22 @@ export function buildDashboardSnapshot(input: DashboardInput) {
 }
 
 export async function getTrackerSnapshot() {
-  const [focusSessions, sleepEntries, workouts, healthMetrics, dailyLogs, settings, wallet, inventory, room] =
-    await Promise.all([
-      readCollection("focus/sessions"),
-      readCollection("sleep/entries"),
-      readCollection("workouts/entries"),
-      readCollection("health/metrics"),
-      readCollection("journal/daily"),
-      readSettings(),
-      readWallet(),
-      readInventory(),
-      readRoomPlacements(),
-    ]);
+  const settings = await readSettings();
+  const focusSessions = getFocusSessions();
+  const wallet = readWallet();
+  const inventory = readInventory();
+  const room = readRoomPlacements();
+  const sleepEntries: SleepEntry[] = [];
+  const workouts: WorkoutEntry[] = [];
+  const healthMetrics: HealthMetric[] = [];
+  const dailyLogs: DailyLogEntry[] = [];
 
   const dashboard = buildDashboardSnapshot({
-    focusSessions: focusSessions as FocusSessionRecord[],
-    sleepEntries: sleepEntries as SleepEntry[],
-    workouts: workouts as WorkoutEntry[],
-    healthMetrics: healthMetrics as HealthMetric[],
-    dailyLogs: dailyLogs as DailyLogEntry[],
+    focusSessions,
+    sleepEntries,
+    workouts,
+    healthMetrics,
+    dailyLogs,
     settings,
   });
 
