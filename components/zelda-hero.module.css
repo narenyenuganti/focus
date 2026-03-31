@@ -1,0 +1,160 @@
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.body {
+  position: relative;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.svgFace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
+.face {
+  color: white;
+  font-size: 18px;
+  user-select: none;
+  line-height: 1;
+}
+
+/* Idle A: standing ready */
+.idle .body {
+  animation: sway 3s ease-in-out infinite;
+}
+
+/* Idle B: looking around */
+.idleB .body {
+  animation: lookAround 4s ease-in-out infinite;
+}
+
+/* Focusing A: back turned, doing activity */
+.focusing .body {
+  transform: rotateY(180deg);
+}
+
+.focusing .face,
+.focusing .svgFace {
+  transform: rotateY(180deg);
+}
+
+/* Focusing B: intense concentration with glow */
+.focusingB .body {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Celebrating A: sword raised */
+.celebrating .body {
+  animation: victoryJump 0.6s ease-in-out 3;
+}
+
+/* Celebrating B: sparkle pose */
+.celebratingB .body {
+  animation: sparklePose 0.8s ease-in-out 3;
+}
+
+.currencyEarned {
+  position: absolute;
+  top: -24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent, #1D5A5D);
+  animation: floatUp 2s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Sad A: defeated slump */
+.sad .body {
+  filter: saturate(0.5) brightness(0.85);
+  transform: scale(0.92);
+  animation: slump 0.5s ease-out forwards;
+}
+
+/* Sad B: sits down */
+.sadB .body {
+  filter: saturate(0.5) brightness(0.85);
+  transform: scale(0.88) translateY(8px);
+  animation: sitDown 0.6s ease-out forwards;
+}
+
+/* Tapped: wiggle reaction */
+.tapped .body {
+  animation: wiggleTap 0.5s ease-in-out !important;
+}
+
+/* Activity overlays */
+.activityOverlay {
+  position: absolute;
+  bottom: -12px;
+  display: none;
+  font-size: 16px;
+}
+
+.focusing .activityOverlay,
+.focusingB .activityOverlay {
+  display: block;
+  animation: activityPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+@keyframes lookAround {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg) translateX(-2px); }
+  75% { transform: rotate(5deg) translateX(2px); }
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(176, 196, 35, 0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(176, 196, 35, 0.7)); }
+}
+
+@keyframes victoryJump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+@keyframes sparklePose {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  75% { transform: scale(1.1) rotate(3deg); }
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+@keyframes slump {
+  from { transform: scale(1); }
+  to { transform: scale(0.92); }
+}
+
+@keyframes sitDown {
+  from { transform: scale(1) translateY(0); }
+  to { transform: scale(0.88) translateY(8px); }
+}
+
+@keyframes wiggleTap {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-12deg) scale(1.1); }
+  30% { transform: rotate(10deg) scale(1.1); }
+  45% { transform: rotate(-8deg) scale(1.05); }
+  60% { transform: rotate(6deg) scale(1.05); }
+  75% { transform: rotate(-3deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes activityPulse {
+  0%, 100% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-3px); opacity: 1; }
+}
