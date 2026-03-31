@@ -4,21 +4,8 @@ import { useState } from "react";
 import { getDecoration } from "@/lib/decoration-catalog";
 import type { RoomPlacements } from "@/lib/economy-types";
 
-const ALL_SLOTS = [
-  "wall-1", "wall-2", "wall-3", "wall-4",
-  "floor-1", "floor-2", "floor-3", "floor-4",
-] as const;
-
-const SLOT_POSITIONS: Record<string, React.CSSProperties> = {
-  "wall-1": { position: "absolute", top: "8%", left: "8%" },
-  "wall-2": { position: "absolute", top: "8%", left: "75%" },
-  "wall-3": { position: "absolute", top: "30%", left: "5%" },
-  "wall-4": { position: "absolute", top: "30%", left: "80%" },
-  "floor-1": { position: "absolute", bottom: "8%", left: "5%" },
-  "floor-2": { position: "absolute", bottom: "8%", left: "75%" },
-  "floor-3": { position: "absolute", bottom: "28%", left: "10%" },
-  "floor-4": { position: "absolute", bottom: "28%", left: "72%" },
-};
+const WALL_SLOTS = ["wall-1", "wall-2", "wall-3", "wall-4"] as const;
+const FLOOR_SLOTS = ["floor-1", "floor-2", "floor-3", "floor-4"] as const;
 
 type RoomEditorProps = {
   placements: RoomPlacements["placements"];
@@ -26,6 +13,41 @@ type RoomEditorProps = {
   onPlace: (slotId: string, itemId: string) => void;
   onRemove: (slotId: string) => void;
 };
+
+function SlotButton({
+  slotId,
+  placements,
+  onClick,
+}: {
+  slotId: string;
+  placements: RoomPlacements["placements"];
+  onClick: (slotId: string) => void;
+}) {
+  const itemId = placements[slotId];
+  const decoration = itemId ? getDecoration(itemId) : null;
+
+  return (
+    <button
+      type="button"
+      aria-label={decoration ? `${decoration.name} in ${slotId} — click to remove` : `Empty slot ${slotId}`}
+      onClick={() => onClick(slotId)}
+      style={{
+        width: 56,
+        height: 56,
+        borderRadius: 12,
+        border: decoration ? "2px solid var(--accent)" : "2px dashed var(--border)",
+        background: decoration ? "rgba(29, 90, 93, 0.08)" : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 26,
+        cursor: "pointer",
+      }}
+    >
+      {decoration ? decoration.emoji : ""}
+    </button>
+  );
+}
 
 export function RoomEditor({ placements, purchased, onPlace, onRemove }: RoomEditorProps) {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -50,10 +72,9 @@ export function RoomEditor({ placements, purchased, onPlace, onRemove }: RoomEdi
 
   return (
     <section style={{ display: "grid", gap: 16 }}>
-      {/* Room with slots */}
+      {/* Room with grid-based slots */}
       <div
         style={{
-          position: "relative",
           width: "100%",
           maxWidth: 480,
           margin: "0 auto",
@@ -61,42 +82,40 @@ export function RoomEditor({ placements, purchased, onPlace, onRemove }: RoomEdi
           overflow: "hidden",
           border: "2px solid var(--border)",
           background: "var(--card)",
-          minHeight: 320,
         }}
       >
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "60%", background: "var(--wall)" }} />
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "var(--floor)", borderTop: "2px solid var(--border)" }} />
+        {/* Wall section */}
+        <div
+          style={{
+            background: "var(--wall)",
+            padding: "20px 24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 56px)",
+            justifyContent: "center",
+            gap: 16,
+          }}
+        >
+          {WALL_SLOTS.map((slotId) => (
+            <SlotButton key={slotId} slotId={slotId} placements={placements} onClick={handleSlotClick} />
+          ))}
+        </div>
 
-        {ALL_SLOTS.map((slotId) => {
-          const itemId = placements[slotId];
-          const decoration = itemId ? getDecoration(itemId) : null;
-          const pos = SLOT_POSITIONS[slotId];
-
-          return (
-            <button
-              key={slotId}
-              type="button"
-              aria-label={decoration ? `${decoration.name} in ${slotId} — click to remove` : `Empty slot ${slotId}`}
-              onClick={() => handleSlotClick(slotId)}
-              style={{
-                ...pos,
-                width: 48,
-                height: 48,
-                borderRadius: 10,
-                border: decoration ? "2px solid var(--accent)" : "2px dashed var(--border)",
-                background: decoration ? "rgba(29, 90, 93, 0.08)" : "transparent",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-                cursor: "pointer",
-                zIndex: 5,
-              }}
-            >
-              {decoration ? decoration.emoji : ""}
-            </button>
-          );
-        })}
+        {/* Floor section */}
+        <div
+          style={{
+            background: "var(--floor)",
+            borderTop: "2px solid var(--border)",
+            padding: "20px 24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 56px)",
+            justifyContent: "center",
+            gap: 16,
+          }}
+        >
+          {FLOOR_SLOTS.map((slotId) => (
+            <SlotButton key={slotId} slotId={slotId} placements={placements} onClick={handleSlotClick} />
+          ))}
+        </div>
       </div>
 
       {/* Inventory bar */}
