@@ -1,17 +1,16 @@
 "use client";
 
-import {
-  BarChart3,
-  LogOut,
-  Settings,
-} from "lucide-react";
 import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { SyncButton } from "@/components/sync-button";
+import { ShopPanel } from "@/components/shop-panel";
+import { RoomEditor } from "@/components/room-editor";
+import { BottomNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
+import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
 
@@ -19,14 +18,12 @@ type TrackerShellProps = {
   snapshot: TrackerSnapshot;
 };
 
-const NAV_ITEMS = [
-  { key: "statistics", label: "Statistics", icon: BarChart3 },
-] as const;
-
-type ActivePanel = (typeof NAV_ITEMS)[number]["key"] | "settings";
-
 export function TrackerShell({ snapshot }: TrackerShellProps) {
-  const [activePanel, setActivePanel] = useState<ActivePanel | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>("focus");
+  const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
+  const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
+  const [room, setRoom] = useState<RoomPlacements>(snapshot.economy.room);
+
   const statisticsCards = [
     {
       label: "today",
@@ -40,31 +37,54 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     },
   ];
 
-  function renderPanel() {
-    if (!activePanel) {
-      return null;
-    }
+  async function handlePurchase(itemId: string) {
+    const response = await fetch("/api/economy/purchase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    setWallet(data.wallet);
+    setInventory(data.inventory);
+  }
 
-    if (activePanel === "statistics") {
-      return (
-        <div className="panel-shell panel-shell--statistics">
-          <StatsOverview cards={statisticsCards} />
-        </div>
-      );
-    }
+  async function handlePlace(slotId: string, itemId: string) {
+    const response = await fetch("/api/economy/place", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slotId, itemId }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    setRoom(data.room);
+  }
 
-    if (activePanel === "settings") {
-      return <SettingsPanel settings={snapshot.settings} />;
-    }
+  async function handleRemove(slotId: string) {
+    const response = await fetch("/api/economy/place", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slotId }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    setRoom(data.room);
+  }
 
-    return null;
+  function handleSocksEarned(amount: number) {
+    setWallet((prev) => ({
+      socks: prev.socks + amount,
+      totalEarned: prev.totalEarned + amount,
+    }));
+  }
+
+  function handleNavigateToShop() {
+    setActiveTab("shop");
   }
 
   return (
     <div className="hub-shell">
-      <div className="hub-bg hub-bg--amber" />
-      <div className="hub-bg hub-bg--teal" />
-
+      {/* Top bar */}
       <header className="hub-topbar">
         {snapshot.topMetrics.map((metric) => (
           <article key={metric.label} className={`metric-pill tone-${metric.tone}`}>
@@ -72,68 +92,73 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             <span>{metric.label}</span>
           </article>
         ))}
+        <article className="metric-pill tone-emerald">
+          <strong>🧦 {wallet.socks}</strong>
+          <span>socks</span>
+        </article>
       </header>
 
+      {/* Main content area */}
       <main className="hub-main">
-        <section className="hub-focus-column">
-          <FocusTimer
-            todayMinutes={snapshot.focus.todayMinutes}
-            todaySessions={snapshot.focus.todaySessions}
-            weeklyMinutes={snapshot.focus.weeklyMinutes}
-            weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
-            presets={snapshot.settings.focusPresets}
-            completionSound={snapshot.settings.completionSound}
-          />
-        </section>
-        <aside className={activePanel ? "hub-panel-column is-visible" : "hub-panel-column"}>
-          {renderPanel()}
-        </aside>
+        {activeTab === "focus" && (
+          <section className="hub-focus-column">
+            <FocusTimer
+              todayMinutes={snapshot.focus.todayMinutes}
+              todaySessions={snapshot.focus.todaySessions}
+              weeklyMinutes={snapshot.focus.weeklyMinutes}
+              weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
+              presets={snapshot.settings.focusPresets}
+              completionSound={snapshot.settings.completionSound}
+              ambientMusic={snapshot.settings.ambientMusic}
+              breakDurationMinutes={snapshot.settings.breakDurationMinutes}
+              breakEndChime={snapshot.settings.breakEndChime}
+              placements={room.placements}
+              onSocksEarned={handleSocksEarned}
+              onNavigateToShop={handleNavigateToShop}
+            />
+          </section>
+        )}
+
+        {activeTab === "room" && (
+          <section className="hub-focus-column">
+            <RoomEditor
+              placements={room.placements}
+              purchased={inventory.purchased}
+              onPlace={handlePlace}
+              onRemove={handleRemove}
+            />
+          </section>
+        )}
+
+        {activeTab === "shop" && (
+          <section className="hub-focus-column">
+            <ShopPanel
+              socks={wallet.socks}
+              purchased={inventory.purchased}
+              onPurchase={handlePurchase}
+            />
+          </section>
+        )}
+
+        {activeTab === "stats" && (
+          <section className="hub-focus-column">
+            <StatsOverview cards={statisticsCards} />
+            <SyncButton />
+          </section>
+        )}
+
+        {activeTab === "settings" && (
+          <section className="hub-focus-column">
+            <SettingsPanel settings={snapshot.settings} />
+          </section>
+        )}
       </main>
 
-      <footer className="hub-bottombar">
-        <div className="utility-cluster">
-          <SyncButton />
-        </div>
-
-        <nav className="nav-cluster" aria-label="Tracker panels">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const active = item.key === activePanel;
-
-            return (
-              <button
-                key={item.key}
-                type="button"
-                className={active ? "nav-pill is-active" : "nav-pill"}
-                onClick={() =>
-                  setActivePanel((current) => (current === item.key ? null : item.key))
-                }
-              >
-                <Icon size={16} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="utility-cluster">
-          <form action={logoutTracker}>
-            <button type="submit" className="utility-button danger" aria-label="Log out">
-              <LogOut size={16} />
-            </button>
-          </form>
-          <button
-            type="button"
-            className={activePanel === "settings" ? "utility-button is-active" : "utility-button"}
-            aria-label="Settings"
-            onClick={() =>
-              setActivePanel((current) => (current === "settings" ? null : "settings"))
-            }
-          >
-            <Settings size={16} />
-          </button>
-        </div>
-      </footer>
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onLogout={logoutTracker}
+      />
     </div>
   );
 }

@@ -29,6 +29,13 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
       weeklyMinutes={0}
       weeklyGoalMinutes={1200}
       presets={[{ label: "Classic Pomodoro", minutes: 25 }]}
+      completionSound="secret-discovered"
+      ambientMusic={false}
+      breakDurationMinutes={5}
+      breakEndChime={false}
+      placements={{}}
+      onSocksEarned={() => {}}
+      onNavigateToShop={() => {}}
     />,
   );
 

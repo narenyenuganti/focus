@@ -108,6 +108,57 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
         </div>
       </div>
 
+      <div className="panel-form-grid">
+        <label className="field">
+          <span>Ambient music during focus</span>
+          <select
+            value={settings.ambientMusic ? "on" : "off"}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                ambientMusic: event.target.value === "on",
+              }))
+            }
+          >
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>Break duration (minutes)</span>
+          <input
+            type="number"
+            min="1"
+            max="30"
+            value={settings.breakDurationMinutes}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                breakDurationMinutes: Number(event.target.value),
+              }))
+            }
+          />
+        </label>
+      </div>
+
+      <div className="panel-form-grid">
+        <label className="field">
+          <span>Break-end chime</span>
+          <select
+            value={settings.breakEndChime ? "on" : "off"}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                breakEndChime: event.target.value === "on",
+              }))
+            }
+          >
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+      </div>
+
       <div className="panel-list">
         {settings.focusPresets.map((preset, index) => (
           <article key={`${preset.label}-${index}`}>
