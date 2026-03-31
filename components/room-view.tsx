@@ -30,6 +30,7 @@ type RoomViewProps = {
 
 export function RoomView({ beanState, socksEarned, placements, children }: RoomViewProps) {
   return (
+    <>
     <div
       style={{
         position: "relative",
@@ -111,34 +112,26 @@ export function RoomView({ beanState, socksEarned, placements, children }: RoomV
         ) : null;
       })}
 
-      {/* Bean (centered on floor) */}
+      {/* Bean (centered in room) */}
       <div
         style={{
           position: "absolute",
-          bottom: "12%",
+          top: "50%",
           left: "50%",
-          transform: "translateX(-50%)",
+          transform: "translate(-50%, -50%)",
           zIndex: 3,
         }}
       >
         <Bean state={beanState} socksEarned={socksEarned} />
       </div>
-
-      {/* Overlay content (timer display) */}
-      {children && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 16,
-            left: 0,
-            right: 0,
-            zIndex: 4,
-            textAlign: "center",
-          }}
-        >
-          {children}
-        </div>
-      )}
     </div>
+
+    {/* Timer display below room */}
+    {children && (
+      <div style={{ textAlign: "center", marginTop: 12 }}>
+        {children}
+      </div>
+    )}
+    </>
   );
 }
