@@ -133,3 +133,7 @@ export function playSound(id: SoundId) {
   const play = SOUND_MAP[id];
   if (play) play();
 }
+
+export function playBreakEndChime() {
+  playFairyFountain();
+}
