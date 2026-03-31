@@ -603,9 +603,8 @@ h2 {
   margin: 0 auto;
   display: grid;
   gap: 20px;
-  align-items: center;
+  align-items: start;
   justify-items: center;
-  min-height: calc(100vh - 320px);
 }
 
 .hub-focus-column {
