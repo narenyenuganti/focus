@@ -1,134 +1,93 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import {
-  walletSchema,
-  inventorySchema,
-  roomPlacementsSchema,
-  type Wallet,
-  type Inventory,
-  type RoomPlacements,
-} from "@/lib/economy-types";
-
-function getDataRoot() {
-  if (process.env.TRACKER_DATA_DIR) {
-    return path.resolve(process.cwd(), process.env.TRACKER_DATA_DIR);
-  }
-  return path.join(process.cwd(), "data");
-}
-
-function economyPath(file: string) {
-  return path.join(getDataRoot(), "economy", file);
-}
-
-async function ensureDir(filePath: string) {
-  await mkdir(path.dirname(filePath), { recursive: true });
-}
-
-async function readJsonOr<T>(filePath: string, fallback: T, parse: (raw: string) => T): Promise<T> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    return parse(raw);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return fallback;
-    }
-    throw error;
-  }
-}
-
-async function writeJson(filePath: string, data: unknown) {
-  await ensureDir(filePath);
-  await writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
-}
+import { getDb } from "@/lib/server/db";
+import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
 
 // Wallet
-export async function readWallet(): Promise<Wallet> {
-  return readJsonOr(economyPath("wallet.json"), walletSchema.parse({}), (raw) =>
-    walletSchema.parse(JSON.parse(raw)),
-  );
+export function readWallet(): Wallet {
+  const db = getDb();
+  const row = db.prepare("SELECT socks, total_earned FROM wallet WHERE id = 1").get() as {
+    socks: number;
+    total_earned: number;
+  };
+  return { socks: row.socks, totalEarned: row.total_earned };
 }
 
-export async function writeWallet(wallet: Wallet): Promise<Wallet> {
-  const validated = walletSchema.parse(wallet);
-  await writeJson(economyPath("wallet.json"), validated);
-  return validated;
-}
-
-export async function earnSocks(amount: number): Promise<Wallet> {
+export function earnSocks(amount: number): Wallet {
   if (amount <= 0) {
     throw new Error("Amount must be positive");
   }
-  const wallet = await readWallet();
-  return writeWallet({
-    socks: wallet.socks + amount,
-    totalEarned: wallet.totalEarned + amount,
-  });
+  const db = getDb();
+  db.prepare("UPDATE wallet SET socks = socks + ?, total_earned = total_earned + ? WHERE id = 1").run(
+    amount,
+    amount,
+  );
+  return readWallet();
 }
 
 // Inventory
-export async function readInventory(): Promise<Inventory> {
-  return readJsonOr(economyPath("inventory.json"), inventorySchema.parse({}), (raw) =>
-    inventorySchema.parse(JSON.parse(raw)),
-  );
+export function readInventory(): Inventory {
+  const db = getDb();
+  const rows = db.prepare("SELECT item_id FROM inventory ORDER BY item_id").all() as {
+    item_id: string;
+  }[];
+  return { purchased: rows.map((r) => r.item_id) };
 }
 
-export async function writeInventory(inventory: Inventory): Promise<Inventory> {
-  const validated = inventorySchema.parse(inventory);
-  await writeJson(economyPath("inventory.json"), validated);
-  return validated;
-}
-
-export async function addToInventory(itemId: string): Promise<Inventory> {
-  const inventory = await readInventory();
-  if (inventory.purchased.includes(itemId)) {
-    return inventory;
-  }
-  return writeInventory({ purchased: [...inventory.purchased, itemId] });
+export function addToInventory(itemId: string): Inventory {
+  const db = getDb();
+  db.prepare("INSERT OR IGNORE INTO inventory (item_id) VALUES (?)").run(itemId);
+  return readInventory();
 }
 
 // Room Placements
-export async function readRoomPlacements(): Promise<RoomPlacements> {
-  return readJsonOr(economyPath("room.json"), roomPlacementsSchema.parse({}), (raw) =>
-    roomPlacementsSchema.parse(JSON.parse(raw)),
+export function readRoomPlacements(): RoomPlacements {
+  const db = getDb();
+  const rows = db.prepare("SELECT slot_id, item_id FROM room_placements").all() as {
+    slot_id: string;
+    item_id: string;
+  }[];
+  const placements: Record<string, string> = {};
+  for (const row of rows) {
+    placements[row.slot_id] = row.item_id;
+  }
+  return { placements };
+}
+
+export function placeDecoration(slotId: string, itemId: string): RoomPlacements {
+  const db = getDb();
+  db.prepare("INSERT OR REPLACE INTO room_placements (slot_id, item_id) VALUES (?, ?)").run(
+    slotId,
+    itemId,
   );
+  return readRoomPlacements();
 }
 
-export async function writeRoomPlacements(room: RoomPlacements): Promise<RoomPlacements> {
-  const validated = roomPlacementsSchema.parse(room);
-  await writeJson(economyPath("room.json"), validated);
-  return validated;
+export function removeDecoration(slotId: string): RoomPlacements {
+  const db = getDb();
+  db.prepare("DELETE FROM room_placements WHERE slot_id = ?").run(slotId);
+  return readRoomPlacements();
 }
 
-export async function placeDecoration(slotId: string, itemId: string): Promise<RoomPlacements> {
-  const room = await readRoomPlacements();
-  return writeRoomPlacements({ placements: { ...room.placements, [slotId]: itemId } });
-}
-
-export async function removeDecoration(slotId: string): Promise<RoomPlacements> {
-  const room = await readRoomPlacements();
-  const { [slotId]: _, ...rest } = room.placements;
-  return writeRoomPlacements({ placements: rest });
-}
-
-// Purchase
-export async function purchaseDecoration(
+// Purchase (atomic transaction)
+export function purchaseDecoration(
   itemId: string,
   cost: number,
-): Promise<{ wallet: Wallet; inventory: Inventory }> {
-  const wallet = await readWallet();
+): { wallet: Wallet; inventory: Inventory } {
+  const db = getDb();
+  const wallet = readWallet();
   if (wallet.socks < cost) {
     throw new Error("Insufficient socks");
   }
-  const inventory = await readInventory();
+  const inventory = readInventory();
   if (inventory.purchased.includes(itemId)) {
     throw new Error("Already owned");
   }
-  const updatedWallet = await writeWallet({
-    socks: wallet.socks - cost,
-    totalEarned: wallet.totalEarned,
+
+  const purchase = db.transaction(() => {
+    db.prepare("UPDATE wallet SET socks = socks - ? WHERE id = 1").run(cost);
+    db.prepare("INSERT INTO inventory (item_id) VALUES (?)").run(itemId);
   });
-  const updatedInventory = await writeInventory({
-    purchased: [...inventory.purchased, itemId],
-  });
-  return { wallet: updatedWallet, inventory: updatedInventory };
+
+  purchase();
+
+  return { wallet: readWallet(), inventory: readInventory() };
 }
