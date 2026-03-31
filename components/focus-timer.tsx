@@ -401,9 +401,7 @@ export function FocusTimer({
             />
           </div>
         </RoomView>
-        {status === "running" && (
-          <MuteButton muted={isMuted} onToggle={() => setIsMuted((prev) => !prev)} />
-        )}
+        <MuteButton muted={isMuted} onToggle={() => setIsMuted((prev) => !prev)} />
       </div>
 
       <p className="focus-feedback">{feedback}</p>
