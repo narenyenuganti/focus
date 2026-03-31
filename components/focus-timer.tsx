@@ -231,14 +231,16 @@ export function FocusTimer({
         };
       };
 
-      // Award socks (1 per minute)
-      const earnedAmount = elapsedMinutes;
-      onSocksEarned(earnedAmount);
-      void fetch("/api/economy/earn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: earnedAmount }),
-      });
+      // Award socks (1 per full minute, rounded down)
+      const earnedAmount = Math.floor(elapsedSeconds / 60);
+      if (earnedAmount > 0) {
+        onSocksEarned(earnedAmount);
+        void fetch("/api/economy/earn", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: earnedAmount }),
+        });
+      }
 
       setStatus("idle");
       setStartedAt(null);
@@ -251,7 +253,7 @@ export function FocusTimer({
 
       // Celebration flow
       setBeanState("celebrating");
-      setSocksJustEarned(earnedAmount);
+      setSocksJustEarned(earnedAmount > 0 ? earnedAmount : null);
 
       setTimeout(() => {
         setBeanState("idle");
