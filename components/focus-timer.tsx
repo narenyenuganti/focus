@@ -196,11 +196,11 @@ export function FocusTimer({
       const sessionStartedAt = startedAt ?? new Date().toISOString();
       const elapsedSeconds = completedFullSession
         ? durationMinutes * 60
-        : Math.max(60, durationMinutes * 60 - secondsRemainingRef.current);
+        : Math.max(0, durationMinutes * 60 - secondsRemainingRef.current);
       const endedAt = new Date(new Date(sessionStartedAt).getTime() + elapsedSeconds * 1000);
       const elapsedMinutes = completedFullSession
         ? durationMinutes
-        : Math.max(1, Math.round(elapsedSeconds / 60));
+        : Math.floor(elapsedSeconds / 60);
 
       setStatus("saving");
       setFeedback("Saving your focus session...");
