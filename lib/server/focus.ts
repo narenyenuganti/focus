@@ -1,8 +1,5 @@
-import {
-  differenceInCalendarDays,
-  parseISO,
-} from "date-fns";
-import { readCollection, writeCollection } from "@/lib/server/data-store";
+import { differenceInCalendarDays, parseISO } from "date-fns";
+import { getDb } from "@/lib/server/db";
 
 export type FocusSessionRecord = {
   id: string;
@@ -27,23 +24,46 @@ function shiftDay(date: string, delta: number) {
 }
 
 function getHeatmapLevel(minutes: number) {
-  if (minutes === 0) {
-    return 0;
-  }
-
-  if (minutes <= 15) {
-    return 1;
-  }
-
-  if (minutes <= 30) {
-    return 2;
-  }
-
-  if (minutes <= 60) {
-    return 3;
-  }
-
+  if (minutes === 0) return 0;
+  if (minutes <= 15) return 1;
+  if (minutes <= 30) return 2;
+  if (minutes <= 60) return 3;
   return 4;
+}
+
+function toRecord(row: {
+  id: string;
+  started_at: string;
+  ended_at: string;
+  duration_minutes: number;
+  mode: string;
+}): FocusSessionRecord {
+  return {
+    id: row.id,
+    startedAt: row.started_at,
+    endedAt: row.ended_at,
+    durationMinutes: row.duration_minutes,
+    mode: row.mode as "focus" | "break",
+  };
+}
+
+export function getFocusSessions(): FocusSessionRecord[] {
+  const db = getDb();
+  const rows = db.prepare("SELECT * FROM focus_sessions ORDER BY started_at ASC").all() as Array<{
+    id: string;
+    started_at: string;
+    ended_at: string;
+    duration_minutes: number;
+    mode: string;
+  }>;
+  return rows.map(toRecord);
+}
+
+export function appendFocusSession(session: FocusSessionRecord): void {
+  const db = getDb();
+  db.prepare(
+    "INSERT INTO focus_sessions (id, started_at, ended_at, duration_minutes, mode) VALUES (?, ?, ?, ?, ?)",
+  ).run(session.id, session.startedAt, session.endedAt, session.durationMinutes, session.mode);
 }
 
 export function buildFocusSummary(
@@ -110,12 +130,7 @@ export function buildFocusSummary(
   };
 }
 
-export async function getFocusSummary() {
-  const sessions = await readCollection("focus/sessions");
-  return buildFocusSummary(sessions as FocusSessionRecord[]);
-}
-
-export async function appendFocusSession(session: FocusSessionRecord) {
-  const sessions = (await readCollection("focus/sessions")) as FocusSessionRecord[];
-  return writeCollection("focus/sessions", [...sessions, session]);
+export function getFocusSummary() {
+  const sessions = getFocusSessions();
+  return buildFocusSummary(sessions);
 }
