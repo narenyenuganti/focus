@@ -6,7 +6,6 @@ describe("Bean", () => {
   it("renders with idle state by default", () => {
     render(<Bean state="idle" />);
     expect(screen.getByLabelText("Bean character")).toBeInTheDocument();
-    expect(screen.getByText("◡‿◡")).toBeInTheDocument();
   });
 
   it("renders focusing state with back turned", () => {
@@ -14,14 +13,13 @@ describe("Bean", () => {
     expect(screen.getByText("– –")).toBeInTheDocument();
   });
 
-  it("renders celebrating state", () => {
+  it("renders celebrating state with socks earned", () => {
     render(<Bean state="celebrating" socksEarned={25} />);
-    expect(screen.getByText("◡▽◡")).toBeInTheDocument();
     expect(screen.getByText("+25 🧦")).toBeInTheDocument();
   });
 
   it("renders sad state", () => {
     render(<Bean state="sad" />);
-    expect(screen.getByText("◠_◠")).toBeInTheDocument();
+    expect(screen.getByLabelText("Bean character")).toBeInTheDocument();
   });
 });

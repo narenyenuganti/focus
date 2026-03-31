@@ -25,6 +25,13 @@
   line-height: 1;
 }
 
+.svgFace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
 /* Idle: gentle bobbing */
 .idle .body {
   animation: bob 3s ease-in-out infinite;
