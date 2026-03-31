@@ -15,6 +15,9 @@ export const settingsSchema = z.object({
     { label: "Deep Work", minutes: 90 },
   ]),
   completionSound: z.string().default("secret-discovered"),
+  ambientMusic: z.boolean().default(true),
+  breakDurationMinutes: z.number().int().min(1).max(30).default(5),
+  breakEndChime: z.boolean().default(true),
 });
 
 export const settingsPatchSchema = z.object({
@@ -22,6 +25,9 @@ export const settingsPatchSchema = z.object({
   weeklyFocusGoalMinutes: z.number().int().min(0).optional(),
   focusPresets: z.array(focusPresetSchema).optional(),
   completionSound: z.string().optional(),
+  ambientMusic: z.boolean().optional(),
+  breakDurationMinutes: z.number().int().min(1).max(30).optional(),
+  breakEndChime: z.boolean().optional(),
 });
 
 const focusSessionSchema = z.object({
