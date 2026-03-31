@@ -39,6 +39,41 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
         ))}
       </div>
 
+      {/* Room unlock progress */}
+      <div
+        style={{
+          padding: 16,
+          borderRadius: 16,
+          border: "1px solid var(--border)",
+          background: "var(--card)",
+          textAlign: "center",
+          width: "100%",
+        }}
+      >
+        <strong>Next Room</strong>
+        <p style={{ color: "var(--muted)", fontSize: 13, margin: "4px 0 8px" }}>
+          🧦 {Math.min(socks, 1000)} / 1,000
+        </p>
+        <div
+          style={{
+            height: 8,
+            borderRadius: 4,
+            background: "var(--border)",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${Math.min(100, (socks / 1000) * 100)}%`,
+              borderRadius: 4,
+              background: "var(--action)",
+              transition: "width 0.3s ease",
+            }}
+          />
+        </div>
+      </div>
+
       {/* Item grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, width: "100%" }}>
         {items.map((item) => {
@@ -79,41 +114,6 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
             </div>
           );
         })}
-      </div>
-
-      {/* Room unlock progress */}
-      <div
-        style={{
-          padding: 20,
-          borderRadius: 16,
-          border: "1px solid var(--border)",
-          background: "var(--card)",
-          textAlign: "center",
-          width: "100%",
-        }}
-      >
-        <strong>Next Room</strong>
-        <p style={{ color: "var(--muted)", fontSize: 13, margin: "4px 0 8px" }}>
-          🧦 {Math.min(socks, 1000)} / 1,000
-        </p>
-        <div
-          style={{
-            height: 8,
-            borderRadius: 4,
-            background: "var(--border)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: `${Math.min(100, (socks / 1000) * 100)}%`,
-              borderRadius: 4,
-              background: "var(--action)",
-              transition: "width 0.3s ease",
-            }}
-          />
-        </div>
       </div>
     </section>
   );
