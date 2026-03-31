@@ -99,24 +99,22 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
 
       {/* Main content area */}
       <main className="hub-main">
-        {activeTab === "focus" && (
-          <section className="hub-focus-column">
-            <FocusTimer
-              todayMinutes={snapshot.focus.todayMinutes}
-              todaySessions={snapshot.focus.todaySessions}
-              weeklyMinutes={snapshot.focus.weeklyMinutes}
-              weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
-              presets={snapshot.settings.focusPresets}
-              completionSound={snapshot.settings.completionSound}
-              ambientMusic={snapshot.settings.ambientMusic}
-              breakDurationMinutes={snapshot.settings.breakDurationMinutes}
-              breakEndChime={snapshot.settings.breakEndChime}
-              placements={room.placements}
-              theme={theme}
-              onSocksEarned={handleSocksEarned}
-            />
-          </section>
-        )}
+        <section className="hub-focus-column" style={{ display: activeTab === "focus" ? undefined : "none" }}>
+          <FocusTimer
+            todayMinutes={snapshot.focus.todayMinutes}
+            todaySessions={snapshot.focus.todaySessions}
+            weeklyMinutes={snapshot.focus.weeklyMinutes}
+            weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
+            presets={snapshot.settings.focusPresets}
+            completionSound={snapshot.settings.completionSound}
+            ambientMusic={snapshot.settings.ambientMusic}
+            breakDurationMinutes={snapshot.settings.breakDurationMinutes}
+            breakEndChime={snapshot.settings.breakEndChime}
+            placements={room.placements}
+            theme={theme}
+            onSocksEarned={handleSocksEarned}
+          />
+        </section>
 
         {activeTab === "room" && (
           <section className="hub-focus-column">
