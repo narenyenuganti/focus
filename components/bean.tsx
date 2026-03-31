@@ -8,6 +8,7 @@ export type BeanState = "idle" | "focusing" | "celebrating" | "sad";
 type BeanProps = {
   state: BeanState;
   socksEarned?: number;
+  currencyIcon?: string;
 };
 
 const SILLY_FACES = ["◕‿◕", "◕‿↼", "≧◡≦", "♥‿♥", "◔‿◔", ">‿<", "⊙‿⊙"];
@@ -65,7 +66,7 @@ function Mouth({ state }: { state: BeanState }) {
   );
 }
 
-export function Bean({ state, socksEarned }: BeanProps) {
+export function Bean({ state, socksEarned, currencyIcon = "🧦" }: BeanProps) {
   const textFaces: Record<BeanState, string> = {
     idle: "◡‿◡",
     focusing: "– –",
@@ -155,7 +156,7 @@ export function Bean({ state, socksEarned }: BeanProps) {
         </svg>
       </div>
       {state === "celebrating" && socksEarned != null && (
-        <span className={styles.socksEarned}>+{socksEarned} 🧦</span>
+        <span className={styles.socksEarned}>+{socksEarned} {currencyIcon}</span>
       )}
     </div>
   );

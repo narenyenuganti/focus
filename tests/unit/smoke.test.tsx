@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import HomePage from "@/app/page";
 import { FocusTimer } from "@/components/focus-timer";
+import { getTheme } from "@/lib/themes";
 
 vi.mock("next/headers", () => ({
   cookies: async () => ({
@@ -39,6 +40,7 @@ test("renders focus timer transport controls", async () => {
       breakDurationMinutes={5}
       breakEndChime={false}
       placements={{}}
+      theme={getTheme("bean")}
       onSocksEarned={() => {}}
       onNavigateToShop={() => {}}
     />,

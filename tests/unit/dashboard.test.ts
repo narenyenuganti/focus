@@ -59,6 +59,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
       ambientMusic: true,
       breakDurationMinutes: 5,
       breakEndChime: true,
+      theme: "bean",
     },
   });
 

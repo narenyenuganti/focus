@@ -11,6 +11,8 @@ import { RoomEditor } from "@/components/room-editor";
 import { BottomNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
+import { getTheme } from "@/lib/themes";
+import { getDecorationsForTheme } from "@/lib/decoration-catalog";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
 
@@ -23,6 +25,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
   const [room, setRoom] = useState<RoomPlacements>(snapshot.economy.room);
+  const theme = getTheme(snapshot.settings.theme);
 
   const statisticsCards = [
     {
@@ -93,8 +96,8 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
           </article>
         ))}
         <article className="metric-pill tone-emerald">
-          <strong>🧦 {wallet.socks}</strong>
-          <span>socks</span>
+          <strong>{theme.currencyIcon} {wallet.socks}</strong>
+          <span>{theme.currencyName}</span>
         </article>
       </header>
 
@@ -113,6 +116,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
               breakDurationMinutes={snapshot.settings.breakDurationMinutes}
               breakEndChime={snapshot.settings.breakEndChime}
               placements={room.placements}
+              theme={theme}
               onSocksEarned={handleSocksEarned}
               onNavigateToShop={handleNavigateToShop}
             />
@@ -136,6 +140,8 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
               socks={wallet.socks}
               purchased={inventory.purchased}
               onPurchase={handlePurchase}
+              themeId={theme.id}
+              currencyIcon={theme.currencyIcon}
             />
           </section>
         )}

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { DECORATION_CATALOG, type DecorationCategory } from "@/lib/decoration-catalog";
+import { getDecorationsForTheme, type DecorationCategory, type ThemeId } from "@/lib/decoration-catalog";
 
 type ShopPanelProps = {
   socks: number;
   purchased: string[];
   onPurchase: (itemId: string) => void;
+  themeId: ThemeId;
+  currencyIcon: string;
 };
 
 const CATEGORIES: { id: DecorationCategory | "all"; label: string }[] = [
@@ -16,12 +18,13 @@ const CATEGORIES: { id: DecorationCategory | "all"; label: string }[] = [
   { id: "furniture", label: "Furniture" },
 ];
 
-export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
+export function ShopPanel({ socks, purchased, onPurchase, themeId, currencyIcon }: ShopPanelProps) {
   const [filter, setFilter] = useState<DecorationCategory | "all">("all");
 
+  const themeDecorations = getDecorationsForTheme(themeId);
   const items = filter === "all"
-    ? DECORATION_CATALOG
-    : DECORATION_CATALOG.filter((item) => item.category === filter);
+    ? themeDecorations
+    : themeDecorations.filter((item) => item.category === filter);
 
   return (
     <section style={{ display: "grid", gap: 16, width: "100%" }}>
@@ -52,7 +55,7 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
       >
         <strong>Next Room</strong>
         <p style={{ color: "var(--muted)", fontSize: 13, margin: "4px 0 8px" }}>
-          🧦 {Math.min(socks, 1000)} / 1,000
+          {currencyIcon} {Math.min(socks, 1000)} / 1,000
         </p>
         <div
           style={{
@@ -96,7 +99,7 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
             >
               <span style={{ fontSize: 32 }}>{item.emoji}</span>
               <strong style={{ fontSize: 14 }}>{item.name}</strong>
-              <span style={{ fontSize: 13, color: "var(--muted)" }}>{item.cost} 🧦</span>
+              <span style={{ fontSize: 13, color: "var(--muted)" }}>{item.cost} {currencyIcon}</span>
               {owned ? (
                 <span data-owned style={{ fontSize: 12, color: "var(--accent)" }}>Owned</span>
               ) : (

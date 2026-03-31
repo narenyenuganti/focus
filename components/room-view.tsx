@@ -1,7 +1,10 @@
 "use client";
 
 import { Bean, type BeanState } from "@/components/bean";
+import { ZeldaHero } from "@/components/zelda-hero";
 import { getDecoration } from "@/lib/decoration-catalog";
+import { getCurrentRoomVariant } from "@/lib/themes";
+import type { ThemeConfig } from "@/lib/themes";
 import type { RoomPlacements } from "@/lib/economy-types";
 
 const WALL_SLOTS = ["wall-1", "wall-2", "wall-3", "wall-4"] as const;
@@ -25,10 +28,13 @@ type RoomViewProps = {
   beanState: BeanState;
   socksEarned?: number;
   placements: RoomPlacements["placements"];
+  theme: ThemeConfig;
   children?: React.ReactNode;
 };
 
-export function RoomView({ beanState, socksEarned, placements, children }: RoomViewProps) {
+export function RoomView({ beanState, socksEarned, placements, theme, children }: RoomViewProps) {
+  const roomVariant = getCurrentRoomVariant(theme);
+
   return (
     <>
     <div
@@ -52,7 +58,7 @@ export function RoomView({ beanState, socksEarned, placements, children }: RoomV
           left: 0,
           right: 0,
           height: "60%",
-          background: "var(--wall)",
+          background: roomVariant.wallColor,
         }}
       />
       {/* Floor */}
@@ -63,7 +69,7 @@ export function RoomView({ beanState, socksEarned, placements, children }: RoomV
           left: 0,
           right: 0,
           height: "40%",
-          background: "var(--floor)",
+          background: roomVariant.floorColor,
           borderTop: "2px solid var(--border)",
         }}
       />
@@ -112,7 +118,7 @@ export function RoomView({ beanState, socksEarned, placements, children }: RoomV
         ) : null;
       })}
 
-      {/* Bean (centered in room) */}
+      {/* Character (centered in room) */}
       <div
         style={{
           position: "absolute",
@@ -122,7 +128,16 @@ export function RoomView({ beanState, socksEarned, placements, children }: RoomV
           zIndex: 3,
         }}
       >
-        <Bean state={beanState} socksEarned={socksEarned} />
+        {theme.id === "zelda" ? (
+          <ZeldaHero
+            state={beanState}
+            currencyEarned={socksEarned}
+            currencyIcon={theme.currencyIcon}
+            theme={theme}
+          />
+        ) : (
+          <Bean state={beanState} socksEarned={socksEarned} currencyIcon={theme.currencyIcon} />
+        )}
       </div>
     </div>
 

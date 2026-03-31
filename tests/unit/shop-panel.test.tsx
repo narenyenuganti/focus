@@ -9,6 +9,8 @@ describe("ShopPanel", () => {
         socks={500}
         purchased={[]}
         onPurchase={vi.fn()}
+        themeId="bean"
+        currencyIcon="🧦"
       />,
     );
     expect(screen.getByText("Small Plant")).toBeInTheDocument();
@@ -21,6 +23,8 @@ describe("ShopPanel", () => {
         socks={500}
         purchased={["small-plant"]}
         onPurchase={vi.fn()}
+        themeId="bean"
+        currencyIcon="🧦"
       />,
     );
     const plantCard = screen.getByText("Small Plant").closest("[data-item-id]");
@@ -33,6 +37,8 @@ describe("ShopPanel", () => {
         socks={10}
         purchased={[]}
         onPurchase={vi.fn()}
+        themeId="bean"
+        currencyIcon="🧦"
       />,
     );
     const buyButtons = screen.getAllByRole("button", { name: /buy/i });

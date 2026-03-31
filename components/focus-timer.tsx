@@ -11,6 +11,7 @@ import { BreakTimer } from "@/components/break-timer";
 import { createLofiPlayer } from "@/lib/lofi";
 import type { BeanState } from "@/components/bean";
 import type { RoomPlacements } from "@/lib/economy-types";
+import type { ThemeConfig } from "@/lib/themes";
 
 const PRESET_GUIDANCE: Record<string, string> = {
   "classic pomodoro":
@@ -45,6 +46,7 @@ type FocusTimerProps = {
   breakDurationMinutes: number;
   breakEndChime: boolean;
   placements: RoomPlacements["placements"];
+  theme: ThemeConfig;
   onSocksEarned: (amount: number) => void;
   onNavigateToShop: () => void;
 };
@@ -79,6 +81,7 @@ export function FocusTimer({
   breakDurationMinutes,
   breakEndChime,
   placements,
+  theme,
   onSocksEarned,
   onNavigateToShop,
 }: FocusTimerProps) {
@@ -364,6 +367,7 @@ export function FocusTimer({
           beanState={beanState}
           socksEarned={socksJustEarned ?? undefined}
           placements={placements}
+          theme={theme}
         >
           <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
           {/* Progress bar */}

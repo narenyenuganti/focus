@@ -65,6 +65,24 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
 
       <div className="panel-form-grid">
         <label className="field">
+          <span>Theme</span>
+          <select
+            value={settings.theme}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                theme: event.target.value as "bean" | "zelda",
+              }))
+            }
+          >
+            <option value="bean">Bean</option>
+            <option value="zelda">Adventure</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="panel-form-grid">
+        <label className="field">
           <span>Weekly focus goal minutes</span>
           <input
             type="number"

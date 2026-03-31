@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { FocusTimer } from "@/components/focus-timer";
+import { getTheme } from "@/lib/themes";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -34,6 +35,7 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
       breakDurationMinutes={5}
       breakEndChime={false}
       placements={{}}
+      theme={getTheme("bean")}
       onSocksEarned={() => {}}
       onNavigateToShop={() => {}}
     />,
