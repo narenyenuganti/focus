@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Onest } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const onest = Onest({
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-onest",
+  weight: ["300", "600"],
+  variable: "--font-poppins",
 });
 
 const crownIcon =
@@ -30,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={onest.variable}>{children}</body>
+      <body className={poppins.variable}>{children}</body>
     </html>
   );
 }
