@@ -457,6 +457,7 @@ h2 {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
 }
 
 .stat-card {
@@ -1125,6 +1126,12 @@ h2 {
 .hub-main .sync-button__popover {
   bottom: auto;
   top: calc(100% + 12px);
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.hub-main .sync-button {
+  justify-content: center;
 }
 
 .sync-status-panel {
