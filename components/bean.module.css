@@ -1,0 +1,153 @@
+.bean {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.body {
+  width: 80px;
+  height: 90px;
+  border-radius: 40px 40px 35px 35px;
+  background: #8B6914;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s ease, filter 0.5s ease;
+  position: relative;
+}
+
+.face {
+  color: white;
+  font-size: 20px;
+  user-select: none;
+  line-height: 1;
+}
+
+/* Idle: gentle bobbing */
+.idle .body {
+  animation: bob 3s ease-in-out infinite;
+}
+
+/* Focusing: turned away */
+.focusing .body {
+  transform: rotateY(180deg);
+}
+
+.focusing .face {
+  transform: rotateY(180deg);
+}
+
+/* Knitting needles */
+.needles {
+  position: absolute;
+  bottom: -8px;
+  display: none;
+}
+
+.focusing .needles {
+  display: flex;
+  gap: 4px;
+  animation: knit 1.2s ease-in-out infinite;
+}
+
+.needle {
+  width: 2px;
+  height: 18px;
+  background: #A0A0A0;
+  border-radius: 1px;
+}
+
+.yarn {
+  position: absolute;
+  bottom: -16px;
+  width: 24px;
+  height: 2px;
+  background: #FFFFFF;
+  border-radius: 1px;
+  display: none;
+}
+
+.focusing .yarn {
+  display: block;
+  animation: wiggle 1.2s ease-in-out infinite;
+}
+
+/* Celebrating: bounce */
+.celebrating .body {
+  animation: bounce 0.6s ease-in-out 3;
+}
+
+.socksEarned {
+  position: absolute;
+  top: -24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent, #1D5A5D);
+  animation: floatUp 2s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Sad: slumped, muted */
+.sad .body {
+  filter: saturate(0.5) brightness(0.85);
+  transform: scale(0.92);
+  animation: slump 0.5s ease-out forwards;
+}
+
+.unravelYarn {
+  position: absolute;
+  bottom: -12px;
+  width: 30px;
+  height: 30px;
+  display: none;
+}
+
+.sad .unravelYarn {
+  display: block;
+}
+
+.unravelStrand {
+  stroke: #FFFFFF;
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 0;
+  animation: unravel 1.5s ease-in forwards;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes knit {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+@keyframes slump {
+  from { transform: scale(1); }
+  to { transform: scale(0.92); }
+}
+
+@keyframes unravel {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 60; }
+}
