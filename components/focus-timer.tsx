@@ -8,7 +8,7 @@ import type { SoundId } from "@/lib/sounds";
 import { RoomView } from "@/components/room-view";
 import { MuteButton } from "@/components/mute-button";
 import { BreakTimer } from "@/components/break-timer";
-import { createLofiPlayer } from "@/lib/lofi";
+import { createLofiPlayer, warmUpAudio } from "@/lib/lofi";
 import type { BeanState } from "@/components/bean";
 import type { RoomPlacements } from "@/lib/economy-types";
 import type { ThemeConfig } from "@/lib/themes";
@@ -401,7 +401,10 @@ export function FocusTimer({
             />
           </div>
         </RoomView>
-        <MuteButton muted={isMuted} onToggle={() => setIsMuted((prev) => !prev)} />
+        <MuteButton muted={isMuted} onToggle={() => {
+          warmUpAudio();
+          setIsMuted((prev) => !prev);
+        }} />
       </div>
 
       <p className="focus-feedback">{feedback}</p>
@@ -466,6 +469,7 @@ export function FocusTimer({
             type="button"
             className="primary-button primary-button--focus"
             onClick={() => {
+              warmUpAudio();
               elapsedRunningSecondsRef.current = 0;
               currentRunStartedAtRef.current = Date.now();
               setStartedAt(new Date().toISOString());

@@ -19,6 +19,22 @@ const CHORD_DURATION = 7.5; // seconds per chord (~70 BPM, 4 beats)
 const LOOP_DURATION = CHORD_DURATION * CHORDS.length; // 30 seconds total
 const VOLUME = 0.08;
 
+// Call from a click handler to ensure AudioContext is allowed by the browser.
+export function warmUpAudio(): void {
+  if (typeof AudioContext === "undefined") return;
+  try {
+    const ctx = new AudioContext();
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start();
+    void ctx.close();
+  } catch {
+    // Audio not available
+  }
+}
+
 export function createLofiPlayer(): LofiPlayer {
   let ctx: AudioContext | null = null;
   let playing = false;
