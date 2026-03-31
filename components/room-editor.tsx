@@ -119,11 +119,11 @@ export function RoomEditor({ placements, purchased, onPlace, onRemove }: RoomEdi
       </div>
 
       {/* Inventory bar */}
-      <div>
+      <div style={{ textAlign: "center" }}>
         <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 8 }}>
           {selectedItem ? "Now click a slot to place it" : "Select an item to place"}
         </p>
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, justifyContent: "center" }}>
           {unplacedItems.map((item) => (
             <button
               key={item!.id}
