@@ -15,7 +15,7 @@ const crownIcon =
   );
 
 export const metadata: Metadata = {
-  title: "Naren",
+  title: "Focus",
   description: "Local-first personal tracking workspace",
   icons: {
     icon: crownIcon,

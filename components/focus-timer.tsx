@@ -309,9 +309,9 @@ export function FocusTimer({
 
   useEffect(() => {
     if (status === "running" || status === "paused") {
-      document.title = `${formatSeconds(secondsRemaining)} — Naren`;
+      document.title = `${formatSeconds(secondsRemaining)} — Focus`;
     } else {
-      document.title = "Naren";
+      document.title = "Focus";
     }
   }, [status, secondsRemaining]);
 
