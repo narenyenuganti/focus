@@ -55,6 +55,10 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
         { label: "Classic Pomodoro", minutes: 25 },
         { label: "Deep Work", minutes: 90 },
       ],
+      completionSound: "secret-discovered",
+      ambientMusic: true,
+      breakDurationMinutes: 5,
+      breakEndChime: true,
     },
   });
 
