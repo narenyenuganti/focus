@@ -42,7 +42,7 @@ test("renders focus timer transport controls", async () => {
       placements={{}}
       theme={getTheme("bean")}
       onSocksEarned={() => {}}
-      onNavigateToShop={() => {}}
+
     />,
   );
 

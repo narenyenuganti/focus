@@ -81,10 +81,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     }));
   }
 
-  function handleNavigateToShop() {
-    setActiveTab("shop");
-  }
-
   return (
     <div className="hub-shell">
       {/* Top bar */}
@@ -118,7 +114,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
               placements={room.placements}
               theme={theme}
               onSocksEarned={handleSocksEarned}
-              onNavigateToShop={handleNavigateToShop}
             />
           </section>
         )}

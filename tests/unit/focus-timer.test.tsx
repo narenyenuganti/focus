@@ -37,7 +37,7 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
       placements={{}}
       theme={getTheme("bean")}
       onSocksEarned={() => {}}
-      onNavigateToShop={() => {}}
+
     />,
   );
 

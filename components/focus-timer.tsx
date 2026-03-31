@@ -48,7 +48,6 @@ type FocusTimerProps = {
   placements: RoomPlacements["placements"];
   theme: ThemeConfig;
   onSocksEarned: (amount: number) => void;
-  onNavigateToShop: () => void;
 };
 
 function buildIdleFeedback(
@@ -83,7 +82,6 @@ export function FocusTimer({
   placements,
   theme,
   onSocksEarned,
-  onNavigateToShop,
 }: FocusTimerProps) {
   const router = useRouter();
   const fallbackMinutes = presets[0]?.minutes ?? 25;
@@ -262,14 +260,13 @@ export function FocusTimer({
         setBeanState("idle");
         setSocksJustEarned(null);
         setIsOnBreak(true);
-        onNavigateToShop();
       }, 3000);
 
       startTransition(() => {
         router.refresh();
       });
     },
-    [router, selectedMinutes, startedAt, onSocksEarned, onNavigateToShop],
+    [router, selectedMinutes, startedAt, onSocksEarned],
   );
 
   saveSessionRef.current = saveSession;
