@@ -24,9 +24,9 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
     : DECORATION_CATALOG.filter((item) => item.category === filter);
 
   return (
-    <section style={{ display: "grid", gap: 16 }}>
+    <section style={{ display: "grid", gap: 16, width: "100%" }}>
       {/* Category filters */}
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
@@ -40,7 +40,7 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
       </div>
 
       {/* Item grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, width: "100%" }}>
         {items.map((item) => {
           const owned = purchased.includes(item.id);
           const canAfford = socks >= item.cost;
@@ -71,7 +71,7 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
                   disabled={!canAfford}
                   onClick={() => onPurchase(item.id)}
                   aria-label={`Buy ${item.name}`}
-                  style={{ padding: "8px 12px", fontSize: 13 }}
+                  style={{ padding: "8px 12px", fontSize: 13, width: "100%" }}
                 >
                   Buy
                 </button>
@@ -89,6 +89,7 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
           border: "1px solid var(--border)",
           background: "var(--card)",
           textAlign: "center",
+          width: "100%",
         }}
       >
         <strong>Next Room</strong>
