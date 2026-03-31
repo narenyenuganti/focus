@@ -6,3 +6,8 @@ playwright-report/
 test-results/
 .env.local
 .test-data/
+
+# SQLite database
+data/tracker.db
+data/tracker.db-wal
+data/tracker.db-shm

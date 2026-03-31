@@ -5,7 +5,6 @@ import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
-import { SyncButton } from "@/components/sync-button";
 import { ShopPanel } from "@/components/shop-panel";
 import { RoomEditor } from "@/components/room-editor";
 import { BottomNav, type TabId } from "@/components/bottom-nav";
@@ -142,7 +141,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         {activeTab === "stats" && (
           <section className="hub-focus-column">
             <StatsOverview cards={statisticsCards} />
-            <SyncButton />
           </section>
         )}
 

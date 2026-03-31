@@ -136,3 +136,10 @@ export function getDb(): Database.Database {
   }
   return _db;
 }
+
+export function resetDb(): void {
+  if (_db) {
+    _db.close();
+    _db = null;
+  }
+}
