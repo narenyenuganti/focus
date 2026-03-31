@@ -202,6 +202,18 @@ export function FocusTimer({
         ? durationMinutes
         : Math.floor(elapsedSeconds / 60);
 
+      // Don't store sub-minute sessions
+      if (elapsedMinutes < 1) {
+        setStatus("idle");
+        setStartedAt(null);
+        elapsedRunningSecondsRef.current = 0;
+        currentRunStartedAtRef.current = null;
+        setSecondsRemaining(selectedMinutes * 60);
+        setBeanState("idle");
+        setFeedback("Session too short to log. Try again!");
+        return;
+      }
+
       setStatus("saving");
       setFeedback("Saving your focus session...");
 

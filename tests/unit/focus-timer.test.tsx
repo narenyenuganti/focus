@@ -118,7 +118,7 @@ function renderTimerWithFetch(
   return fetchCalls;
 }
 
-test("sub-minute early finish earns 0 currency and records 0 minutes", async () => {
+test("sub-minute early finish is not saved and earns no currency", async () => {
   vi.useFakeTimers();
   mockAudioContext();
   const startedAt = new Date("2026-03-26T15:00:00.000Z");
@@ -153,8 +153,9 @@ test("sub-minute early finish earns 0 currency and records 0 minutes", async () 
     await vi.runAllTimersAsync();
   });
 
+  // No API calls should be made — session is too short to store
   const sessionCall = fetchCalls.find((c) => c.url === "/api/focus/session");
-  expect(sessionCall?.body.durationMinutes).toBe(0);
+  expect(sessionCall).toBeUndefined();
 
   const earnCall = fetchCalls.find((c) => c.url === "/api/economy/earn");
   expect(earnCall).toBeUndefined();
