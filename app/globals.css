@@ -1122,6 +1122,11 @@ h2 {
   z-index: 30;
 }
 
+.hub-main .sync-button__popover {
+  bottom: auto;
+  top: calc(100% + 12px);
+}
+
 .sync-status-panel {
   gap: 16px;
   padding: 16px;
