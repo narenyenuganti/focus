@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { DECORATION_CATALOG, getDecoration, getDecorationsByCategory } from "@/lib/decoration-catalog";
 
 describe("DECORATION_CATALOG", () => {
-  it("has exactly 18 items", () => {
-    expect(DECORATION_CATALOG).toHaveLength(18);
+  it("has 28 items (18 base + 10 zelda)", () => {
+    expect(DECORATION_CATALOG).toHaveLength(28);
   });
 
   it("every item has required fields", () => {

@@ -18,6 +18,7 @@ export const settingsSchema = z.object({
   ambientMusic: z.boolean().default(true),
   breakDurationMinutes: z.number().int().min(1).max(30).default(5),
   breakEndChime: z.boolean().default(true),
+  theme: z.enum(["bean", "zelda"]).default("bean"),
 });
 
 export const settingsPatchSchema = z.object({
@@ -28,6 +29,7 @@ export const settingsPatchSchema = z.object({
   ambientMusic: z.boolean().optional(),
   breakDurationMinutes: z.number().int().min(1).max(30).optional(),
   breakEndChime: z.boolean().optional(),
+  theme: z.enum(["bean", "zelda"]).optional(),
 });
 
 const focusSessionSchema = z.object({
