@@ -1,12 +1,14 @@
 import { buildDashboardSnapshot } from "@/lib/server/dashboard";
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 test("builds dashboard summaries across focus, sleep, workouts, health, and daily logs", () => {
   const snapshot = buildDashboardSnapshot({
     focusSessions: [
       {
         id: "focus-1",
-        startedAt: "2026-03-20T08:00:00.000Z",
-        endedAt: "2026-03-20T08:25:00.000Z",
+        startedAt: `${TODAY}T08:00:00.000Z`,
+        endedAt: `${TODAY}T08:25:00.000Z`,
         durationMinutes: 25,
         mode: "focus",
       },
@@ -14,7 +16,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     sleepEntries: [
       {
         id: "sleep-1",
-        date: "2026-03-20",
+        date: TODAY,
         hours: 8,
         quality: 8,
       },
@@ -22,7 +24,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     workouts: [
       {
         id: "workout-1",
-        date: "2026-03-20",
+        date: TODAY,
         type: "Lift",
         durationMinutes: 60,
         intensity: "moderate",
@@ -31,7 +33,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     healthMetrics: [
       {
         id: "health-1",
-        date: "2026-03-20",
+        date: TODAY,
         weight: 175,
         restingHeartRate: 54,
         energy: 8,
@@ -40,7 +42,7 @@ test("builds dashboard summaries across focus, sleep, workouts, health, and dail
     dailyLogs: [
       {
         id: "log-1",
-        date: "2026-03-20",
+        date: TODAY,
         mood: 7,
         gratitude: ["Clear focus"],
         wins: ["Finished workout"],

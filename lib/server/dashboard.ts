@@ -3,6 +3,8 @@ import { readCollection } from "@/lib/server/data-store";
 import { buildFocusSummary, type FocusSessionRecord } from "@/lib/server/focus";
 import { buildInsightsSummary } from "@/lib/server/insights";
 import { readSettings } from "@/lib/server/settings";
+import { readWallet, readInventory, readRoomPlacements } from "@/lib/server/economy";
+import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
 import type { TrackerSettings } from "@/lib/server/schema";
 
 export type SleepEntry = {
@@ -159,7 +161,7 @@ export function buildDashboardSnapshot(input: DashboardInput) {
 }
 
 export async function getTrackerSnapshot() {
-  const [focusSessions, sleepEntries, workouts, healthMetrics, dailyLogs, settings] =
+  const [focusSessions, sleepEntries, workouts, healthMetrics, dailyLogs, settings, wallet, inventory, room] =
     await Promise.all([
       readCollection("focus/sessions"),
       readCollection("sleep/entries"),
@@ -167,9 +169,12 @@ export async function getTrackerSnapshot() {
       readCollection("health/metrics"),
       readCollection("journal/daily"),
       readSettings(),
+      readWallet(),
+      readInventory(),
+      readRoomPlacements(),
     ]);
 
-  return buildDashboardSnapshot({
+  const dashboard = buildDashboardSnapshot({
     focusSessions: focusSessions as FocusSessionRecord[],
     sleepEntries: sleepEntries as SleepEntry[],
     workouts: workouts as WorkoutEntry[],
@@ -177,4 +182,6 @@ export async function getTrackerSnapshot() {
     dailyLogs: dailyLogs as DailyLogEntry[],
     settings,
   });
+
+  return { ...dashboard, economy: { wallet, inventory, room } };
 }
