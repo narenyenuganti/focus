@@ -13,8 +13,7 @@ type ZeldaHeroProps = {
   theme: ThemeConfig;
 };
 
-const SILLY_FACES = ["◕‿◕", "◕‿↼", "≧◡≦", "♥‿♥", "◔‿◔", ">‿<", "⊙‿⊙"];
-const MAX_EYE_OFFSET = 3;
+const MAX_EYE_OFFSET = 2;
 
 const ACTIVITY_EMOJIS: Record<string, string> = {
   spellbook: "📖",
@@ -44,58 +43,14 @@ function playChirp() {
   }
 }
 
-function TrackingEyes({ eyeOffset }: { eyeOffset: { x: number; y: number } }) {
-  return (
-    <svg width="36" height="24" viewBox="0 0 36 24" style={{ display: "block", margin: "0 auto" }}>
-      {/* Left eye */}
-      <ellipse cx="11" cy="12" rx="6" ry="7" fill="white" />
-      <circle cx={11 + eyeOffset.x} cy={12 + eyeOffset.y} r="3" fill="#1a3a5c" />
-      <circle cx={11 + eyeOffset.x - 0.8} cy={12 + eyeOffset.y - 1.2} r="1" fill="white" />
-      {/* Right eye */}
-      <ellipse cx="25" cy="12" rx="6" ry="7" fill="white" />
-      <circle cx={25 + eyeOffset.x} cy={12 + eyeOffset.y} r="3" fill="#1a3a5c" />
-      <circle cx={25 + eyeOffset.x - 0.8} cy={12 + eyeOffset.y - 1.2} r="1" fill="white" />
-    </svg>
-  );
-}
-
-function HeroSvg() {
-  return (
-    <svg width="80" height="90" viewBox="0 0 80 90" style={{ display: "block" }}>
-      {/* Cap */}
-      <polygon points="40,2 58,28 22,28" fill="#2E7D32" stroke="#1B5E20" strokeWidth="1" />
-      <polygon points="40,2 52,20 28,20" fill="#43A047" />
-      {/* Head */}
-      <ellipse cx="40" cy="38" rx="18" ry="16" fill="#FFDAB9" />
-      {/* Ears */}
-      <ellipse cx="20" cy="36" rx="5" ry="8" fill="#FFDAB9" stroke="#E8B88A" strokeWidth="0.5" transform="rotate(-15 20 36)" />
-      <ellipse cx="60" cy="36" rx="5" ry="8" fill="#FFDAB9" stroke="#E8B88A" strokeWidth="0.5" transform="rotate(15 60 36)" />
-      {/* Tunic body */}
-      <rect x="26" y="52" width="28" height="24" rx="6" fill="#2E7D32" />
-      <rect x="30" y="52" width="20" height="24" rx="4" fill="#43A047" />
-      {/* Belt */}
-      <rect x="28" y="64" width="24" height="4" rx="2" fill="#8D6E63" />
-      <rect x="37" y="63" width="6" height="6" rx="1" fill="#FFD54F" />
-      {/* Arms */}
-      <rect x="16" y="54" width="10" height="4" rx="2" fill="#FFDAB9" />
-      <rect x="54" y="54" width="10" height="4" rx="2" fill="#FFDAB9" />
-      {/* Legs/boots */}
-      <rect x="30" y="76" width="8" height="12" rx="3" fill="#5D4037" />
-      <rect x="42" y="76" width="8" height="12" rx="3" fill="#5D4037" />
-    </svg>
-  );
-}
-
 export function ZeldaHero({ state, currencyEarned, currencyIcon, theme }: ZeldaHeroProps) {
   const [tapped, setTapped] = useState(false);
-  const [sillyFace, setSillyFace] = useState<string | null>(null);
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
   const [variant, setVariant] = useState<"a" | "b">("a");
   const heroRef = useRef<HTMLDivElement>(null);
   const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastStateRef = useRef(state);
 
-  // Pick random variant on each state change
   useEffect(() => {
     if (state !== lastStateRef.current) {
       setVariant(Math.random() < 0.5 ? "a" : "b");
@@ -103,7 +58,6 @@ export function ZeldaHero({ state, currencyEarned, currencyIcon, theme }: ZeldaH
     }
   }, [state]);
 
-  // Eye tracking
   useEffect(() => {
     function handleMouseMove(e: MouseEvent) {
       if (!heroRef.current) return;
@@ -126,18 +80,14 @@ export function ZeldaHero({ state, currencyEarned, currencyIcon, theme }: ZeldaH
 
   const handleClick = useCallback(() => {
     if (tapped) return;
-    const randomFace = SILLY_FACES[Math.floor(Math.random() * SILLY_FACES.length)];
-    setSillyFace(randomFace);
     setTapped(true);
     playChirp();
     if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
     tapTimeoutRef.current = setTimeout(() => {
       setTapped(false);
-      setSillyFace(null);
     }, 800);
   }, [tapped]);
 
-  // Map state + variant to CSS class
   function getStateClass(): string {
     if (tapped) return styles.tapped;
     if (variant === "b") {
@@ -152,8 +102,6 @@ export function ZeldaHero({ state, currencyEarned, currencyIcon, theme }: ZeldaH
     return styles[state] ?? "";
   }
 
-  const useTextFace = tapped;
-  const displayText = tapped && sillyFace ? sillyFace : "";
   const activity = getCurrentFocusActivity(theme);
   const activityEmoji = ACTIVITY_EMOJIS[activity.id] ?? "📖";
   const isFocusing = state === "focusing";
@@ -170,24 +118,67 @@ export function ZeldaHero({ state, currencyEarned, currencyIcon, theme }: ZeldaH
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClick(); }}
     >
       <div className={styles.body}>
-        <HeroSvg />
-        {/* Face overlay positioned on the head */}
-        <div style={{ position: "absolute", top: 26, left: 0, right: 0 }}>
-          {useTextFace ? (
-            <span className={styles.face} style={{ display: "block", textAlign: "center" }}>{displayText}</span>
-          ) : (
-            <div className={styles.svgFace}>
-              <TrackingEyes eyeOffset={eyeOffset} />
-            </div>
+        <svg
+          width="48"
+          height="56"
+          viewBox="0 0 48 56"
+          style={{ imageRendering: "pixelated", display: "block" }}
+          shapeRendering="crispEdges"
+        >
+          {/* Cap */}
+          <polygon points="24,0 36,16 12,16" fill="#2E7D32" stroke="#1B5E20" strokeWidth="1" />
+          <polygon points="24,2 32,14 16,14" fill="#43A047" />
+
+          {/* Head */}
+          <rect x="12" y="14" width="24" height="16" rx="4" fill="#FFDAB9" />
+          {/* Ears */}
+          <rect x="8" y="18" width="4" height="8" rx="2" fill="#FFDAB9" />
+          <rect x="36" y="18" width="4" height="8" rx="2" fill="#FFDAB9" />
+
+          {/* Eyes — pixel rects with tracking */}
+          <rect x={16 + eyeOffset.x} y={20 + eyeOffset.y} width="5" height="5" rx="1" fill="#1a3a5c" />
+          <rect x={27 + eyeOffset.x} y={20 + eyeOffset.y} width="5" height="5" rx="1" fill="#1a3a5c" />
+          {/* Eye highlights */}
+          <rect x={18 + eyeOffset.x} y={21 + eyeOffset.y} width="2" height="2" fill="#fff" />
+          <rect x={29 + eyeOffset.x} y={21 + eyeOffset.y} width="2" height="2" fill="#fff" />
+
+          {/* Tunic */}
+          <rect x="14" y="30" width="20" height="14" rx="3" fill="#2E7D32" />
+          <rect x="17" y="30" width="14" height="14" rx="2" fill="#43A047" />
+
+          {/* Belt */}
+          <rect x="15" y="36" width="18" height="3" rx="1" fill="#8D6E63" />
+          <rect x="22" y="35" width="4" height="5" rx="1" fill="#FFD54F" />
+
+          {/* Arms */}
+          <rect x="8" y="32" width="6" height="4" rx="2" fill="#FFDAB9" />
+          <rect x="34" y="32" width="6" height="4" rx="2" fill="#FFDAB9" />
+
+          {/* Boots */}
+          <rect x="16" y="44" width="6" height="8" rx="2" fill="#5D4037" />
+          <rect x="26" y="44" width="6" height="8" rx="2" fill="#5D4037" />
+
+          {/* Celebrating sword raise */}
+          {state === "celebrating" && (
+            <g>
+              <rect x="38" y="8" width="2" height="20" fill="#C0C0C0" />
+              <rect x="35" y="26" width="8" height="2" rx="1" fill="#8B7355" />
+              <polygon points="38,8 40,8 39,4" fill="#C0C0C0" />
+            </g>
           )}
-        </div>
+        </svg>
+
         {/* Activity indicator when focusing */}
         {isFocusing && (
-          <span className={styles.activityOverlay} style={{ display: "block" }}>
+          <span className={styles.activityOverlay}>
             {activityEmoji}
           </span>
         )}
       </div>
+
+      {/* Shadow */}
+      <div className={styles.shadow} />
+
       {state === "celebrating" && currencyEarned != null && currencyEarned > 0 && (
         <span className={styles.currencyEarned}>+{currencyEarned} {currencyIcon}</span>
       )}
