@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getTheme, getCurrentRoomVariant, getCurrentFocusActivity } from "@/lib/themes";
+import { getTheme, getCurrentFocusActivity } from "@/lib/themes";
 import { getDecorationsForTheme, DECORATION_CATALOG } from "@/lib/decoration-catalog";
 
 describe("getTheme", () => {
@@ -17,34 +17,14 @@ describe("getTheme", () => {
     expect(theme.currencyIcon).toBe("💎");
   });
 
-  it("zelda has 3 room variants", () => {
-    const theme = getTheme("zelda");
-    expect(theme.roomVariants).toHaveLength(3);
-  });
-
   it("zelda has 4 focus activities", () => {
     const theme = getTheme("zelda");
     expect(theme.focusActivities).toHaveLength(4);
   });
 
-  it("bean has 1 room variant and 1 focus activity", () => {
+  it("bean has 1 focus activity", () => {
     const theme = getTheme("bean");
-    expect(theme.roomVariants).toHaveLength(1);
     expect(theme.focusActivities).toHaveLength(1);
-  });
-});
-
-describe("getCurrentRoomVariant", () => {
-  it("returns the only variant for bean", () => {
-    const theme = getTheme("bean");
-    const room = getCurrentRoomVariant(theme);
-    expect(room.name).toBe("Bean's Room");
-  });
-
-  it("returns a variant for zelda", () => {
-    const theme = getTheme("zelda");
-    const room = getCurrentRoomVariant(theme);
-    expect(theme.roomVariants).toContainEqual(room);
   });
 });
 
