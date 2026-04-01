@@ -42,12 +42,28 @@ export function createDb(dbPath: string, dataRoot?: string): Database.Database {
       slot_id TEXT PRIMARY KEY,
       item_id TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS room_state (
+      id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+      selected_room TEXT NOT NULL DEFAULT 'basic'
+    );
+
+    CREATE TABLE IF NOT EXISTS unlocked_rooms (
+      room_id TEXT PRIMARY KEY
+    );
   `);
 
   // Seed wallet row if empty
   const walletRow = db.prepare("SELECT id FROM wallet WHERE id = 1").get();
   if (!walletRow) {
     db.prepare("INSERT INTO wallet (id, socks, total_earned) VALUES (1, 0, 0)").run();
+  }
+
+  // Seed room state if empty
+  const roomStateRow = db.prepare("SELECT id FROM room_state WHERE id = 1").get();
+  if (!roomStateRow) {
+    db.prepare("INSERT INTO room_state (id, selected_room) VALUES (1, 'basic')").run();
+    db.prepare("INSERT OR IGNORE INTO unlocked_rooms (room_id) VALUES ('basic')").run();
   }
 
   // Migrate from JSON files if they exist

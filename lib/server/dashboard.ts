@@ -2,7 +2,7 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 import { buildFocusSummary, getFocusSessions, type FocusSessionRecord } from "@/lib/server/focus";
 import { buildInsightsSummary } from "@/lib/server/insights";
 import { readSettings } from "@/lib/server/settings";
-import { readWallet, readInventory, readRoomPlacements } from "@/lib/server/economy";
+import { readWallet, readInventory, readRoomPlacements, readRoomState } from "@/lib/server/economy";
 import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
 import type { TrackerSettings } from "@/lib/server/schema";
 
@@ -179,5 +179,7 @@ export async function getTrackerSnapshot() {
     settings,
   });
 
-  return { ...dashboard, economy: { wallet, inventory, room } };
+  const roomState = readRoomState();
+
+  return { ...dashboard, economy: { wallet, inventory, room, roomState } };
 }

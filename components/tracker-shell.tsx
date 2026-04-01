@@ -9,7 +9,7 @@ import { ShopPanel } from "@/components/shop-panel";
 import { RoomEditor } from "@/components/room-editor";
 import { BottomNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
-import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
+import type { Wallet, Inventory, RoomPlacements, RoomState } from "@/lib/economy-types";
 import { getTheme } from "@/lib/themes";
 import { getDecorationsForTheme } from "@/lib/decoration-catalog";
 
@@ -24,6 +24,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
   const [room, setRoom] = useState<RoomPlacements>(snapshot.economy.room);
+  const [roomState, setRoomState] = useState<RoomState>(snapshot.economy.roomState);
   const theme = getTheme(snapshot.settings.theme);
 
   const statisticsCards = [
@@ -73,6 +74,29 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     setRoom(data.room);
   }
 
+  async function handleUnlockRoom(roomId: string) {
+    const response = await fetch("/api/economy/room", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    setWallet(data.wallet);
+    setRoomState(data.roomState);
+  }
+
+  async function handleSelectRoom(roomId: string) {
+    const response = await fetch("/api/economy/room", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    setRoomState(data.roomState);
+  }
+
   function handleSocksEarned(amount: number) {
     setWallet((prev) => ({
       socks: prev.socks + amount,
@@ -111,6 +135,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             breakEndChime={snapshot.settings.breakEndChime}
             placements={room.placements}
             theme={theme}
+            roomId={roomState.selectedRoom}
             onSocksEarned={handleSocksEarned}
           />
         </section>
@@ -134,6 +159,10 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
               onPurchase={handlePurchase}
               themeId={theme.id}
               currencyIcon={theme.currencyIcon}
+              unlockedRooms={roomState.unlockedRooms}
+              selectedRoom={roomState.selectedRoom}
+              onUnlockRoom={handleUnlockRoom}
+              onSelectRoom={handleSelectRoom}
             />
           </section>
         )}

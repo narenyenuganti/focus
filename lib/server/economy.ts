@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/server/db";
-import type { Wallet, Inventory, RoomPlacements } from "@/lib/economy-types";
+import type { Wallet, Inventory, RoomPlacements, RoomState } from "@/lib/economy-types";
+import { getRoomVariant } from "@/lib/room-catalog";
 
 // Wallet
 export function readWallet(): Wallet {
@@ -90,4 +91,50 @@ export function purchaseDecoration(
   purchase();
 
   return { wallet: readWallet(), inventory: readInventory() };
+}
+
+// Room State
+export function readRoomState(): RoomState {
+  const db = getDb();
+  const row = db.prepare("SELECT selected_room FROM room_state WHERE id = 1").get() as {
+    selected_room: string;
+  };
+  const rows = db.prepare("SELECT room_id FROM unlocked_rooms ORDER BY room_id").all() as {
+    room_id: string;
+  }[];
+  return {
+    unlockedRooms: rows.map((r) => r.room_id),
+    selectedRoom: row.selected_room,
+  };
+}
+
+export function unlockRoom(roomId: string): { wallet: Wallet; roomState: RoomState } {
+  const db = getDb();
+  const room = getRoomVariant(roomId);
+  if (!room) throw new Error("Unknown room");
+
+  const wallet = readWallet();
+  if (wallet.socks < room.cost) throw new Error("Insufficient socks");
+
+  const existing = db.prepare("SELECT room_id FROM unlocked_rooms WHERE room_id = ?").get(roomId);
+  if (existing) throw new Error("Already unlocked");
+
+  const unlock = db.transaction(() => {
+    db.prepare("UPDATE wallet SET socks = socks - ? WHERE id = 1").run(room.cost);
+    db.prepare("INSERT INTO unlocked_rooms (room_id) VALUES (?)").run(roomId);
+    db.prepare("UPDATE room_state SET selected_room = ? WHERE id = 1").run(roomId);
+  });
+
+  unlock();
+
+  return { wallet: readWallet(), roomState: readRoomState() };
+}
+
+export function selectRoom(roomId: string): RoomState {
+  const db = getDb();
+  const existing = db.prepare("SELECT room_id FROM unlocked_rooms WHERE room_id = ?").get(roomId);
+  if (!existing) throw new Error("Room not unlocked");
+
+  db.prepare("UPDATE room_state SET selected_room = ? WHERE id = 1").run(roomId);
+  return readRoomState();
 }
