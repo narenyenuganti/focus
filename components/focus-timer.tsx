@@ -47,6 +47,7 @@ type FocusTimerProps = {
   breakEndChime: boolean;
   placements: RoomPlacements["placements"];
   theme: ThemeConfig;
+  roomId?: string;
   onSocksEarned: (amount: number) => void;
 };
 
@@ -81,6 +82,7 @@ export function FocusTimer({
   breakEndChime,
   placements,
   theme,
+  roomId,
   onSocksEarned,
 }: FocusTimerProps) {
   const router = useRouter();
@@ -377,6 +379,7 @@ export function FocusTimer({
           socksEarned={socksJustEarned ?? undefined}
           placements={placements}
           theme={theme}
+          roomId={roomId}
         >
           <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
           {/* Progress bar */}
