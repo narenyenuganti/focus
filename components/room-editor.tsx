@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getDecoration } from "@/lib/decoration-catalog";
+import { DecorationSprite } from "@/components/sprites/decorations";
 import type { RoomPlacements } from "@/lib/economy-types";
 
 const WALL_SLOTS = ["wall-1", "wall-2", "wall-3", "wall-4"] as const;
@@ -40,11 +41,14 @@ function SlotButton({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 26,
         cursor: "pointer",
       }}
     >
-      {decoration ? decoration.emoji : ""}
+      {decoration ? (
+        <svg width="40" height="40" viewBox="0 0 40 40" style={{ imageRendering: "pixelated" }} shapeRendering="crispEdges">
+          <DecorationSprite spriteId={decoration.sprite} x={4} y={4} />
+        </svg>
+      ) : null}
     </button>
   );
 }
@@ -142,7 +146,9 @@ export function RoomEditor({ placements, purchased, onPlace, onRemove }: RoomEdi
                 flexShrink: 0,
               }}
             >
-              <span style={{ fontSize: 24 }}>{item!.emoji}</span>
+              <svg width="32" height="32" viewBox="0 0 32 32" style={{ imageRendering: "pixelated" }} shapeRendering="crispEdges">
+                <DecorationSprite spriteId={item!.sprite} x={2} y={2} />
+              </svg>
               <span style={{ fontSize: 11, whiteSpace: "nowrap" }}>{item!.name}</span>
             </button>
           ))}
