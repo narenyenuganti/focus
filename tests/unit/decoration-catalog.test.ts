@@ -13,7 +13,7 @@ describe("DECORATION_CATALOG", () => {
       expect(item.category).toMatch(/^(wall|floor|furniture)$/);
       expect(item.tier).toMatch(/^(basic|mid|premium)$/);
       expect(item.cost).toBeGreaterThan(0);
-      expect(item.emoji).toBeTruthy();
+      expect(item.sprite).toBeTruthy();
     }
   });
 
