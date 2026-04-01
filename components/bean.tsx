@@ -11,9 +11,7 @@ type BeanProps = {
   currencyIcon?: string;
 };
 
-const SILLY_FACES = ["◕‿◕", "◕‿↼", "≧◡≦", "♥‿♥", "◔‿◔", ">‿<", "⊙‿⊙"];
-
-const MAX_EYE_OFFSET = 3;
+const MAX_EYE_OFFSET = 2;
 
 function playChirp() {
   try {
@@ -36,46 +34,8 @@ function playChirp() {
   }
 }
 
-function TrackingEyes({ eyeOffset }: { eyeOffset: { x: number; y: number } }) {
-  return (
-    <svg width="40" height="28" viewBox="0 0 40 28" style={{ display: "block", margin: "0 auto" }}>
-      {/* Left eye */}
-      <ellipse cx="12" cy="14" rx="7" ry="8" fill="white" />
-      <circle cx={12 + eyeOffset.x} cy={14 + eyeOffset.y} r="3.5" fill="#333" />
-      <circle cx={12 + eyeOffset.x - 1} cy={14 + eyeOffset.y - 1.5} r="1.2" fill="white" />
-      {/* Right eye */}
-      <ellipse cx="28" cy="14" rx="7" ry="8" fill="white" />
-      <circle cx={28 + eyeOffset.x} cy={14 + eyeOffset.y} r="3.5" fill="#333" />
-      <circle cx={28 + eyeOffset.x - 1} cy={14 + eyeOffset.y - 1.5} r="1.2" fill="white" />
-    </svg>
-  );
-}
-
-function Mouth({ state }: { state: BeanState }) {
-  if (state === "sad") {
-    return (
-      <svg width="20" height="10" viewBox="0 0 20 10" style={{ display: "block", margin: "2px auto 0" }}>
-        <path d="M4,8 Q10,2 16,8" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="20" height="10" viewBox="0 0 20 10" style={{ display: "block", margin: "2px auto 0" }}>
-      <path d="M4,3 Q10,10 16,3" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function Bean({ state, socksEarned, currencyIcon = "🧦" }: BeanProps) {
-  const textFaces: Record<BeanState, string> = {
-    idle: "◡‿◡",
-    focusing: "– –",
-    celebrating: "◡▽◡",
-    sad: "◠_◠",
-  };
-
   const [tapped, setTapped] = useState(false);
-  const [sillyFace, setSillyFace] = useState<string | null>(null);
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
   const beanRef = useRef<HTMLDivElement>(null);
   const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,22 +69,16 @@ export function Bean({ state, socksEarned, currencyIcon = "🧦" }: BeanProps) {
 
   const handleClick = useCallback(() => {
     if (tapped) return;
-
-    const randomFace = SILLY_FACES[Math.floor(Math.random() * SILLY_FACES.length)];
-    setSillyFace(randomFace);
     setTapped(true);
     playChirp();
 
     if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
     tapTimeoutRef.current = setTimeout(() => {
       setTapped(false);
-      setSillyFace(null);
     }, 800);
   }, [tapped]);
 
-  // Use text face for tapped/focusing states, SVG eyes for idle/celebrating/sad
-  const useTextFace = tapped || state === "focusing";
-  const displayText = tapped && sillyFace ? sillyFace : textFaces[state];
+  const isFocusing = state === "focusing";
 
   return (
     <div
@@ -138,23 +92,67 @@ export function Bean({ state, socksEarned, currencyIcon = "🧦" }: BeanProps) {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClick(); }}
     >
       <div className={styles.body}>
-        {useTextFace ? (
-          <span className={styles.face}>{displayText}</span>
-        ) : (
-          <div className={styles.svgFace}>
-            <TrackingEyes eyeOffset={eyeOffset} />
-            <Mouth state={state} />
-          </div>
-        )}
-        <div className={styles.needles}>
-          <div className={styles.needle} />
-          <div className={styles.needle} />
-        </div>
-        <div className={styles.yarn} />
-        <svg className={styles.unravelYarn} viewBox="0 0 30 30">
-          <path className={styles.unravelStrand} d="M5,5 Q15,15 10,25 Q5,20 20,15 Q25,10 15,5" />
+        <svg
+          width="48"
+          height="56"
+          viewBox="0 0 48 56"
+          style={{ imageRendering: "pixelated", display: "block" }}
+          shapeRendering="crispEdges"
+        >
+          {/* Body */}
+          <rect x="6" y="4" width="36" height="38" rx="10" fill="#D4A017" stroke="#8B6914" strokeWidth="2" />
+          {/* Body highlight */}
+          <rect x="10" y="8" width="10" height="16" rx="4" fill="#E0B830" opacity="0.4" />
+
+          {/* Eyes — pixel rects with tracking */}
+          <rect x={12 + eyeOffset.x} y={16 + eyeOffset.y} width="5" height="6" rx="1" fill="#1a1a1a" />
+          <rect x={31 + eyeOffset.x} y={16 + eyeOffset.y} width="5" height="6" rx="1" fill="#1a1a1a" />
+          {/* Eye highlights */}
+          <rect x={14 + eyeOffset.x} y={17 + eyeOffset.y} width="2" height="2" fill="#fff" />
+          <rect x={33 + eyeOffset.x} y={17 + eyeOffset.y} width="2" height="2" fill="#fff" />
+
+          {/* Rosy cheeks */}
+          <rect x="7" y="24" width="5" height="3" rx="1" fill="#E8A060" opacity="0.5" />
+          <rect x="36" y="24" width="5" height="3" rx="1" fill="#E8A060" opacity="0.5" />
+
+          {/* Mouth */}
+          {state === "sad" ? (
+            <path d="M18,32 Q24,28 30,32" stroke="#1a1a1a" fill="none" strokeWidth="1.5" strokeLinecap="round" />
+          ) : state === "celebrating" ? (
+            <path d="M16,30 Q24,38 32,30" stroke="#1a1a1a" fill="none" strokeWidth="1.5" strokeLinecap="round" />
+          ) : (
+            <path d="M18,30 Q24,35 30,30" stroke="#1a1a1a" fill="none" strokeWidth="1.5" strokeLinecap="round" />
+          )}
+
+          {/* Feet */}
+          <rect x="10" y="42" width="10" height="7" rx="2" fill="#8B6914" />
+          <rect x="28" y="42" width="10" height="7" rx="2" fill="#8B6914" />
+
+          {/* Knitting needles (shown when focusing) */}
+          {isFocusing && (
+            <g className={styles.knittingNeedles}>
+              <rect x="2" y="36" width="2" height="18" fill="#A0A0A0" transform="rotate(-20 3 45)" />
+              <rect x="44" y="36" width="2" height="18" fill="#A0A0A0" transform="rotate(20 45 45)" />
+              {/* Yarn */}
+              <path d="M8,52 Q24,56 40,52" stroke="#FFF" fill="none" strokeWidth="2" strokeLinecap="round" />
+            </g>
+          )}
+
+          {/* Celebrating sparkles */}
+          {state === "celebrating" && (
+            <>
+              <rect x="2" y="2" width="3" height="3" fill="#FFD700" opacity="0.8" />
+              <rect x="42" y="0" width="2" height="2" fill="#FFD700" opacity="0.6" />
+              <rect x="0" y="20" width="2" height="2" fill="#FFD700" opacity="0.5" />
+              <rect x="46" y="18" width="2" height="2" fill="#FFD700" opacity="0.7" />
+            </>
+          )}
         </svg>
       </div>
+
+      {/* Shadow */}
+      <div className={styles.shadow} />
+
       {state === "celebrating" && socksEarned != null && (
         <span className={styles.socksEarned}>+{socksEarned} {currencyIcon}</span>
       )}

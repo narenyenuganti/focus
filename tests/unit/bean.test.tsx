@@ -8,9 +8,11 @@ describe("Bean", () => {
     expect(screen.getByLabelText("Bean character")).toBeInTheDocument();
   });
 
-  it("renders focusing state with back turned", () => {
+  it("renders focusing state", () => {
     render(<Bean state="focusing" />);
-    expect(screen.getByText("– –")).toBeInTheDocument();
+    const bean = screen.getByLabelText("Bean character");
+    expect(bean).toBeInTheDocument();
+    expect(bean.className).toContain("focusing");
   });
 
   it("renders celebrating state with socks earned", () => {

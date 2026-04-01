@@ -6,30 +6,16 @@
 }
 
 .body {
-  width: 80px;
-  height: 90px;
-  border-radius: 40px 40px 35px 35px;
-  background: #8B6914;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.5s ease, filter 0.5s ease;
   position: relative;
+  transition: transform 0.5s ease, filter 0.5s ease;
 }
 
-.face {
-  color: white;
-  font-size: 20px;
-  user-select: none;
-  line-height: 1;
-}
-
-.svgFace {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  user-select: none;
+.shadow {
+  width: 32px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  margin: 2px auto 0;
 }
 
 /* Idle: gentle bobbing */
@@ -37,48 +23,13 @@
   animation: bob 3s ease-in-out infinite;
 }
 
-/* Focusing: turned away */
+/* Focusing: turned away with knitting */
 .focusing .body {
   transform: rotateY(180deg);
 }
 
-.focusing .face {
-  transform: rotateY(180deg);
-}
-
-/* Knitting needles */
-.needles {
-  position: absolute;
-  bottom: -8px;
-  display: none;
-}
-
-.focusing .needles {
-  display: flex;
-  gap: 4px;
+.knittingNeedles {
   animation: knit 1.2s ease-in-out infinite;
-}
-
-.needle {
-  width: 2px;
-  height: 18px;
-  background: #A0A0A0;
-  border-radius: 1px;
-}
-
-.yarn {
-  position: absolute;
-  bottom: -16px;
-  width: 24px;
-  height: 2px;
-  background: #FFFFFF;
-  border-radius: 1px;
-  display: none;
-}
-
-.focusing .yarn {
-  display: block;
-  animation: wiggle 1.2s ease-in-out infinite;
 }
 
 /* Celebrating: bounce */
@@ -103,27 +54,6 @@
   animation: slump 0.5s ease-out forwards;
 }
 
-.unravelYarn {
-  position: absolute;
-  bottom: -12px;
-  width: 30px;
-  height: 30px;
-  display: none;
-}
-
-.sad .unravelYarn {
-  display: block;
-}
-
-.unravelStrand {
-  stroke: #FFFFFF;
-  stroke-width: 2;
-  fill: none;
-  stroke-dasharray: 60;
-  stroke-dashoffset: 0;
-  animation: unravel 1.5s ease-in forwards;
-}
-
 /* Tapped: wiggle reaction */
 .tapped .body {
   animation: wiggleTap 0.5s ease-in-out !important;
@@ -145,13 +75,8 @@
 }
 
 @keyframes knit {
-  0%, 100% { transform: rotate(-8deg); }
-  50% { transform: rotate(8deg); }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: translateX(-3px); }
-  50% { transform: translateX(3px); }
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
 }
 
 @keyframes bounce {
@@ -167,9 +92,4 @@
 @keyframes slump {
   from { transform: scale(1); }
   to { transform: scale(0.92); }
-}
-
-@keyframes unravel {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: 60; }
 }
