@@ -119,7 +119,7 @@ export function RoomView({ beanState, socksEarned, placements, theme, roomId = "
         <div
           style={{
             position: "absolute",
-            top: "55%",
+            top: "75%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 3,
