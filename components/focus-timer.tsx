@@ -8,7 +8,7 @@ import type { SoundId } from "@/lib/sounds";
 import { RoomView } from "@/components/room-view";
 
 import { BreakTimer } from "@/components/break-timer";
-import { createLofiPlayer } from "@/lib/lofi";
+import { createLofiPlayer, warmUpAudio } from "@/lib/lofi";
 import type { BeanState } from "@/components/bean";
 import type { RoomPlacements } from "@/lib/economy-types";
 import type { ThemeConfig } from "@/lib/themes";
