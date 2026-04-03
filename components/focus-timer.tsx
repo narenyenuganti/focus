@@ -6,9 +6,9 @@ import type { TrackerSettings } from "@/lib/server/schema";
 import { playSound } from "@/lib/sounds";
 import type { SoundId } from "@/lib/sounds";
 import { RoomView } from "@/components/room-view";
-import { MuteButton } from "@/components/mute-button";
+
 import { BreakTimer } from "@/components/break-timer";
-import { createLofiPlayer, warmUpAudio } from "@/lib/lofi";
+import { createLofiPlayer } from "@/lib/lofi";
 import type { BeanState } from "@/components/bean";
 import type { RoomPlacements } from "@/lib/economy-types";
 import type { ThemeConfig } from "@/lib/themes";
@@ -103,7 +103,6 @@ export function FocusTimer({
   const [beanState, setBeanState] = useState<BeanState>("idle");
   const [socksJustEarned, setSocksJustEarned] = useState<number | null>(null);
   const [isOnBreak, setIsOnBreak] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const lofiPlayerRef = useRef<ReturnType<typeof createLofiPlayer> | null>(null);
 
   const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
@@ -150,7 +149,7 @@ export function FocusTimer({
 
   // Lo-fi music lifecycle
   useEffect(() => {
-    if (status === "running" && ambientMusic && !isMuted) {
+    if (status === "running" && ambientMusic) {
       if (!lofiPlayerRef.current) {
         lofiPlayerRef.current = createLofiPlayer();
       }
@@ -161,7 +160,7 @@ export function FocusTimer({
     return () => {
       lofiPlayerRef.current?.stop();
     };
-  }, [status, ambientMusic, isMuted]);
+  }, [status, ambientMusic]);
 
   // Sync bean state with timer status
   useEffect(() => {
@@ -408,10 +407,7 @@ export function FocusTimer({
             />
           </div>
         </RoomView>
-        <MuteButton muted={isMuted} onToggle={() => {
-          warmUpAudio();
-          setIsMuted((prev) => !prev);
-        }} />
+
       </div>
 
       <p className="focus-feedback">{feedback}</p>
