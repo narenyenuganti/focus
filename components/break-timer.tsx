@@ -8,6 +8,7 @@ type BreakTimerProps = {
   onBreakEnd: () => void;
   onSkip: () => void;
   breakEndChime: boolean;
+  notificationSounds: boolean;
 };
 
 function formatBreakTime(seconds: number) {
@@ -16,13 +17,13 @@ function formatBreakTime(seconds: number) {
   return `${m}:${s}`;
 }
 
-export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, breakEndChime }: BreakTimerProps) {
+export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, breakEndChime, notificationSounds }: BreakTimerProps) {
   const [secondsRemaining, setSecondsRemaining] = useState(durationMinutes * 60);
   const onBreakEndRef = useRef(onBreakEnd);
   onBreakEndRef.current = onBreakEnd;
 
   const handleEnd = useCallback(() => {
-    if (breakEndChime) {
+    if (breakEndChime && notificationSounds) {
       playBreakEndChime();
     }
     onBreakEndRef.current();

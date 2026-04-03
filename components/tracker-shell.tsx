@@ -132,6 +132,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             completionSound={snapshot.settings.completionSound}
             ambientMusic={snapshot.settings.ambientMusic}
             breakDurationMinutes={snapshot.settings.breakDurationMinutes}
+            notificationSounds={snapshot.settings.notificationSounds}
             breakEndChime={snapshot.settings.breakEndChime}
             placements={room.placements}
             theme={theme}
