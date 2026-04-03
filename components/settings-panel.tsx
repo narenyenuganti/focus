@@ -143,6 +143,21 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
           </select>
         </label>
         <label className="field">
+          <span>Notification sounds</span>
+          <select
+            value={settings.notificationSounds ? "on" : "off"}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                notificationSounds: event.target.value === "on",
+              }))
+            }
+          >
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label className="field">
           <span>Break duration (minutes)</span>
           <input
             type="number"
