@@ -9,6 +9,7 @@ import { RoomView } from "@/components/room-view";
 
 import { BreakTimer } from "@/components/break-timer";
 import { createLofiPlayer, warmUpAudio } from "@/lib/lofi";
+import { notify, requestNotificationPermission } from "@/lib/notifications";
 import type { BeanState } from "@/components/bean";
 import type { RoomPlacements } from "@/lib/economy-types";
 import type { ThemeConfig } from "@/lib/themes";
@@ -301,6 +302,7 @@ export function FocusTimer({
       window.clearInterval(interval);
       if (notificationSound !== "off") {
         playSound(notificationSound as SoundId);
+        notify("Focus session complete!", "Time for a break.");
       }
       void saveSessionRef.current(selectedMinutesRef.current, true);
     };
@@ -469,6 +471,7 @@ export function FocusTimer({
             className="primary-button primary-button--focus"
             onClick={() => {
               warmUpAudio();
+              requestNotificationPermission();
               elapsedRunningSecondsRef.current = 0;
               currentRunStartedAtRef.current = Date.now();
               setStartedAt(new Date().toISOString());
