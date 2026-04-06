@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playBreakEndChime } from "@/lib/sounds";
+import { notify } from "@/lib/notifications";
 
 type BreakTimerProps = {
   durationMinutes: number;
@@ -24,6 +25,7 @@ export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, notificationSo
   const handleEnd = useCallback(() => {
     if (notificationSound !== "off") {
       playBreakEndChime();
+      notify("Break's over!", "Ready to focus.");
     }
     onBreakEndRef.current();
   }, [notificationSound]);
