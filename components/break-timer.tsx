@@ -34,7 +34,6 @@ export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, breakEndChime,
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          handleEnd();
           return 0;
         }
         return prev - 1;
@@ -43,6 +42,12 @@ export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, breakEndChime,
 
     return () => clearInterval(interval);
   }, [handleEnd]);
+
+  useEffect(() => {
+    if (secondsRemaining === 0) {
+      handleEnd();
+    }
+  }, [secondsRemaining, handleEnd]);
 
   return (
     <div style={{ textAlign: "center", padding: 16 }}>
