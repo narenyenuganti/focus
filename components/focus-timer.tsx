@@ -41,11 +41,9 @@ type FocusTimerProps = {
   weeklyMinutes: number;
   weeklyGoalMinutes: number;
   presets: TrackerSettings["focusPresets"];
-  completionSound: string;
+  notificationSound: string;
   ambientMusic: boolean;
-  notificationSounds: boolean;
   breakDurationMinutes: number;
-  breakEndChime: boolean;
   placements: RoomPlacements["placements"];
   theme: ThemeConfig;
   roomId?: string;
@@ -77,11 +75,9 @@ export function FocusTimer({
   weeklyMinutes,
   weeklyGoalMinutes,
   presets,
-  completionSound,
+  notificationSound,
   ambientMusic,
-  notificationSounds,
   breakDurationMinutes,
-  breakEndChime,
   placements,
   theme,
   roomId,
@@ -303,8 +299,8 @@ export function FocusTimer({
       elapsedRunningSecondsRef.current = selectedMinutesRef.current * 60;
       currentRunStartedAtRef.current = null;
       window.clearInterval(interval);
-      if (notificationSounds) {
-        playSound(completionSound as SoundId);
+      if (notificationSound !== "off") {
+        playSound(notificationSound as SoundId);
       }
       void saveSessionRef.current(selectedMinutesRef.current, true);
     };
@@ -544,8 +540,7 @@ export function FocusTimer({
           durationMinutes={breakDurationMinutes}
           onBreakEnd={() => setIsOnBreak(false)}
           onSkip={() => setIsOnBreak(false)}
-          breakEndChime={breakEndChime}
-          notificationSounds={notificationSounds}
+          notificationSound={notificationSound}
         />
       )}
     </section>

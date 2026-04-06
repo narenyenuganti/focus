@@ -9,7 +9,7 @@ describe("BreakTimer", () => {
         durationMinutes={5}
         onBreakEnd={vi.fn()}
         onSkip={vi.fn()}
-        breakEndChime={true}
+        notificationSound="secret-discovered"
       />,
     );
     expect(screen.getByText(/break time/i)).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe("BreakTimer", () => {
         durationMinutes={5}
         onBreakEnd={vi.fn()}
         onSkip={vi.fn()}
-        breakEndChime={true}
+        notificationSound="secret-discovered"
       />,
     );
     expect(screen.getByRole("button", { name: /skip/i })).toBeInTheDocument();

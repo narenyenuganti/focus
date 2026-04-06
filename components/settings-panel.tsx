@@ -100,13 +100,14 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
 
       <div className="panel-form-grid">
         <label className="field">
-          <span>Completion sound</span>
+          <span>Notification sound</span>
           <select
-            value={settings.completionSound}
+            value={settings.notificationSound}
             onChange={(event) =>
-              setSettings((current) => ({ ...current, completionSound: event.target.value }))
+              setSettings((current) => ({ ...current, notificationSound: event.target.value }))
             }
           >
+            <option value="off">Off</option>
             {SOUND_LIBRARY.map((sound) => (
               <option key={sound.id} value={sound.id}>
                 {sound.label}
@@ -114,16 +115,18 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             ))}
           </select>
         </label>
-        <div className="field">
-          <span>Preview</span>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => playSound(settings.completionSound as SoundId)}
-          >
-            &#9654; Play
-          </button>
-        </div>
+        {settings.notificationSound !== "off" && (
+          <div className="field">
+            <span>Preview</span>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => playSound(settings.notificationSound as SoundId)}
+            >
+              &#9654; Play
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="panel-form-grid">
@@ -135,21 +138,6 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
               setSettings((current) => ({
                 ...current,
                 ambientMusic: event.target.value === "on",
-              }))
-            }
-          >
-            <option value="on">On</option>
-            <option value="off">Off</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Notification sounds</span>
-          <select
-            value={settings.notificationSounds ? "on" : "off"}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                notificationSounds: event.target.value === "on",
               }))
             }
           >
@@ -171,24 +159,6 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
               }))
             }
           />
-        </label>
-      </div>
-
-      <div className="panel-form-grid">
-        <label className="field">
-          <span>Break-end chime</span>
-          <select
-            value={settings.breakEndChime ? "on" : "off"}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                breakEndChime: event.target.value === "on",
-              }))
-            }
-          >
-            <option value="on">On</option>
-            <option value="off">Off</option>
-          </select>
         </label>
       </div>
 

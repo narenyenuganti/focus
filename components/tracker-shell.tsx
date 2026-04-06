@@ -129,11 +129,9 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             weeklyMinutes={snapshot.focus.weeklyMinutes}
             weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
             presets={snapshot.settings.focusPresets}
-            completionSound={snapshot.settings.completionSound}
+            notificationSound={snapshot.settings.notificationSound}
             ambientMusic={snapshot.settings.ambientMusic}
             breakDurationMinutes={snapshot.settings.breakDurationMinutes}
-            notificationSounds={snapshot.settings.notificationSounds}
-            breakEndChime={snapshot.settings.breakEndChime}
             placements={room.placements}
             theme={theme}
             roomId={roomState.selectedRoom}

@@ -35,10 +35,9 @@ test("renders focus timer transport controls", async () => {
         { label: "Classic Pomodoro", minutes: 25 },
         { label: "Deep Work", minutes: 90 },
       ]}
-      completionSound="secret-discovered"
+      notificationSound="secret-discovered"
       ambientMusic={false}
       breakDurationMinutes={5}
-      breakEndChime={false}
       placements={{}}
       theme={getTheme("bean")}
       onSocksEarned={() => {}}

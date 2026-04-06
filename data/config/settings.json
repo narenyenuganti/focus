@@ -19,9 +19,8 @@
       "minutes": 90
     }
   ],
-  "completionSound": "secret-discovered",
-  "ambientMusic": true,
+  "notificationSound": "secret-discovered",
+  "ambientMusic": false,
   "breakDurationMinutes": 5,
-  "breakEndChime": true,
   "theme": "bean"
 }

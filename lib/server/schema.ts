@@ -14,11 +14,9 @@ export const settingsSchema = z.object({
     { label: "52 / 17", minutes: 52 },
     { label: "Deep Work", minutes: 90 },
   ]),
-  completionSound: z.string().default("secret-discovered"),
+  notificationSound: z.string().default("secret-discovered"),
   ambientMusic: z.boolean().default(true),
-  notificationSounds: z.boolean().default(true),
   breakDurationMinutes: z.number().int().min(1).max(30).default(5),
-  breakEndChime: z.boolean().default(true),
   theme: z.enum(["bean", "zelda"]).default("bean"),
 });
 
@@ -26,11 +24,9 @@ export const settingsPatchSchema = z.object({
   displayName: z.string().min(1).optional(),
   weeklyFocusGoalMinutes: z.number().int().min(0).optional(),
   focusPresets: z.array(focusPresetSchema).optional(),
-  completionSound: z.string().optional(),
+  notificationSound: z.string().optional(),
   ambientMusic: z.boolean().optional(),
-  notificationSounds: z.boolean().optional(),
   breakDurationMinutes: z.number().int().min(1).max(30).optional(),
-  breakEndChime: z.boolean().optional(),
   theme: z.enum(["bean", "zelda"]).optional(),
 });
 

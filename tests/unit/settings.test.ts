@@ -43,10 +43,9 @@ test("returns sensible defaults when the settings file is missing", async () => 
       { label: "52 / 17", minutes: 52 },
       { label: "Deep Work", minutes: 90 },
     ],
-    completionSound: "secret-discovered",
+    notificationSound: "secret-discovered",
     ambientMusic: true,
     breakDurationMinutes: 5,
-    breakEndChime: true,
     theme: "bean",
   });
 });
@@ -101,10 +100,9 @@ test("serves and updates settings through the authenticated route", async () => 
       displayName: "Naren",
       weeklyFocusGoalMinutes: 1500,
       focusPresets: [{ label: "Deep Work", minutes: 90 }],
-      completionSound: "secret-discovered",
+      notificationSound: "secret-discovered",
       ambientMusic: true,
       breakDurationMinutes: 5,
-      breakEndChime: true,
       theme: "bean",
     },
   });
