@@ -146,7 +146,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
               setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
             }}
           >
-            &#128276; {TEST_NOTIFICATIONS[testIndex].title}
+            &#128276; Send test
           </button>
         </div>
       </div>
