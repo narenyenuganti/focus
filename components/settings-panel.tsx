@@ -34,7 +34,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
   const [settings, setSettings] = useState(initialSettings);
   const [status, setStatus] = useState("Local settings");
   const [testIndex, setTestIndex] = useState(0);
-  const [testStatus, setTestStatus] = useState("");
+  const [testStatus, setTestStatus] = useState<string | null>(null);
 
   async function saveSettings() {
     setStatus("Saving settings...");
@@ -129,23 +129,18 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             type="button"
             className="secondary-button"
             onClick={async () => {
-              if (typeof Notification === "undefined") {
-                setTestStatus("Browser does not support notifications");
-                return;
-              }
               const permission = await requestNotificationPermission();
-              const resolved = permission ?? Notification.permission;
-              if (resolved !== "granted") {
-                setTestStatus(`Permission ${resolved} — enable in browser settings`);
+              if ((permission ?? Notification?.permission) !== "granted") {
+                setTestStatus("Permission denied — enable in browser settings");
                 return;
               }
+              setTestStatus(null);
               const { title, body } = TEST_NOTIFICATIONS[testIndex];
               notify(title, body);
               if (settings.notificationSound !== "off") {
                 playSound(settings.notificationSound as SoundId);
               }
               setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
-              setTestStatus("");
             }}
           >
             &#128276; Send test
