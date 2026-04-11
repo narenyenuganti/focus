@@ -5,6 +5,12 @@ import { useState } from "react";
 import type { TrackerSettings } from "@/lib/server/schema";
 import { SOUND_LIBRARY, playSound } from "@/lib/sounds";
 import type { SoundId } from "@/lib/sounds";
+import { requestNotificationPermission, notify } from "@/lib/notifications";
+
+const TEST_NOTIFICATIONS = [
+  { title: "Focus session complete!", body: "Time for a break." },
+  { title: "Break's over!", body: "Ready to focus." },
+] as const;
 
 type SettingsPanelProps = {
   settings: TrackerSettings;
@@ -27,6 +33,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
   const router = useRouter();
   const [settings, setSettings] = useState(initialSettings);
   const [status, setStatus] = useState("Local settings");
+  const [testIndex, setTestIndex] = useState(0);
 
   async function saveSettings() {
     setStatus("Saving settings...");
@@ -127,6 +134,21 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             </button>
           </div>
         )}
+        <div className="field">
+          <span>Test notification</span>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              requestNotificationPermission();
+              const { title, body } = TEST_NOTIFICATIONS[testIndex];
+              notify(title, body);
+              setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
+            }}
+          >
+            &#128276; {TEST_NOTIFICATIONS[testIndex].title}
+          </button>
+        </div>
       </div>
 
       <div className="panel-form-grid">
