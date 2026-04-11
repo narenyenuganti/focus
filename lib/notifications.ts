@@ -4,8 +4,11 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return Notification.requestPermission();
 }
 
+let lastNotification: Notification | null = null;
+
 export function notify(title: string, body: string): void {
   if (typeof Notification === "undefined") return;
   if (Notification.permission !== "granted") return;
-  new Notification(title, { body });
+  lastNotification?.close();
+  lastNotification = new Notification(title, { body });
 }
