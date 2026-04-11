@@ -145,7 +145,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
                 playSound(settings.notificationSound as SoundId);
               }
               setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
-              setTestStatus("Sent!");
+              setTestStatus("");
             }}
           >
             &#128276; Send test
