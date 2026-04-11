@@ -122,27 +122,18 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             ))}
           </select>
         </label>
-        {settings.notificationSound !== "off" && (
-          <div className="field">
-            <span>Preview</span>
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => playSound(settings.notificationSound as SoundId)}
-            >
-              &#9654; Play
-            </button>
-          </div>
-        )}
         <div className="field">
           <span>Test notification</span>
           <button
             type="button"
             className="secondary-button"
-            onClick={() => {
-              requestNotificationPermission();
+            onClick={async () => {
+              await requestNotificationPermission();
               const { title, body } = TEST_NOTIFICATIONS[testIndex];
               notify(title, body);
+              if (settings.notificationSound !== "off") {
+                playSound(settings.notificationSound as SoundId);
+              }
               setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
             }}
           >
