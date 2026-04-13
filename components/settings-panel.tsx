@@ -210,6 +210,20 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
                   }
                 />
               </label>
+              <label className="field">
+                <span>Break minutes</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="60"
+                  value={preset.breakMinutes ?? settings.breakDurationMinutes}
+                  onChange={(event) =>
+                    setSettings((current) =>
+                      updatePreset(current, index, { breakMinutes: Number(event.target.value) }),
+                    )
+                  }
+                />
+              </label>
             </div>
           </article>
         ))}

@@ -3,16 +3,17 @@ import { z } from "zod";
 export const focusPresetSchema = z.object({
   label: z.string().min(1),
   minutes: z.number().int().min(1),
+  breakMinutes: z.number().int().min(1).max(60).optional(),
 });
 
 export const settingsSchema = z.object({
   displayName: z.string().min(1).default("Naren"),
   weeklyFocusGoalMinutes: z.number().int().min(0).default(1200),
   focusPresets: z.array(focusPresetSchema).default([
-    { label: "Classic Pomodoro", minutes: 25 },
-    { label: "Eisenhower", minutes: 50 },
-    { label: "52 / 17", minutes: 52 },
-    { label: "Deep Work", minutes: 90 },
+    { label: "Classic Pomodoro", minutes: 25, breakMinutes: 5 },
+    { label: "Eisenhower", minutes: 50, breakMinutes: 10 },
+    { label: "52 / 17", minutes: 52, breakMinutes: 17 },
+    { label: "Deep Work", minutes: 90, breakMinutes: 20 },
   ]),
   notificationSound: z.string().default("secret-discovered"),
   ambientMusic: z.boolean().default(true),

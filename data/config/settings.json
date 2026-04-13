@@ -4,19 +4,23 @@
   "focusPresets": [
     {
       "label": "Classic Pomodoro",
-      "minutes": 25
+      "minutes": 25,
+      "breakMinutes": 5
     },
     {
       "label": "Eisenhower",
-      "minutes": 50
+      "minutes": 50,
+      "breakMinutes": 10
     },
     {
       "label": "52 / 17",
-      "minutes": 52
+      "minutes": 52,
+      "breakMinutes": 17
     },
     {
       "label": "Deep Work",
-      "minutes": 90
+      "minutes": 90,
+      "breakMinutes": 20
     }
   ],
   "notificationSound": "secret-discovered",

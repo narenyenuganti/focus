@@ -540,7 +540,7 @@ export function FocusTimer({
       {/* Break timer */}
       {isOnBreak && (
         <BreakTimer
-          durationMinutes={breakDurationMinutes}
+          durationMinutes={activePreset?.breakMinutes ?? breakDurationMinutes}
           onBreakEnd={() => setIsOnBreak(false)}
           onSkip={() => setIsOnBreak(false)}
           notificationSound={notificationSound}
