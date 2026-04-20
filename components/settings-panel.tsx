@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { TrackerSettings } from "@/lib/server/schema";
 import { SOUND_LIBRARY, playSound } from "@/lib/sounds";
 import type { SoundId } from "@/lib/sounds";
@@ -11,6 +11,8 @@ const TEST_NOTIFICATIONS = [
   { title: "Focus session complete!", body: "Time for a break." },
   { title: "Break's over!", body: "Ready to focus." },
 ] as const;
+
+const THEMES = ["terracotta", "olive", "dusk"] as const;
 
 type SettingsPanelProps = {
   settings: TrackerSettings;
@@ -55,253 +57,275 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
     router.refresh();
   }
 
-  const soundOptions: { id: string; label: string }[] = [
-    { id: "off", label: "Off" },
-    ...SOUND_LIBRARY.map((sound) => ({ id: sound.id, label: sound.label })),
-  ];
-
   return (
-    <section>
-      <div className="section-head">
-        <h2 className="serif">
-          Your <em>preferences</em>
-        </h2>
-        <span className="meta">Local · not synced</span>
-      </div>
+    <section className="view">
+      <h2
+        style={{
+          fontFamily: "var(--font-serif), Georgia, serif",
+          fontStyle: "italic",
+          fontWeight: 400,
+          fontSize: 48,
+          margin: "0 0 36px",
+          letterSpacing: "-0.03em",
+          lineHeight: 1,
+        }}
+      >
+        Quiet <em style={{ color: "var(--accent)" }}>preferences</em>.
+      </h2>
 
-      <div className="settings-form">
-        <div className="settings-row">
-          <label>
-            <strong>Theme</strong>
-            <span>The whole app warms or cools with the season.</span>
-          </label>
-          <div className="control">
-            <div className="seg" role="tablist" aria-label="Theme">
-              {(["terracotta", "olive", "dusk"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={settings.theme === t ? "on" : ""}
-                  onClick={() => setSettings((current) => ({ ...current, theme: t }))}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+      <div className="settings-list">
+        <Row
+          name="Theme"
+          hint="Visual tone"
+          description="The whole app warms or cools with the season."
+        >
+          <div className="theme-picker">
+            {THEMES.map((t) => (
+              <button
+                key={t}
+                type="button"
+                className={settings.theme === t ? "on" : ""}
+                onClick={() => setSettings((current) => ({ ...current, theme: t }))}
+              >
+                {t}
+              </button>
+            ))}
           </div>
-        </div>
+        </Row>
 
-        <div className="settings-row">
-          <label>
-            <strong>Weekly goal</strong>
-            <span>Target minutes of focused work each week. Used for the ring and ledger.</span>
-          </label>
-          <div className="control">
-            <input
-              className="input"
-              type="number"
-              min={0}
-              value={settings.weeklyFocusGoalMinutes}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  weeklyFocusGoalMinutes: Number(event.target.value),
-                }))
+        <Row
+          name="Weekly goal"
+          hint="Target minutes"
+          description="Drives the stats view."
+        >
+          <input
+            type="number"
+            min={0}
+            className="number-input"
+            value={settings.weeklyFocusGoalMinutes}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                weeklyFocusGoalMinutes: Number(event.target.value),
+              }))
+            }
+          />
+          <span className="label" style={{ letterSpacing: "0.2em" }}>min</span>
+        </Row>
+
+        <Row
+          name="Break duration"
+          hint="Default"
+          description="Minutes between sessions when a preset doesn't set its own."
+        >
+          <input
+            type="number"
+            min={1}
+            max={30}
+            className="number-input"
+            value={settings.breakDurationMinutes}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                breakDurationMinutes: Number(event.target.value),
+              }))
+            }
+          />
+          <span className="label" style={{ letterSpacing: "0.2em" }}>min</span>
+        </Row>
+
+        <Row
+          name="Ambient sound"
+          hint="Lo-fi drone"
+          description="A barely-there hum beneath the session."
+        >
+          <Toggle
+            on={settings.ambientMusic}
+            onChange={() =>
+              setSettings((current) => ({
+                ...current,
+                ambientMusic: !current.ambientMusic,
+              }))
+            }
+          />
+        </Row>
+
+        <Row
+          name="Garden time"
+          hint="Time of day"
+          description="When on, the garden follows the wall clock. Off lets you scrub manually."
+        >
+          <Toggle
+            on={settings.gardenAutoTimeOfDay}
+            onChange={() =>
+              setSettings((current) => ({
+                ...current,
+                gardenAutoTimeOfDay: !current.gardenAutoTimeOfDay,
+              }))
+            }
+          />
+        </Row>
+
+        <Row
+          name="Chime"
+          hint="End of session"
+          description="A single, slow bell — or silence."
+        >
+          <select
+            className="number-input"
+            style={{ width: 160, textAlign: "left" }}
+            value={settings.notificationSound}
+            onChange={(event) =>
+              setSettings((current) => ({ ...current, notificationSound: event.target.value }))
+            }
+          >
+            <option value="off">Silent</option>
+            {SOUND_LIBRARY.map((sound) => (
+              <option key={sound.id} value={sound.id}>
+                {sound.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn-ghost"
+            style={{ padding: "8px 12px", fontSize: 10 }}
+            onClick={async () => {
+              const permission = await requestNotificationPermission();
+              if ((permission ?? Notification?.permission) !== "granted") {
+                setTestStatus("Permission denied — enable in browser settings");
+                return;
               }
-            />
-            <span className="unit">Minutes</span>
-          </div>
-        </div>
+              setTestStatus(null);
+              const { title, body } = TEST_NOTIFICATIONS[testIndex];
+              notify(title, body);
+              if (settings.notificationSound !== "off") {
+                playSound(settings.notificationSound as SoundId);
+              }
+              setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
+            }}
+          >
+            Test
+          </button>
+          {testStatus ? <span className="label">{testStatus}</span> : null}
+        </Row>
 
-        <div className="settings-row">
-          <label>
-            <strong>Ambient sound</strong>
-            <span>A soft drone while you focus. Starts muted.</span>
-          </label>
-          <div className="control">
-            <div className="seg" role="tablist" aria-label="Ambient sound">
-              <button
-                type="button"
-                className={!settings.ambientMusic ? "on" : ""}
-                onClick={() => setSettings((current) => ({ ...current, ambientMusic: false }))}
+        <Row
+          name="Presets"
+          hint="Focus blocks"
+          description="Shorter blocks favor momentum; longer blocks favor depth."
+          multiline
+        >
+          <div style={{ display: "grid", gap: 8, width: "100%", minWidth: 320 }}>
+            {settings.focusPresets.map((preset, index) => (
+              <div
+                key={`${preset.label}-${index}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 80px 80px",
+                  gap: 10,
+                  alignItems: "center",
+                }}
               >
-                Off
-              </button>
-              <button
-                type="button"
-                className={settings.ambientMusic ? "on" : ""}
-                onClick={() => setSettings((current) => ({ ...current, ambientMusic: true }))}
-              >
-                Lo-fi
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>
-            <strong>Garden time</strong>
-            <span>
-              When on, the garden scene follows the wall clock. Off lets you scrub
-              Dawn → Dusk manually.
-            </span>
-          </label>
-          <div className="control">
-            <div className="seg" role="tablist" aria-label="Garden time">
-              <button
-                type="button"
-                className={settings.gardenAutoTimeOfDay ? "on" : ""}
-                onClick={() =>
-                  setSettings((current) => ({ ...current, gardenAutoTimeOfDay: true }))
-                }
-              >
-                Follow real time
-              </button>
-              <button
-                type="button"
-                className={!settings.gardenAutoTimeOfDay ? "on" : ""}
-                onClick={() =>
-                  setSettings((current) => ({ ...current, gardenAutoTimeOfDay: false }))
-                }
-              >
-                Manual
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>
-            <strong>End of session</strong>
-            <span>What should happen when the ring closes.</span>
-          </label>
-          <div className="control">
-            <div className="seg" role="tablist" aria-label="Notification sound">
-              {soundOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={settings.notificationSound === option.id ? "on" : ""}
-                  onClick={() =>
-                    setSettings((current) => ({ ...current, notificationSound: option.id }))
+                <input
+                  className="number-input"
+                  style={{ textAlign: "left", width: "100%" }}
+                  value={preset.label}
+                  onChange={(event) =>
+                    setSettings((current) =>
+                      updatePreset(current, index, { label: event.target.value }),
+                    )
                   }
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={async () => {
-                const permission = await requestNotificationPermission();
-                if ((permission ?? Notification?.permission) !== "granted") {
-                  setTestStatus("Permission denied — enable in browser settings");
-                  return;
-                }
-                setTestStatus(null);
-                const { title, body } = TEST_NOTIFICATIONS[testIndex];
-                notify(title, body);
-                if (settings.notificationSound !== "off") {
-                  playSound(settings.notificationSound as SoundId);
-                }
-                setTestIndex((i) => (i + 1) % TEST_NOTIFICATIONS.length);
-              }}
-            >
-              Test
-            </button>
-            {testStatus ? <span className="settings-status">{testStatus}</span> : null}
+                />
+                <input
+                  type="number"
+                  min={1}
+                  className="number-input"
+                  value={preset.minutes}
+                  onChange={(event) =>
+                    setSettings((current) =>
+                      updatePreset(current, index, { minutes: Number(event.target.value) }),
+                    )
+                  }
+                  title="Focus minutes"
+                />
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  className="number-input"
+                  value={preset.breakMinutes ?? settings.breakDurationMinutes}
+                  onChange={(event) =>
+                    setSettings((current) =>
+                      updatePreset(current, index, {
+                        breakMinutes: Number(event.target.value),
+                      }),
+                    )
+                  }
+                  title="Break minutes"
+                />
+              </div>
+            ))}
           </div>
-        </div>
+        </Row>
 
-        <div className="settings-row">
-          <label>
-            <strong>Break duration</strong>
-            <span>Default minutes between sessions when a preset doesn't set its own.</span>
-          </label>
-          <div className="control">
-            <input
-              className="input"
-              type="number"
-              min={1}
-              max={30}
-              value={settings.breakDurationMinutes}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  breakDurationMinutes: Number(event.target.value),
-                }))
-              }
-            />
-            <span className="unit">Minutes</span>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>
-            <strong>Presets</strong>
-            <span>Edit your blocks. Shorter blocks favor momentum; longer blocks favor depth.</span>
-          </label>
-          <div className="control" style={{ flexDirection: "column", alignItems: "stretch" }}>
-            <div className="preset-editor">
-              {settings.focusPresets.map((preset, index) => (
-                <div key={`${preset.label}-${index}`} className="preset-editor-row">
-                  <input
-                    className="input"
-                    value={preset.label}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        updatePreset(current, index, { label: event.target.value }),
-                      )
-                    }
-                  />
-                  <input
-                    className="input"
-                    type="number"
-                    min={1}
-                    value={preset.minutes}
-                    style={{ textAlign: "right", minWidth: 0 }}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        updatePreset(current, index, { minutes: Number(event.target.value) }),
-                      )
-                    }
-                  />
-                  <input
-                    className="input"
-                    type="number"
-                    min={1}
-                    max={60}
-                    value={preset.breakMinutes ?? settings.breakDurationMinutes}
-                    style={{ textAlign: "right", minWidth: 0 }}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        updatePreset(current, index, {
-                          breakMinutes: Number(event.target.value),
-                        }),
-                      )
-                    }
-                  />
-                  <span className="unit">min / break</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>
-            <strong>Data</strong>
-            <span>Everything lives in this repo. Save or reset your preferences.</span>
-          </label>
-          <div className="control">
-            <button type="button" className="btn primary" onClick={() => void saveSettings()}>
-              Save
-            </button>
-            <span className="settings-status">{status}</span>
-          </div>
-        </div>
+        <Row name="Data" hint="Save" description="Everything lives in this repo.">
+          <button type="button" className="btn-primary" onClick={() => void saveSettings()}>
+            Save settings
+            <svg className="arrow" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+              <path
+                d="M1 5h12m0 0L9 1m4 4L9 9"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+          <span className="label">{status}</span>
+        </Row>
       </div>
     </section>
+  );
+}
+
+function Row({
+  name,
+  hint,
+  description,
+  children,
+  multiline,
+}: {
+  name: string;
+  hint: string;
+  description: string;
+  children: ReactNode;
+  multiline?: boolean;
+}) {
+  return (
+    <div
+      className="settings-row-v4"
+      style={multiline ? { alignItems: "start" } : undefined}
+    >
+      <div className="k">
+        <div className="name">{name}</div>
+        <div className="hint">{hint}</div>
+      </div>
+      <div className="d">{description}</div>
+      <div className="ctrl">{children}</div>
+    </div>
+  );
+}
+
+function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`toggle ${on ? "on" : ""}`}
+      role="switch"
+      aria-checked={on}
+      onClick={onChange}
+    >
+      <span className="dot" />
+    </button>
   );
 }
