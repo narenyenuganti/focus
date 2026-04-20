@@ -2,22 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+:root[data-theme="terracotta"] {
   color-scheme: light;
-  /* Palette — "ivory monastery" */
-  --paper: #F2EEE6;
-  --paper-2: #EAE4D8;
-  --paper-3: #E0D9C9;
-  --ink: #141414;
-  --ink-2: #2A2725;
-  --ink-soft: #6E665C;
-  --rule: #D7CFBE;
-  --accent: #E8612C;          /* amber-orange */
-  --sage: #5F6F52;            /* calm progress green */
-  --rose: #B34D4D;            /* cautionary */
-  --shadow: 0 1px 0 rgba(20, 20, 20, 0.04), 0 20px 40px -24px rgba(20, 20, 20, 0.16);
+  /* Palette — warm terracotta */
+  --paper: #fdf9ef;
+  --paper-2: #f8f1df;
+  --paper-3: #f0e6cd;
+  --ink: #2a1f17;
+  --ink-2: #2a2725;
+  --ink-soft: #5a4a3a;
+  --ink-muted: #8a7a66;
+  --rule: #c6b494;
+  --accent: #b8563a;        /* terracotta */
+  --accent-soft: #d47a5c;
+  --moss: #6b7a3a;
+  --moss-deep: #4a5528;
+  --ochre: #c99443;
+  --clay: #9a5a3e;
+  --sage: var(--moss);
+  --rose: var(--clay);
+  --shadow-color: rgba(60, 40, 20, 0.12);
+  --shadow: 0 1px 0 rgba(42, 31, 23, 0.04), 0 20px 40px -24px var(--shadow-color);
+  --paper-texture: 1;
+  --radius: 2px;
 
-  /* Legacy token aliases (until all components migrate off them) */
+  /* Legacy aliases (until components migrate off them) */
+  --bg: var(--paper);
+  --card: var(--paper);
+  --border: var(--rule);
+  --text: var(--ink);
+  --muted: var(--ink-soft);
+  --action: var(--accent);
+  --pill-bg: var(--paper-2);
+  --wall: var(--paper-2);
+  --floor: var(--paper-3);
+}
+
+:root[data-theme="olive"] {
+  color-scheme: light;
+  --paper: #faf5e2;
+  --paper-2: #f1e9ce;
+  --paper-3: #e3d7b5;
+  --ink: #22251a;
+  --ink-2: #2a2725;
+  --ink-soft: #4a4e38;
+  --ink-muted: #7a7b60;
+  --rule: #b8ac86;
+  --accent: #8b6f28;
+  --accent-soft: #b08c3a;
+  --moss: #5e6a2a;
+  --moss-deep: #3d4518;
+  --ochre: #a87820;
+  --clay: #6b4f26;
+  --sage: var(--moss);
+  --rose: var(--clay);
+  --shadow-color: rgba(50, 50, 20, 0.12);
+  --shadow: 0 1px 0 rgba(34, 37, 26, 0.04), 0 20px 40px -24px var(--shadow-color);
+  --paper-texture: 1;
+  --radius: 1px;
+
+  --bg: var(--paper);
+  --card: var(--paper);
+  --border: var(--rule);
+  --text: var(--ink);
+  --muted: var(--ink-soft);
+  --action: var(--accent);
+  --pill-bg: var(--paper-2);
+  --wall: var(--paper-2);
+  --floor: var(--paper-3);
+}
+
+:root[data-theme="dusk"] {
+  color-scheme: dark;
+  --paper: #221c1a;
+  --paper-2: #2c2522;
+  --paper-3: #362d29;
+  --ink: #f0e4d2;
+  --ink-2: #f0e4d2;
+  --ink-soft: #c8b8a2;
+  --ink-muted: #8a7a68;
+  --rule: #4a3f38;
+  --accent: #d48b4a;
+  --accent-soft: #e3a970;
+  --moss: #8aa058;
+  --moss-deep: #5a6a3a;
+  --ochre: #e0a868;
+  --clay: #b87048;
+  --sage: var(--moss);
+  --rose: var(--clay);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 20px 40px -24px var(--shadow-color);
+  --paper-texture: 0.6;
+  --radius: 2px;
+
   --bg: var(--paper);
   --card: var(--paper);
   --border: var(--rule);
