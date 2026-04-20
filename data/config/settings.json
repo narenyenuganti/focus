@@ -24,7 +24,7 @@
     }
   ],
   "notificationSound": "secret-discovered",
-  "ambientMusic": false,
+  "ambientMusic": true,
   "breakDurationMinutes": 5,
   "theme": "bean"
 }

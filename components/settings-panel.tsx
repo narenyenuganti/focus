@@ -94,31 +94,6 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
 
         <div className="settings-row">
           <label>
-            <strong>Theme</strong>
-            <span>Which cast of characters occupies your focus hours.</span>
-          </label>
-          <div className="control">
-            <div className="seg" role="tablist" aria-label="Theme">
-              <button
-                type="button"
-                className={settings.theme === "bean" ? "on" : ""}
-                onClick={() => setSettings((current) => ({ ...current, theme: "bean" }))}
-              >
-                Bean
-              </button>
-              <button
-                type="button"
-                className={settings.theme === "zelda" ? "on" : ""}
-                onClick={() => setSettings((current) => ({ ...current, theme: "zelda" }))}
-              >
-                Adventure
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>
             <strong>Ambient sound</strong>
             <span>A soft drone while you focus. Starts muted.</span>
           </label>
