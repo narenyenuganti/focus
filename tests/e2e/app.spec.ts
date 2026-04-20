@@ -19,8 +19,8 @@ test("renders the unlock screen", async ({ page }) => {
   await expect(page.locator(".announcement-visual")).toHaveCount(0);
   await expect(page.locator(".announcement-card")).toHaveCount(0);
 
-  await expect(page.locator(".hub-topbar")).toBeVisible();
-  await expect(page.locator(".hub-bottombar")).toBeVisible();
+  await expect(page.locator(".topbar")).toBeVisible();
+  await expect(page.locator(".nav")).toBeVisible();
   await expect(page.locator(".hub-dots")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
@@ -51,7 +51,7 @@ test("unlocks directly into the tracker shell", async ({ page }) => {
   await page.getByLabel(/password/i).fill("tracker");
   await page.getByRole("button", { name: "Unlock" }).click();
 
-  await expect(page.locator(".hub-topbar")).toBeVisible();
+  await expect(page.locator(".topbar")).toBeVisible();
   await expect(page.getByRole("dialog", { name: "Tracker announcement" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Close announcement" })).toHaveCount(0);
 });

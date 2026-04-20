@@ -14,10 +14,10 @@ async function unlock(page: Page) {
 test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await unlock(page);
 
-  await expect(page.locator(".hub-topbar")).toBeVisible();
-  await expect(page.locator(".hub-bottombar")).toBeVisible();
-  await expect(page.locator(".hub-bottombar .utility-cluster")).toHaveCount(2);
-  await expect(page.locator(".hub-bottombar .nav-cluster")).toBeVisible();
+  await expect(page.locator(".topbar")).toBeVisible();
+  await expect(page.locator(".nav")).toBeVisible();
+  await expect(page.locator(".nav .utility-cluster")).toHaveCount(2);
+  await expect(page.locator(".nav .nav-cluster")).toBeVisible();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
   await expect(page.getByText("Classic Pomodoro", { exact: true })).toBeVisible();
@@ -34,9 +34,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Expand player" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Music" })).toHaveCount(0);
   await expect(page.locator(".mini-player")).toHaveCount(0);
-  const bottomBar = page.locator(".hub-bottombar");
-  const main = page.locator(".hub-main");
-  const focusColumn = page.locator(".hub-focus-column");
+  const bottomBar = page.locator(".nav");
+  const main = page.locator(".stage");
+  const focusColumn = page.locator(".stage");
   await expect(bottomBar).toBeVisible();
   const bottomBarBox = await bottomBar.boundingBox();
   expect(bottomBarBox).not.toBeNull();
@@ -102,7 +102,7 @@ test("keeps mobile shell spacing clear", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   const focusRing = page.locator(".focus-ring");
-  const bottomBar = page.locator(".hub-bottombar");
+  const bottomBar = page.locator(".nav");
   await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
@@ -128,7 +128,7 @@ test("keeps tablet shell spacing clear", async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 900 });
 
   const focusRing = page.locator(".focus-ring");
-  const bottomBar = page.locator(".hub-bottombar");
+  const bottomBar = page.locator(".nav");
   await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
@@ -154,7 +154,7 @@ test("keeps mid-range shell spacing clear", async ({ page }) => {
   await page.setViewportSize({ width: 700, height: 900 });
 
   const focusRing = page.locator(".focus-ring");
-  const bottomBar = page.locator(".hub-bottombar");
+  const bottomBar = page.locator(".nav");
   await expect(focusRing).toBeVisible();
   await expect(bottomBar).toBeVisible();
 

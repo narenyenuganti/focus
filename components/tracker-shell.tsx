@@ -7,11 +7,10 @@ import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { ShopPanel } from "@/components/shop-panel";
 import { RoomEditor } from "@/components/room-editor";
-import { BottomNav, type TabId } from "@/components/bottom-nav";
+import { TopNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 import type { Wallet, Inventory, RoomPlacements, RoomState } from "@/lib/economy-types";
 import { getTheme } from "@/lib/themes";
-import { getDecorationsForTheme } from "@/lib/decoration-catalog";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
 
@@ -39,6 +38,13 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       detail: `${snapshot.insights.goalProgress[0]?.percent ?? 0}% of ${snapshot.settings.weeklyFocusGoalMinutes}m goal`,
     },
   ];
+
+  const streakDays = snapshot.focus.currentStreakDays ?? 0;
+  const weekMinutes = snapshot.focus.weeklyMinutes;
+  const goalMinutes = snapshot.settings.weeklyFocusGoalMinutes;
+  const weekPct = goalMinutes > 0
+    ? Math.min(100, Math.round((weekMinutes / goalMinutes) * 100))
+    : 0;
 
   async function handlePurchase(itemId: string) {
     const response = await fetch("/api/economy/purchase", {
@@ -105,24 +111,53 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   }
 
   return (
-    <div className="hub-shell">
-      {/* Top bar */}
-      <header className="hub-topbar">
-        {snapshot.topMetrics.map((metric) => (
-          <article key={metric.label} className={`metric-pill tone-${metric.tone}`}>
-            <strong>{metric.value}</strong>
-            <span>{metric.label}</span>
-          </article>
-        ))}
-        <article className="metric-pill tone-emerald">
-          <strong>{theme.currencyIcon} {wallet.socks}</strong>
-          <span>{theme.currencyName}</span>
-        </article>
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <div className="mark" aria-hidden="true" />
+          <div className="wordmark serif">
+            <span>Focus</span> <em>— 2026</em>
+          </div>
+        </div>
+        <div className="topbar-right">
+          <div className="streak" title={`${streakDays} day streak`}>
+            <span>Streak</span>
+            <span className="dots">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <span key={i} className={`dot ${i < Math.min(7, streakDays) ? "on" : ""}`} />
+              ))}
+            </span>
+            <span className="mono">{streakDays}d</span>
+          </div>
+          <div className="wallet">
+            <span className="cur">{theme.currencyName}</span>
+            <span className="num mono">{wallet.socks}</span>
+          </div>
+          <form action={logoutTracker}>
+            <button
+              type="submit"
+              aria-label="Log out"
+              style={{
+                font: "inherit",
+                background: "none",
+                border: 0,
+                cursor: "pointer",
+                fontSize: 11,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: "var(--ink-soft)",
+              }}
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
-      {/* Main content area */}
-      <main className="hub-main">
-        <section className="hub-focus-column" style={{ display: activeTab === "focus" ? undefined : "none" }}>
+      <TopNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <main className="stage">
+        {activeTab === "focus" && (
           <FocusTimer
             todayMinutes={snapshot.focus.todayMinutes}
             todaySessions={snapshot.focus.todaySessions}
@@ -137,53 +172,44 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             roomId={roomState.selectedRoom}
             onSocksEarned={handleSocksEarned}
           />
-        </section>
-
-        {activeTab === "room" && (
-          <section className="hub-focus-column">
-            <RoomEditor
-              placements={room.placements}
-              purchased={inventory.purchased}
-              onPlace={handlePlace}
-              onRemove={handleRemove}
-            />
-          </section>
         )}
 
-        {activeTab === "shop" && (
-          <section className="hub-focus-column">
-            <ShopPanel
-              socks={wallet.socks}
-              purchased={inventory.purchased}
-              onPurchase={handlePurchase}
-              themeId={theme.id}
-              currencyIcon={theme.currencyIcon}
-              unlockedRooms={roomState.unlockedRooms}
-              selectedRoom={roomState.selectedRoom}
-              onUnlockRoom={handleUnlockRoom}
-              onSelectRoom={handleSelectRoom}
-            />
-          </section>
+        {activeTab === "garden" && (
+          <RoomEditor
+            placements={room.placements}
+            purchased={inventory.purchased}
+            onPlace={handlePlace}
+            onRemove={handleRemove}
+          />
         )}
 
-        {activeTab === "stats" && (
-          <section className="hub-focus-column">
-            <StatsOverview cards={statisticsCards} />
-          </section>
+        {activeTab === "market" && (
+          <ShopPanel
+            socks={wallet.socks}
+            purchased={inventory.purchased}
+            onPurchase={handlePurchase}
+            themeId={theme.id}
+            currencyIcon={theme.currencyIcon}
+            unlockedRooms={roomState.unlockedRooms}
+            selectedRoom={roomState.selectedRoom}
+            onUnlockRoom={handleUnlockRoom}
+            onSelectRoom={handleSelectRoom}
+          />
         )}
 
-        {activeTab === "settings" && (
-          <section className="hub-focus-column">
-            <SettingsPanel settings={snapshot.settings} />
-          </section>
-        )}
+        {activeTab === "ledger" && <StatsOverview cards={statisticsCards} />}
+
+        {activeTab === "settings" && <SettingsPanel settings={snapshot.settings} />}
       </main>
 
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onLogout={logoutTracker}
-      />
+      <footer className="footer">
+        <div className="colophon">
+          Set in <em className="serif">Instrument Serif</em> · Local-first · Quietly yours
+        </div>
+        <div>
+          <span className="mono">{weekPct}% of weekly goal</span>
+        </div>
+      </footer>
     </div>
   );
 }

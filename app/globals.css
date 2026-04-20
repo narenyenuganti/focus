@@ -85,6 +85,183 @@ a {
   padding: 24px;
 }
 
+/* ---------- revamped app shell ---------- */
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand .mark {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.brand .mark::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.brand .wordmark {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.brand .wordmark em {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.wallet {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+.wallet .num {
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.wallet .cur {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.streak .dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.streak .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--rule);
+}
+
+.streak .dot.on {
+  background: var(--accent);
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  padding: 18px 0 10px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+
+.nav button {
+  font: inherit;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  position: relative;
+  transition: color 300ms ease;
+}
+
+.nav button:hover {
+  color: var(--ink);
+}
+
+.nav button.is-active {
+  color: var(--ink);
+}
+
+.nav-underline {
+  position: absolute;
+  bottom: -1px;
+  height: 1px;
+  background: var(--ink);
+  transition: transform 420ms cubic-bezier(.7, 0, .2, 1),
+    width 420ms cubic-bezier(.7, 0, .2, 1);
+  will-change: transform, width;
+}
+
+.stage {
+  position: relative;
+  padding: 48px 0 80px;
+  min-height: 640px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.footer .colophon em {
+  font-style: italic;
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@media (max-width: 720px) {
+  .app {
+    padding: 0 20px;
+  }
+}
+
 .card {
   width: min(520px, 100%);
   border: 1px solid var(--border);
