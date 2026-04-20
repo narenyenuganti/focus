@@ -12,6 +12,8 @@ export type GlyphKind =
   | "string" | "glowworm" | "starlantern" | "bonfire"
   | "pond" | "stream" | "fountain"
   | "butterfly" | "bird" | "koi" | "fox"
+  | "rabbit" | "deer" | "turtle" | "frog" | "squirrel" | "hedgehog"
+  | "dragonfly" | "snail" | "ladybug" | "cat" | "mouse" | "owl" | "bee" | "duck"
   | "sun" | "clouds" | "moon" | "stars" | "aurora"
   | "petals" | "snow" | "autumn";
 
@@ -737,6 +739,252 @@ export function GardenGlyph({ kind, size = 80 }: GlyphProps) {
           <path d="M18 54 Q 10 48 6 54 Q 10 58 18 56 Z" fill={PAL.fox} />
           <path d="M10 54 Q 8 52 10 50" stroke="#fff" strokeWidth="1.2" fill="none" />
           <path d="M24 60 L 22 68 M32 62 L 32 70 M46 62 L 46 70 M58 60 L 60 68" stroke={PAL.fox} strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "rabbit":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="70" rx="20" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="54" rx="18" ry="14" fill="#F4EFE2" />
+          <circle cx="54" cy="44" r="10" fill="#F4EFE2" />
+          <ellipse cx="48" cy="28" rx="3.5" ry="10" fill="#F4EFE2" transform="rotate(-10 48 28)" />
+          <ellipse cx="48" cy="30" rx="1.8" ry="7" fill="#E8B4C2" transform="rotate(-10 48 30)" />
+          <ellipse cx="60" cy="28" rx="3.5" ry="10" fill="#F4EFE2" transform="rotate(8 60 28)" />
+          <ellipse cx="60" cy="30" rx="1.8" ry="7" fill="#E8B4C2" transform="rotate(8 60 30)" />
+          <circle cx="50" cy="44" r="1.4" fill={PAL.trim} />
+          <circle cx="58" cy="44" r="1.4" fill={PAL.trim} />
+          <path d="M54 48 L 52 50 L 56 50 Z" fill="#E8B4C2" />
+          <circle cx="22" cy="52" r="5" fill="#F4EFE2" />
+        </svg>
+      );
+    case "deer":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="74" rx="22" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="36" cy="50" rx="20" ry="12" fill="#C2905A" />
+          <ellipse cx="58" cy="40" rx="8" ry="10" fill="#C2905A" />
+          <circle cx="62" cy="30" r="6" fill="#C2905A" />
+          <path d="M60 26 L 58 16 L 62 22 Z" fill="#8A6240" />
+          <path d="M64 26 L 66 16 L 62 22 Z" fill="#8A6240" />
+          <path d="M58 22 L 55 18" stroke="#8A6240" strokeWidth="1" />
+          <path d="M66 22 L 69 18" stroke="#8A6240" strokeWidth="1" />
+          <circle cx="64" cy="30" r="1" fill={PAL.trim} />
+          <circle cx="60" cy="32" r="0.8" fill={PAL.trim} />
+          <path d="M28 60 L 26 72 M36 62 L 36 72 M44 62 L 46 72 M52 60 L 54 72" stroke="#8A6240" strokeWidth="2.5" strokeLinecap="round" />
+          {[{ x: 30, y: 46 }, { x: 38, y: 42 }, { x: 46, y: 44 }, { x: 42, y: 52 }, { x: 32, y: 54 }].map((s, i) => (
+            <circle key={i} cx={s.x} cy={s.y} r="1.2" fill="#F4EFE2" />
+          ))}
+          <path d="M20 48 Q 16 46 18 44" stroke="#C2905A" strokeWidth="3" fill="none" strokeLinecap="round" />
+        </svg>
+      );
+    case "turtle":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="68" rx="26" ry="3" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="52" rx="24" ry="14" fill="#5F7A4A" />
+          <ellipse cx="40" cy="50" rx="22" ry="12" fill="#7A9758" />
+          {[{ x: 30, y: 46 }, { x: 46, y: 44 }, { x: 36, y: 54 }, { x: 50, y: 54 }, { x: 40, y: 50 }].map((s, i) => (
+            <path
+              key={i}
+              d={`M${s.x} ${s.y} l -4 2 l 0 4 l 4 2 l 4 -2 l 0 -4 z`}
+              fill="#5F7A4A"
+              stroke="#4A6238"
+              strokeWidth="0.6"
+            />
+          ))}
+          <circle cx="62" cy="52" r="5" fill="#9BB870" />
+          <circle cx="64" cy="50" r="1" fill={PAL.trim} />
+          <path d="M64 54 Q 66 54 66 52" stroke={PAL.trim} strokeWidth="0.6" fill="none" />
+          <ellipse cx="22" cy="62" rx="4" ry="2" fill="#9BB870" />
+          <ellipse cx="58" cy="62" rx="4" ry="2" fill="#9BB870" />
+          <ellipse cx="32" cy="64" rx="3" ry="1.5" fill="#9BB870" />
+        </svg>
+      );
+    case "frog":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="68" rx="22" ry="3" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="56" rx="22" ry="12" fill="#6B8A4A" />
+          <ellipse cx="40" cy="52" rx="20" ry="10" fill="#88A860" />
+          <circle cx="28" cy="40" r="7" fill="#88A860" />
+          <circle cx="52" cy="40" r="7" fill="#88A860" />
+          <circle cx="28" cy="40" r="4" fill="#F4EFE2" />
+          <circle cx="52" cy="40" r="4" fill="#F4EFE2" />
+          <circle cx="29" cy="41" r="2.2" fill={PAL.trim} />
+          <circle cx="53" cy="41" r="2.2" fill={PAL.trim} />
+          <path d="M32 56 Q 40 62 48 56" stroke={PAL.trim} strokeWidth="1" fill="none" />
+          <ellipse cx="20" cy="62" rx="6" ry="3" fill="#6B8A4A" transform="rotate(-20 20 62)" />
+          <ellipse cx="60" cy="62" rx="6" ry="3" fill="#6B8A4A" transform="rotate(20 60 62)" />
+          <ellipse cx="40" cy="52" rx="4" ry="2" fill="#A8C280" opacity="0.6" />
+        </svg>
+      );
+    case "squirrel":
+      return (
+        <svg {...base}>
+          <path d="M20 70 Q 6 60 10 40 Q 18 28 24 40 Q 20 50 26 60 Z" fill="#B85A2A" />
+          <path d="M14 44 Q 10 32 16 24" stroke="#8A3F18" strokeWidth="1" fill="none" />
+          <ellipse cx="38" cy="58" rx="14" ry="12" fill="#C2663B" />
+          <circle cx="52" cy="42" r="9" fill="#C2663B" />
+          <path d="M48 36 L 46 28 L 50 32 Z" fill="#C2663B" />
+          <path d="M56 36 L 58 28 L 54 32 Z" fill="#C2663B" />
+          <circle cx="55" cy="42" r="1.2" fill={PAL.trim} />
+          <path d="M52 46 L 50 48 L 54 48 Z" fill={PAL.trim} />
+          <ellipse cx="48" cy="54" rx="4" ry="3" fill="#6B4A2A" />
+          <circle cx="46" cy="53" r="1.5" fill="#F4EFE2" />
+          <path d="M32 68 L 30 74 M42 68 L 42 74" stroke="#8A3F18" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "hedgehog":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="70" rx="24" ry="2.5" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="56" rx="22" ry="14" fill="#8A6240" />
+          {Array.from({ length: 30 }).map((_, i) => {
+            const a = Math.PI + (i / 30) * Math.PI;
+            const r = 16;
+            const x = 40 + Math.cos(a) * r;
+            const y = 56 + Math.sin(a) * r * 0.9;
+            return (
+              <line key={i} x1={x} y1={y} x2={x + Math.cos(a) * 6} y2={y + Math.sin(a) * 6} stroke="#4A3220" strokeWidth="1.2" />
+            );
+          })}
+          <ellipse cx="60" cy="56" rx="8" ry="9" fill="#D4B088" />
+          <circle cx="64" cy="54" r="1.2" fill={PAL.trim} />
+          <circle cx="66" cy="58" r="1.5" fill={PAL.trim} />
+          <path d="M66 58 L 68 58" stroke={PAL.trim} strokeWidth="0.8" />
+        </svg>
+      );
+    case "dragonfly":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="42" rx="3" ry="18" fill="#4A8FB8" />
+          {[0, 1, 2, 3].map((i) => {
+            const y = 32 + i * 4;
+            return <circle key={i} cx="40" cy={y} r="2" fill="#2B6B94" />;
+          })}
+          <circle cx="40" cy="28" r="4" fill="#2B6B94" />
+          <circle cx="38" cy="27" r="1" fill="#9FE8F5" />
+          <circle cx="42" cy="27" r="1" fill="#9FE8F5" />
+          <ellipse cx="28" cy="36" rx="14" ry="4" fill="#B8E0F2" opacity="0.7" transform="rotate(-10 28 36)" />
+          <ellipse cx="52" cy="36" rx="14" ry="4" fill="#B8E0F2" opacity="0.7" transform="rotate(10 52 36)" />
+          <ellipse cx="26" cy="46" rx="12" ry="3.5" fill="#B8E0F2" opacity="0.65" transform="rotate(15 26 46)" />
+          <ellipse cx="54" cy="46" rx="12" ry="3.5" fill="#B8E0F2" opacity="0.65" transform="rotate(-15 54 46)" />
+        </svg>
+      );
+    case "snail":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="68" rx="24" ry="2" fill={PAL.trim} opacity="0.2" />
+          <path d="M12 64 Q 10 56 20 56 L 54 56 Q 60 56 62 60 L 62 66 L 12 66 Z" fill="#C8A878" />
+          <circle cx="44" cy="48" r="16" fill="#8A6240" />
+          <circle cx="44" cy="48" r="12" fill="#A87F52" />
+          <circle cx="44" cy="48" r="8" fill="#8A6240" />
+          <circle cx="44" cy="48" r="4" fill="#A87F52" />
+          <path d="M44 48 Q 48 44 46 40" stroke="#6B4A2A" strokeWidth="1" fill="none" />
+          <path d="M16 60 Q 12 50 18 44" stroke="#C8A878" strokeWidth="2" fill="none" />
+          <path d="M18 44 L 16 42 M18 44 L 20 42" stroke="#C8A878" strokeWidth="1.5" />
+          <circle cx="16" cy="41" r="1" fill={PAL.trim} />
+          <circle cx="20" cy="41" r="1" fill={PAL.trim} />
+        </svg>
+      );
+    case "ladybug":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="68" rx="22" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="48" rx="22" ry="18" fill="#C94B3A" />
+          <path d="M40 30 L 40 66" stroke={PAL.trim} strokeWidth="1.5" />
+          <ellipse cx="40" cy="32" rx="10" ry="7" fill={PAL.trim} />
+          <circle cx="36" cy="31" r="2" fill="#F4EFE2" />
+          <circle cx="44" cy="31" r="2" fill="#F4EFE2" />
+          {[{ x: 30, y: 44 }, { x: 50, y: 44 }, { x: 32, y: 56 }, { x: 48, y: 56 }, { x: 40, y: 52 }].map((d, i) => (
+            <circle key={i} cx={d.x} cy={d.y} r="2.5" fill={PAL.trim} />
+          ))}
+          <path d="M34 28 L 30 22 M46 28 L 50 22" stroke={PAL.trim} strokeWidth="1" />
+          <circle cx="30" cy="22" r="1.5" fill={PAL.trim} />
+          <circle cx="50" cy="22" r="1.5" fill={PAL.trim} />
+        </svg>
+      );
+    case "cat":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="70" rx="22" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="36" cy="54" rx="20" ry="12" fill="#2A2725" />
+          <circle cx="56" cy="40" r="10" fill="#2A2725" />
+          <path d="M48 34 L 46 24 L 52 32 Z" fill="#2A2725" />
+          <path d="M64 34 L 66 24 L 60 32 Z" fill="#2A2725" />
+          <path d="M48 32 L 48 26 L 51 30 Z" fill="#E8B4C2" opacity="0.7" />
+          <path d="M64 32 L 64 26 L 61 30 Z" fill="#E8B4C2" opacity="0.7" />
+          <ellipse cx="53" cy="40" rx="1.2" ry="2.5" fill="#7BC47F" />
+          <ellipse cx="59" cy="40" rx="1.2" ry="2.5" fill="#7BC47F" />
+          <ellipse cx="53" cy="40" rx="0.5" ry="2" fill={PAL.trim} />
+          <ellipse cx="59" cy="40" rx="0.5" ry="2" fill={PAL.trim} />
+          <path d="M56 44 L 54 46 L 58 46 Z" fill="#E8B4C2" />
+          <path d="M46 42 L 38 40 M46 44 L 38 44 M66 42 L 74 40 M66 44 L 74 44" stroke="#6E665C" strokeWidth="0.5" />
+          <path d="M16 58 Q 8 54 4 58 Q 8 62 16 60" fill="#2A2725" />
+        </svg>
+      );
+    case "mouse":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="66" rx="18" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="38" cy="56" rx="16" ry="10" fill="#9B8878" />
+          <circle cx="52" cy="50" r="8" fill="#9B8878" />
+          <circle cx="46" cy="44" r="5" fill="#B8A898" />
+          <circle cx="56" cy="44" r="5" fill="#B8A898" />
+          <circle cx="46" cy="44" r="2" fill="#E8B4C2" />
+          <circle cx="56" cy="44" r="2" fill="#E8B4C2" />
+          <circle cx="54" cy="50" r="1" fill={PAL.trim} />
+          <path d="M58 52 L 56 54 L 60 54 Z" fill="#E8B4C2" />
+          <path d="M50 52 L 44 50 M50 54 L 44 54 M58 52 L 64 50 M58 54 L 64 54" stroke="#6E665C" strokeWidth="0.4" />
+          <path d="M22 60 Q 10 64 6 60" stroke="#9B8878" strokeWidth="2" fill="none" />
+        </svg>
+      );
+    case "owl":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="72" rx="18" ry="2" fill={PAL.trim} opacity="0.25" />
+          <ellipse cx="40" cy="52" rx="22" ry="22" fill="#8A6240" />
+          <path d="M22 34 L 22 24 L 30 32 Z" fill="#8A6240" />
+          <path d="M58 34 L 58 24 L 50 32 Z" fill="#8A6240" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ellipse key={i} cx={24 + (i % 3) * 8} cy={52 + Math.floor(i / 3) * 8} rx="3" ry="2" fill="#6B4A2A" opacity="0.6" />
+          ))}
+          <circle cx="30" cy="44" r="8" fill="#F4EFE2" />
+          <circle cx="50" cy="44" r="8" fill="#F4EFE2" />
+          <circle cx="30" cy="44" r="5" fill="#E8B84A" />
+          <circle cx="50" cy="44" r="5" fill="#E8B84A" />
+          <circle cx="30" cy="44" r="3" fill={PAL.trim} />
+          <circle cx="50" cy="44" r="3" fill={PAL.trim} />
+          <circle cx="31" cy="43" r="1" fill="#fff" />
+          <circle cx="51" cy="43" r="1" fill="#fff" />
+          <path d="M40 50 L 36 56 L 44 56 Z" fill="#E8B84A" />
+          <path d="M30 68 L 30 74 M50 68 L 50 74" stroke="#E8B84A" strokeWidth="2" />
+        </svg>
+      );
+    case "bee":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="46" rx="14" ry="10" fill="#E8B84A" />
+          <rect x="30" y="42" width="20" height="4" fill={PAL.trim} />
+          <rect x="32" y="50" width="16" height="3" fill={PAL.trim} />
+          <circle cx="28" cy="44" r="3" fill={PAL.trim} />
+          <circle cx="27" cy="43" r="1" fill="#fff" />
+          <path d="M26 42 L 22 36 M26 46 L 22 48" stroke={PAL.trim} strokeWidth="1" strokeLinecap="round" />
+          <ellipse cx="36" cy="36" rx="10" ry="5" fill="#E0F2FA" opacity="0.7" />
+          <ellipse cx="46" cy="36" rx="10" ry="5" fill="#E0F2FA" opacity="0.7" />
+        </svg>
+      );
+    case "duck":
+      return (
+        <svg {...base}>
+          <ellipse cx="40" cy="68" rx="24" ry="3" fill={PAL.water} opacity="0.4" />
+          <ellipse cx="38" cy="54" rx="22" ry="12" fill="#F4EFE2" />
+          <circle cx="58" cy="44" r="8" fill="#3E6A3E" />
+          <circle cx="60" cy="42" r="1.2" fill={PAL.trim} />
+          <path d="M62 48 L 70 46 L 68 50 L 62 50 Z" fill="#E8B84A" />
+          <path d="M54 42 Q 58 38 62 42" stroke="#2E5A2E" strokeWidth="0.8" fill="none" />
+          <path d="M22 50 L 16 46 L 16 52 L 22 54 Z" fill="#F4EFE2" />
+          <path d="M36 60 Q 44 62 52 60" stroke="#D4C8A8" strokeWidth="0.8" fill="none" />
         </svg>
       );
     case "sun":
