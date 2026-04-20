@@ -18,16 +18,23 @@ function pad(n: number) {
 
 type Tick = { x1: number; y1: number; x2: number; y2: number; major: boolean };
 
+// Round tick coordinates so server and client serialize identical attribute
+// strings (Math.cos/sin output can differ in the last significant digit on
+// re-evaluation, tripping React's hydration check).
+function r(n: number) {
+  return Math.round(n * 1000) / 1000;
+}
+
 const TICKS: Tick[] = Array.from({ length: 60 }, (_, i) => {
   const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
   const major = i % 5 === 0;
   const outer = major ? 196 : 198;
   const length = major ? 10 : 4;
   return {
-    x1: CENTER + Math.cos(angle) * outer,
-    y1: CENTER + Math.sin(angle) * outer,
-    x2: CENTER + Math.cos(angle) * (outer - length),
-    y2: CENTER + Math.sin(angle) * (outer - length),
+    x1: r(CENTER + Math.cos(angle) * outer),
+    y1: r(CENTER + Math.sin(angle) * outer),
+    x2: r(CENTER + Math.cos(angle) * (outer - length)),
+    y2: r(CENTER + Math.sin(angle) * (outer - length)),
     major,
   };
 });
