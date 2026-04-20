@@ -10,7 +10,6 @@ import { GardenView } from "@/components/garden-view";
 import { TopNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 import type { Wallet, Inventory } from "@/lib/economy-types";
-import { getTheme } from "@/lib/themes";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
 
@@ -34,7 +33,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activeTab, setActiveTab] = useState<TabId>("focus");
   const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
-  const theme = getTheme(snapshot.settings.theme);
 
   const streakDays = snapshot.focus.currentStreakDays ?? 0;
   const weekMinutes = snapshot.focus.weeklyMinutes;
@@ -47,6 +45,10 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   useEffect(() => {
     setDateline(buildDateline(totalSessions));
   }, [totalSessions]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", snapshot.settings.theme);
+  }, [snapshot.settings.theme]);
 
   const gardenPlantsCount = inventory.purchased.length;
   const ownedSet = useMemo(() => new Set(inventory.purchased), [inventory.purchased]);

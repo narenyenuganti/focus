@@ -18,7 +18,10 @@ export const settingsSchema = z.object({
   notificationSound: z.string().default("secret-discovered"),
   ambientMusic: z.boolean().default(true),
   breakDurationMinutes: z.number().int().min(1).max(30).default(5),
-  theme: z.enum(["bean", "zelda"]).default("bean"),
+  theme: z.preprocess(
+    (value) => (value === "bean" || value === "zelda" ? "terracotta" : value),
+    z.enum(["terracotta", "olive", "dusk"]).default("terracotta"),
+  ),
   gardenAutoTimeOfDay: z.boolean().default(true),
 });
 
@@ -29,7 +32,10 @@ export const settingsPatchSchema = z.object({
   notificationSound: z.string().optional(),
   ambientMusic: z.boolean().optional(),
   breakDurationMinutes: z.number().int().min(1).max(30).optional(),
-  theme: z.enum(["bean", "zelda"]).optional(),
+  theme: z.preprocess(
+    (value) => (value === "bean" || value === "zelda" ? "terracotta" : value),
+    z.enum(["terracotta", "olive", "dusk"]).optional(),
+  ),
   gardenAutoTimeOfDay: z.boolean().optional(),
 });
 

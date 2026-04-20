@@ -72,6 +72,27 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
       <div className="settings-form">
         <div className="settings-row">
           <label>
+            <strong>Theme</strong>
+            <span>The whole app warms or cools with the season.</span>
+          </label>
+          <div className="control">
+            <div className="seg" role="tablist" aria-label="Theme">
+              {(["terracotta", "olive", "dusk"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={settings.theme === t ? "on" : ""}
+                  onClick={() => setSettings((current) => ({ ...current, theme: t }))}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-row">
+          <label>
             <strong>Weekly goal</strong>
             <span>Target minutes of focused work each week. Used for the ring and ledger.</span>
           </label>

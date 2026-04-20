@@ -46,7 +46,7 @@ test("returns sensible defaults when the settings file is missing", async () => 
     notificationSound: "secret-discovered",
     ambientMusic: true,
     breakDurationMinutes: 5,
-    theme: "bean",
+    theme: "terracotta",
     gardenAutoTimeOfDay: true,
   });
 });
@@ -104,7 +104,7 @@ test("serves and updates settings through the authenticated route", async () => 
       notificationSound: "secret-discovered",
       ambientMusic: true,
       breakDurationMinutes: 5,
-      theme: "bean",
+      theme: "terracotta",
       gardenAutoTimeOfDay: true,
     },
   });
