@@ -130,7 +130,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             plantsCount={gardenPlantsCount}
             streakDays={streakDays}
             owned={ownedSet}
-            autoTimeOfDay={snapshot.settings.gardenAutoTimeOfDay}
+            theme={snapshot.settings.theme}
           />
         )}
 

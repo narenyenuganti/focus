@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { GardenScene } from "@/components/garden-scene";
 
 type GardenViewProps = {
@@ -8,142 +7,103 @@ type GardenViewProps = {
   plantsCount: number;
   streakDays: number;
   owned: ReadonlySet<string>;
-  autoTimeOfDay: boolean;
-  nextUnlockName?: string;
-  nextUnlockCost?: number;
+  theme: string;
 };
-
-const TIMES: Array<{ id: number; label: string }> = [
-  { id: 0.1, label: "Dawn" },
-  { id: 0.3, label: "Morning" },
-  { id: 0.5, label: "Noon" },
-  { id: 0.75, label: "Evening" },
-  { id: 0.92, label: "Dusk" },
-];
-
-function currentTimeOfDay(): number {
-  if (typeof window === "undefined") return 0.5;
-  const h = new Date().getHours();
-  if (h >= 5 && h < 8) return 0.1;
-  if (h >= 8 && h < 11) return 0.3;
-  if (h >= 11 && h < 15) return 0.5;
-  if (h >= 15 && h < 18) return 0.75;
-  return 0.92;
-}
 
 export function GardenView({
   seeds,
   plantsCount,
   streakDays,
   owned,
-  autoTimeOfDay,
-  nextUnlockName = "Reflecting pond",
-  nextUnlockCost = 320,
+  theme,
 }: GardenViewProps) {
-  const [timeOfDay, setTimeOfDay] = useState<number>(currentTimeOfDay);
-
-  useEffect(() => {
-    if (!autoTimeOfDay) return;
-    setTimeOfDay(currentTimeOfDay());
-    const id = window.setInterval(() => setTimeOfDay(currentTimeOfDay()), 60_000);
-    return () => window.clearInterval(id);
-  }, [autoTimeOfDay]);
-
-  const unlockPct = nextUnlockCost > 0
-    ? Math.min(100, (seeds / nextUnlockCost) * 100)
-    : 0;
+  const ownedByCategory = groupOwned(owned);
 
   return (
-    <>
-      <div className="section-head">
-        <h2 className="serif">
-          Your <em>garden</em>
-        </h2>
-        <div className="time-scrubber" role="tablist" aria-label="Time of day">
-          {TIMES.map((t) => {
-            const active = Math.abs(timeOfDay - t.id) < 0.05;
-            return (
-              <button
-                key={t.label}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                aria-disabled={autoTimeOfDay || undefined}
-                className={active ? "on" : ""}
-                disabled={autoTimeOfDay}
-                title={autoTimeOfDay ? "Auto-following real time — disable in Settings to scrub" : undefined}
-                onClick={() => {
-                  if (autoTimeOfDay) return;
-                  setTimeOfDay(t.id);
-                }}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="view">
+      <GardenScene theme={theme} owned={owned} />
 
-      <div className="garden-frame">
-        <GardenScene timeOfDay={timeOfDay} owned={owned} />
-        <div className="garden-frame-overlay">
-          <div className="garden-chip">
-            <span className="k">Streak</span>
-            <span className="v mono">{streakDays}d</span>
+      <div className="garden-layout">
+        <div>
+          <h2
+            style={{
+              fontFamily: "var(--font-serif), Georgia, serif",
+              fontStyle: "italic",
+              fontWeight: 400,
+              fontSize: 40,
+              letterSpacing: "-0.03em",
+              margin: "0 0 12px",
+              lineHeight: 1,
+            }}
+          >
+            Your garden,{" "}
+            <em style={{ color: "var(--accent)" }}>tended</em>.
+          </h2>
+          <p style={{ fontSize: 15, color: "var(--ink-soft)", maxWidth: "46ch", margin: 0 }}>
+            Each completed session plants something small. Tap the creatures to
+            say hello — they remember who fed them. Rearrange freely; the garden
+            keeps its own time.
+          </p>
+          <div className="rule-orn">
+            <span className="diamond">· · ·</span>
           </div>
-          <div className="garden-chip">
-            <span className="k">Plants</span>
-            <span className="v mono">{plantsCount}</span>
-          </div>
-          <div className="garden-chip">
-            <span className="k">Seeds</span>
-            <span className="v mono">{seeds}</span>
+          <div style={{ display: "flex", gap: 40, fontSize: 13 }}>
+            <Meta label="Streak" value={`${streakDays} days`} />
+            <Meta label="Hours earned" value={`${seeds}`} />
+            <Meta label="Plants" value={`${plantsCount}`} />
           </div>
         </div>
-      </div>
 
-      <div className="garden-story">
-        <div className="gs-col">
-          <div className="gs-k">This season</div>
-          <div className="gs-v serif">Spring, year two</div>
-          <div className="gs-sub">
-            Lavender budding · cherries in bloom · fireflies by week six
-          </div>
-        </div>
-        <div className="gs-col">
-          <div className="gs-k">Next to unlock</div>
-          <div className="gs-v serif">
-            {nextUnlockName} <em>→</em>
-          </div>
-          <div className="gs-sub">
-            <div className="goal-bar" style={{ marginTop: 6 }}>
-              <span style={{ width: `${unlockPct}%` }} />
+        <div className="garden-sidebar">
+          <h3 className="section-head">Inventory</h3>
+          {ownedByCategory.length === 0 ? (
+            <p className="small-p">
+              Nothing in the garden yet. Focus for a spell, then visit the
+              market.
+            </p>
+          ) : (
+            <div className="inventory-list">
+              {ownedByCategory.map(([name, count]) => (
+                <div className="inventory-row" key={name}>
+                  <span className="name">{name}</span>
+                  <span className="count">×{count}</span>
+                </div>
+              ))}
             </div>
-            <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-              {seeds} / {nextUnlockCost} seeds
-            </span>
-          </div>
-        </div>
-        <div className="gs-col">
-          <div className="gs-k">Weather</div>
-          <div className="gs-v serif">Clear, 18°</div>
-          <div className="gs-sub">A soft westerly. Butterflies are out.</div>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
 
-      <p
+function Meta({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="label" style={{ marginBottom: 6 }}>
+        {label}
+      </div>
+      <div
         style={{
-          marginTop: 28,
-          fontSize: 14,
-          color: "var(--ink-soft)",
-          maxWidth: 720,
-          lineHeight: 1.75,
+          fontFamily: "var(--font-serif), Georgia, serif",
+          fontStyle: "italic",
+          fontSize: 20,
         }}
       >
-        Every focused minute plants a seed. Your garden grows quietly, in its own
-        time — ferns take a week, oaks take a season. It doesn't keep score and
-        it won't ask you to come back. It is simply here when you are.
-      </p>
-    </>
+        {value}
+      </div>
+    </div>
   );
+}
+
+function groupOwned(owned: ReadonlySet<string>): Array<[string, number]> {
+  // Simple pluralizer: capitalize, show ×1 for each purchased item.
+  const names = Array.from(owned).map(humanize);
+  const counts = new Map<string, number>();
+  for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
+  return Array.from(counts.entries());
+}
+
+function humanize(id: string) {
+  return id.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }

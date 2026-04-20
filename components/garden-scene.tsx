@@ -1,610 +1,455 @@
 "use client";
 
-import { useState } from "react";
-import { GARDEN_PALETTE as PAL } from "@/lib/garden-palette";
+import { useEffect, useState } from "react";
 
 type GardenSceneProps = {
-  timeOfDay?: number;
+  theme?: string;
   owned?: ReadonlySet<string>;
 };
 
-const EMPTY_OWNED: ReadonlySet<string> = new Set();
+const FIREFLY_COUNT = 14;
+const CREATURE_IDS = ["cat", "frog", "snail", "fox", "owl"] as const;
+type CreatureId = (typeof CREATURE_IDS)[number];
 
-export function GardenScene({ timeOfDay = 0.5, owned = EMPTY_OWNED }: GardenSceneProps) {
-  const has = (id: string) => owned.has(id);
-  const [poked, setPoked] = useState<Record<string, number>>({});
-  const poke = (id: string) => setPoked((p) => ({ ...p, [id]: (p[id] ?? 0) + 1 }));
-  const cls = (id: string, base: string) =>
-    poked[id] ? `${base} poked poke-${poked[id] % 2}` : base;
+type CreaturePlacement = {
+  id: CreatureId;
+  left: string;
+  bottom?: string;
+  top?: string;
+  size: number;
+};
 
-  const isDusk = timeOfDay > 0.75;
-  const isDawn = timeOfDay < 0.25;
-  const skyTop = isDusk ? "#3E4A6B" : isDawn ? "#F4C4A0" : "#CFE0E8";
-  const skyMid = isDusk ? "#E8906A" : isDawn ? "#F5D7A8" : "#E8E0C8";
-  const skyBot = isDusk ? "#F5C89A" : isDawn ? "#F8E8C8" : "#F4EFE2";
+const PLACEMENTS: CreaturePlacement[] = [
+  { id: "cat", left: "12%", bottom: "22%", size: 80 },
+  { id: "frog", left: "62%", bottom: "12%", size: 60 },
+  { id: "snail", left: "36%", bottom: "16%", size: 70 },
+  { id: "fox", left: "78%", bottom: "32%", size: 74 },
+  { id: "owl", left: "14%", top: "24%", size: 58 },
+];
 
-  const sunX = 100 + timeOfDay * 800;
-  const sunY = 180 - Math.sin(timeOfDay * Math.PI) * 140;
+export function GardenScene({ theme = "terracotta", owned }: GardenSceneProps) {
+  const isDusk = theme === "dusk";
+  const [fireflies, setFireflies] = useState<
+    Array<{ id: number; x: number; y: number; delay: number; dur: number }>
+  >([]);
+
+  useEffect(() => {
+    setFireflies(
+      Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: 20 + Math.random() * 60,
+        delay: Math.random() * 8,
+        dur: 12 + Math.random() * 10,
+      })),
+    );
+  }, []);
+
+  const has = (id: CreatureId) => !owned || owned.has(id);
 
   return (
-    <svg
-      viewBox="0 0 1000 520"
-      preserveAspectRatio="xMidYMid slice"
-      className="garden-svg"
-      role="img"
-      aria-label="An animated garden scene"
-    >
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={skyTop} />
-          <stop offset="0.55" stopColor={skyMid} />
-          <stop offset="1" stopColor={skyBot} />
-        </linearGradient>
-        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8FA77A" />
-          <stop offset="1" stopColor="#5F7A50" />
-        </linearGradient>
-        <linearGradient id="hills-far" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#A8B8B0" />
-          <stop offset="1" stopColor="#8A9E98" />
-        </linearGradient>
-        <linearGradient id="hills-mid" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#7E9378" />
-          <stop offset="1" stopColor="#5F7A58" />
-        </linearGradient>
-        <linearGradient id="pond-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#B8D4E0" />
-          <stop offset="1" stopColor="#7FA4B8" />
-        </linearGradient>
-        <radialGradient id="sun-glow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#FFE4A8" stopOpacity="0.9" />
-          <stop offset="0.5" stopColor="#F2A441" stopOpacity="0.4" />
-          <stop offset="1" stopColor="#F2A441" stopOpacity="0" />
-        </radialGradient>
-        <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
-          <feGaussianBlur stdDeviation="1.2" />
-        </filter>
-        <filter id="softer">
-          <feGaussianBlur stdDeviation="2.5" />
-        </filter>
-        <radialGradient id="vignette" cx="0.5" cy="0.6" r="0.7">
-          <stop offset="0.7" stopColor="#000" stopOpacity="0" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.25" />
-        </radialGradient>
-      </defs>
+    <div className={`garden-frame ${isDusk ? "mood-dusk" : ""}`}>
+      <svg className="garden-svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <filter id="garden-paper" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
+            <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0" />
+            <feComposite in2="SourceGraphic" operator="in" />
+          </filter>
+          <linearGradient id="sky-fade" x1="0" y1="0" x2="0" y2="1">
+            {isDusk ? (
+              <>
+                <stop offset="0" stopColor="#4a3a40" />
+                <stop offset="0.6" stopColor="#2a2120" />
+                <stop offset="1" stopColor="#1a1412" />
+              </>
+            ) : (
+              <>
+                <stop offset="0" stopColor="var(--paper-3)" stopOpacity="0.9" />
+                <stop offset="0.5" stopColor="var(--paper-2)" stopOpacity="0.4" />
+                <stop offset="1" stopColor="var(--paper-2)" stopOpacity="0" />
+              </>
+            )}
+          </linearGradient>
+        </defs>
 
-      <rect width="1000" height="520" fill="url(#sky)" />
+        {/* sky wash */}
+        <rect width="1000" height="340" fill="url(#sky-fade)" />
 
-      {has("sun") ? (
-        <g className="sun-arc">
-          <circle cx={sunX} cy={sunY} r="110" fill="url(#sun-glow)" />
-          <circle cx={sunX} cy={sunY} r="42" fill="#F8C96A" />
-          <circle cx={sunX} cy={sunY} r="32" fill="#F5D88A" />
-        </g>
-      ) : null}
-
-      {has("clouds") ? (
-        <>
-          <g className="cloud cloud-1">
-            <ellipse cx="200" cy="100" rx="70" ry="18" fill="#fff" opacity="0.85" />
-            <ellipse cx="240" cy="90" rx="55" ry="15" fill="#fff" opacity="0.85" />
-            <ellipse cx="280" cy="105" rx="50" ry="14" fill="#fff" opacity="0.8" />
+        {/* sun / moon */}
+        {isDusk ? (
+          <g>
+            <circle cx="820" cy="110" r="40" fill="#e8d0a0" opacity="0.85" />
+            <circle cx="820" cy="110" r="70" fill="#e8d0a0" opacity="0.15" />
+            <circle cx="810" cy="100" r="6" fill="#3a2a28" opacity="0.3" />
+            <circle cx="830" cy="120" r="4" fill="#3a2a28" opacity="0.25" />
           </g>
-          <g className="cloud cloud-2">
-            <ellipse cx="620" cy="60" rx="60" ry="14" fill="#fff" opacity="0.75" />
-            <ellipse cx="660" cy="70" rx="40" ry="12" fill="#fff" opacity="0.75" />
+        ) : (
+          <g>
+            <circle cx="780" cy="120" r="52" fill="var(--ochre)" opacity="0.3" />
+            <circle cx="780" cy="120" r="36" fill="var(--ochre)" opacity="0.55" />
           </g>
-          <g className="cloud cloud-3">
-            <ellipse cx="880" cy="140" rx="80" ry="18" fill="#fff" opacity="0.7" />
-            <ellipse cx="920" cy="130" rx="40" ry="12" fill="#fff" opacity="0.7" />
-          </g>
-        </>
-      ) : null}
+        )}
 
-      {/* distant mountains */}
-      <g filter="url(#softer)" opacity="0.85">
-        <path
-          d="M0 320 L 120 220 L 200 270 L 320 200 L 440 260 L 560 210 L 700 260 L 820 220 L 1000 280 L 1000 340 L 0 340 Z"
-          fill="url(#hills-far)"
-        />
-      </g>
-
-      {/* mid hills */}
-      <path
-        d="M0 360 Q 180 300 360 340 Q 560 380 740 320 Q 880 290 1000 330 L 1000 400 L 0 400 Z"
-        fill="url(#hills-mid)"
-      />
-
-      {/* distant village silhouettes */}
-      <g opacity="0.6" fill="#5A6A66">
-        <rect x="380" y="320" width="14" height="20" />
-        <polygon points="380,320 387,312 394,320" />
-        <rect x="400" y="316" width="18" height="24" />
-        <polygon points="400,316 409,306 418,316" />
-        <rect x="424" y="320" width="12" height="20" />
-        <polygon points="424,320 430,312 436,320" />
-      </g>
-
-      {/* tree line behind */}
-      <g opacity="0.7">
-        {Array.from({ length: 14 }).map((_, i) => {
-          const x = 60 + i * 70 + (i % 2 ? 10 : 0);
-          const h = 38 + (i * 7) % 18;
-          return (
-            <g key={i}>
-              <rect x={x - 2} y={380 - h + h * 0.6} width="4" height={h * 0.4} fill="#4A3220" />
-              <ellipse cx={x} cy={380 - h + h * 0.6} rx={h * 0.42} ry={h * 0.55} fill="#5F7A58" />
-            </g>
-          );
-        })}
-      </g>
-
-      {/* ground plane */}
-      <rect x="0" y="395" width="1000" height="125" fill="url(#ground)" />
-
-      {/* pond with ripples + koi + lily pad creatures */}
-      {has("pond") ? (
-        <g className="pond">
-          <ellipse cx="720" cy="450" rx="150" ry="28" fill="#4F7388" opacity="0.9" />
-          <ellipse cx="720" cy="448" rx="145" ry="25" fill="url(#pond-g)" />
-          <ellipse className="ripple r1" cx="720" cy="448" rx="30" ry="5" fill="none" stroke="#fff" strokeWidth="1" opacity="0.7" />
-          <ellipse className="ripple r2" cx="720" cy="448" rx="50" ry="9" fill="none" stroke="#fff" strokeWidth="1" opacity="0.5" />
-          <ellipse className="ripple r3" cx="720" cy="448" rx="70" ry="13" fill="none" stroke="#fff" strokeWidth="1" opacity="0.3" />
-          <ellipse
-            cx={Math.min(860, Math.max(580, sunX * 0.7 + 200))}
-            cy="448"
-            rx="30"
-            ry="4"
-            fill="#F5D88A"
+        {/* far mountains */}
+        <g opacity={isDusk ? 0.6 : 0.45}>
+          <path
+            d="M 0 300 L 120 220 L 240 280 L 380 200 L 520 270 L 680 210 L 820 280 L 1000 240 L 1000 340 L 0 340 Z"
+            fill={isDusk ? "#342826" : "var(--ink-muted)"}
             opacity="0.6"
-            filter="url(#soft)"
           />
-          <ellipse cx="640" cy="450" rx="16" ry="5" fill="#5F7A58" />
-          <ellipse cx="780" cy="455" rx="14" ry="4" fill="#5F7A58" />
-          <circle cx="784" cy="453" r="2.5" fill={PAL.petal} />
-          {has("koi") ? (
-          <g transform="translate(680 450)" onClick={() => poke("koi")} style={{ cursor: "pointer" }}>
-            <g className={cls("koi", "koi-fish")}>
-              <path d="M0 0 Q 10 -4 22 0 Q 30 4 22 6 Q 10 8 0 4 Z" fill="#F8C96A" />
-              <path d="M-6 -2 L -12 -6 L -10 -2 L -12 2 Z" fill="#F5A34A" />
-              <circle cx="18" cy="0" r="1" fill="#2A2725" />
-            </g>
-          </g>
-        ) : null}
-        {has("koi") && poked["koi"] ? (
-          <g key={`splash-${poked.koi}`} className="koi-splash">
-            <circle cx="720" cy="448" r="4" fill="#fff" opacity="0.9" />
-            <circle cx="710" cy="446" r="2" fill="#fff" opacity="0.7" />
-            <circle cx="730" cy="446" r="2" fill="#fff" opacity="0.7" />
-          </g>
-        ) : null}
-        {has("frog") ? (
-          <g transform="translate(780 452)" onClick={() => poke("frog")} style={{ cursor: "pointer" }}>
-            <g className={cls("frog", "frog-body")}>
-              <ellipse cx="0" cy="0" rx="8" ry="5" fill="#6B8A4A" />
-              <ellipse cx="0" cy="-2" rx="7" ry="4" fill="#88A860" />
-              <circle cx="-3" cy="-4" r="2" fill="#88A860" />
-              <circle cx="3" cy="-4" r="2" fill="#88A860" />
-              <circle cx="-3" cy="-4" r="1" fill="#2A2725" />
-              <circle cx="3" cy="-4" r="1" fill="#2A2725" />
-              <path d="M-4 0 Q 0 2 4 0" stroke="#2A2725" strokeWidth="0.5" fill="none" />
-            </g>
-          </g>
-        ) : null}
-        {has("duck") ? (
-          <g transform="translate(640 446)" onClick={() => poke("duck")} style={{ cursor: "pointer" }}>
-            <g className={cls("duck", "duck-body")}>
-              <ellipse cx="0" cy="0" rx="14" ry="6" fill="#F4EFE2" />
-              <circle cx="10" cy="-5" r="5" fill="#3E6A3E" />
-              <path d="M13 -4 L 18 -5 L 17 -2 L 13 -2 Z" fill="#E8B84A" />
-              <circle cx="11" cy="-6" r="0.8" fill="#2A2725" />
-              <path d="M-12 1 Q -16 4 -10 4" fill="#F4EFE2" />
-            </g>
-          </g>
-        ) : null}
+          <path
+            d="M 0 320 L 160 260 L 320 310 L 500 250 L 680 305 L 860 270 L 1000 300 L 1000 360 L 0 360 Z"
+            fill={isDusk ? "#2a1f1e" : "var(--ink-soft)"}
+            opacity="0.4"
+          />
         </g>
-      ) : null}
 
-      {/* grass blades */}
-      <g className="grass">
-        {Array.from({ length: 70 }).map((_, i) => {
-          const x = i * 15 + (i % 3) * 4;
-          const h = 6 + (i * 13) % 10;
-          const lean = (i % 2 ? 1 : -1) * 1.5;
+        {/* mid trees silhouette row */}
+        <g opacity={isDusk ? 0.85 : 0.75}>
+          {Array.from({ length: 14 }).map((_, i) => {
+            const x = i * 72 + 10;
+            const h = 60 + (i % 3) * 14;
+            const color = isDusk ? "#1a1210" : "var(--moss-deep)";
+            return (
+              <g key={i} transform={`translate(${x}, ${360 - h})`}>
+                <path
+                  d={`M 20 0 L 36 22 L 28 22 L 40 42 L 30 42 L 44 ${h} L -4 ${h} L 10 42 L 0 42 L 12 22 L 4 22 Z`}
+                  fill={color}
+                />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* ground */}
+        <path
+          d="M 0 360 Q 500 340 1000 360 L 1000 560 L 0 560 Z"
+          fill={isDusk ? "#1a1412" : "var(--paper-2)"}
+          filter="url(#garden-paper)"
+        />
+        <path
+          d="M 0 380 Q 500 360 1000 380 L 1000 460 L 0 460 Z"
+          fill={isDusk ? "#221815" : "color-mix(in oklab, var(--moss) 20%, var(--paper-2))"}
+          opacity="0.5"
+        />
+
+        {/* pond */}
+        <ellipse
+          cx="720"
+          cy="480"
+          rx="160"
+          ry="36"
+          fill={isDusk ? "#2a3438" : "color-mix(in oklab, var(--moss-deep) 30%, var(--paper-2))"}
+          opacity="0.7"
+        />
+        <ellipse
+          cx="720"
+          cy="478"
+          rx="150"
+          ry="28"
+          fill={isDusk ? "#3a4a50" : "color-mix(in oklab, var(--moss) 40%, var(--paper-3))"}
+          opacity="0.5"
+        />
+        <ellipse
+          cx="720"
+          cy="478"
+          rx="40"
+          ry="8"
+          fill="none"
+          stroke={isDusk ? "#5a6a70" : "rgba(255,255,255,0.3)"}
+          strokeWidth="0.6"
+        />
+        <ellipse
+          cx="720"
+          cy="478"
+          rx="80"
+          ry="16"
+          fill="none"
+          stroke={isDusk ? "#4a5a60" : "rgba(255,255,255,0.2)"}
+          strokeWidth="0.5"
+        />
+
+        {/* path */}
+        <path
+          d="M 200 560 Q 300 500 420 480 Q 540 460 560 440"
+          stroke={isDusk ? "#3a2a26" : "var(--paper-3)"}
+          strokeWidth="44"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.6"
+        />
+
+        {/* foreground grass tufts */}
+        {Array.from({ length: 40 }).map((_, i) => {
+          const x = ((i * 227) % 1000);
+          const y = 380 + ((i * 71) % 170);
+          const h = 6 + ((i * 13) % 10);
           return (
             <path
               key={i}
-              d={`M${x} 410 Q ${x + lean} ${410 - h * 0.5} ${x + lean * 1.4} ${410 - h}`}
-              stroke="#3E5A3C"
-              strokeWidth="1"
+              d={`M ${x} ${y} Q ${x - 1} ${y - h} ${x + 2} ${y - h - 2} M ${x} ${y} Q ${x + 2} ${y - h + 2} ${x + 4} ${y - h}`}
+              stroke={isDusk ? "#3a4028" : "var(--moss)"}
+              strokeWidth="0.8"
               fill="none"
-              opacity="0.6"
-              className="blade"
-              style={{ animationDelay: `${(i % 10) * -0.3}s` }}
+              strokeLinecap="round"
+              opacity={0.5 + ((i * 23) % 40) / 100}
             />
           );
         })}
-      </g>
 
-      {has("olive") ? (
-        <g transform="translate(130 320)">
-          <g className="tree-sway">
-            <rect x="-6" y="48" width="12" height="56" fill="#5A3A24" />
-            <ellipse cx="-18" cy="28" rx="38" ry="44" fill="#6E8A68" />
-            <ellipse cx="18" cy="18" rx="42" ry="46" fill="#7A9772" />
-            <ellipse cx="0" cy="0" rx="32" ry="34" fill="#8AA782" />
-            <ellipse cx="-10" cy="40" rx="6" ry="3" fill="#4A6848" opacity="0.6" />
-            <ellipse cx="14" cy="44" rx="5" ry="2.5" fill="#4A6848" opacity="0.6" />
-          </g>
+        {/* stone lantern */}
+        <g transform="translate(140, 380)">
+          <rect x="-4" y="60" width="8" height="18" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
+          <rect x="-14" y="48" width="28" height="14" rx="2" fill={isDusk ? "#5a4a42" : "var(--ink-muted)"} />
+          <rect x="-10" y="24" width="20" height="24" fill={isDusk ? "#3a2a26" : "var(--ink)"} opacity="0.8" />
+          <rect x="-6" y="30" width="12" height="12" fill={isDusk ? "#ffb060" : "var(--ochre)"} opacity={isDusk ? 0.9 : 0.6} />
+          <path d="M -18 24 L 18 24 L 14 16 L -14 16 Z" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
+          <rect x="-4" y="8" width="8" height="10" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
+          {isDusk ? <circle cx="0" cy="36" r="34" fill="#ffb060" opacity="0.15" /> : null}
         </g>
-      ) : null}
 
-      {has("sakura") ? (
-        <g transform="translate(560 320)">
-          <g className="tree-sway" style={{ animationDelay: "-2s" }}>
-            <rect x="-5" y="30" width="10" height="70" fill="#5A3A24" />
-            <ellipse cx="-22" cy="10" rx="32" ry="32" fill="#F2C3D0" />
-            <ellipse cx="18" cy="0" rx="36" ry="34" fill="#F5D0DA" />
-            <ellipse cx="0" cy="-18" rx="28" ry="28" fill="#F8DCE4" />
-            <ellipse cx="-30" cy="24" rx="14" ry="12" fill="#F2C3D0" opacity="0.85" />
-            <ellipse cx="30" cy="28" rx="16" ry="12" fill="#F5D0DA" opacity="0.85" />
-          </g>
+        {/* big tree left */}
+        <g transform="translate(160, 240)" filter="url(#garden-paper)">
+          <path d="M -4 140 Q -6 80 -2 20 Q 0 10 2 20 Q 4 80 6 140 Z" fill={isDusk ? "#2a1a14" : "var(--clay)"} />
+          <ellipse cx="0" cy="20" rx="70" ry="50" fill={isDusk ? "#2a3020" : "var(--moss-deep)"} opacity="0.9" />
+          <ellipse cx="-30" cy="30" rx="38" ry="28" fill={isDusk ? "#2a3020" : "var(--moss)"} opacity="0.8" />
+          <ellipse cx="30" cy="10" rx="36" ry="30" fill={isDusk ? "#1a2418" : "var(--moss-deep)"} opacity="0.85" />
         </g>
-      ) : null}
 
-      {has("cypress") ? (
-        <g transform="translate(900 330)">
-          <g className="tree-sway" style={{ animationDelay: "-4s" }}>
-            <path d="M0 -110 Q -18 -50 -22 80 Q 0 75 22 80 Q 18 -50 0 -110 Z" fill="#3E5A3C" />
-            <path d="M0 -100 Q -14 -40 -16 70" stroke="#2E4A2C" strokeWidth="1.5" fill="none" opacity="0.6" />
-          </g>
+        {/* small plants scattered */}
+        <g transform="translate(340, 460)">
+          <path
+            d="M 0 0 Q -4 -16 -10 -24 M 0 0 Q 4 -18 10 -22 M 0 0 Q 0 -20 0 -28"
+            stroke={isDusk ? "#4a5028" : "var(--moss)"}
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
         </g>
-      ) : null}
-
-      {has("olive") ? (
-        <g transform="translate(40 340)">
-          <g className="tree-sway" style={{ animationDelay: "-3s" }}>
-            <rect x="-4" y="36" width="8" height="42" fill="#5A3A24" />
-            <ellipse cx="-8" cy="18" rx="22" ry="26" fill="#7A9772" opacity="0.9" />
-            <ellipse cx="10" cy="10" rx="24" ry="26" fill="#8AA782" opacity="0.9" />
-          </g>
+        <g transform="translate(520, 490)">
+          <ellipse cx="0" cy="0" rx="22" ry="8" fill={isDusk ? "#2a3020" : "var(--moss)"} opacity="0.7" />
+          <ellipse cx="-8" cy="-6" rx="10" ry="8" fill={isDusk ? "#3a4028" : "var(--moss)"} />
+          <ellipse cx="8" cy="-5" rx="12" ry="9" fill={isDusk ? "#3a4028" : "var(--moss-deep)"} />
         </g>
-      ) : null}
-
-      {has("maple") ? (
-        <g transform="translate(300 340)">
-          <g className="tree-sway" style={{ animationDelay: "-1.5s" }}>
-            <rect x="-3" y="30" width="6" height="48" fill="#4A3220" />
-            <circle cx="-14" cy="14" r="18" fill="#C94B3A" />
-            <circle cx="12" cy="8" r="22" fill="#D15A3E" />
-            <circle cx="0" cy="-8" r="16" fill="#E37A44" />
-            <circle cx="-20" cy="-2" r="10" fill="#B8372D" />
-          </g>
+        <g transform="translate(860, 430)">
+          <rect x="-2" y="0" width="4" height="30" fill={isDusk ? "#2a1a14" : "var(--clay)"} />
+          <circle cx="0" cy="-4" r="14" fill={isDusk ? "#2a3020" : "var(--moss)"} />
+          <circle cx="-8" cy="-2" r="8" fill={isDusk ? "#2a3020" : "var(--moss)"} />
+          <circle cx="8" cy="-6" r="7" fill={isDusk ? "#3a4028" : "var(--moss-deep)"} />
         </g>
-      ) : null}
 
-      {has("lavender") ? (
-        <g transform="translate(250 460)">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => {
-            const x = i * 12 - 36;
-            return (
-              <g key={i}>
-                <line x1={x} y1="10" x2={x + 1} y2="-14" stroke="#3E5A3C" strokeWidth="1.2" />
-                {[0, 1, 2, 3].map((j) => (
-                  <circle key={j} cx={x + (j % 2 ? 0.8 : -0.8)} cy={-14 + j * 4} r="1.8" fill={j < 2 ? "#9B84C4" : "#6B5795"} />
-                ))}
-              </g>
-            );
-          })}
+        {/* stones by pond */}
+        <g transform="translate(600, 484)">
+          <ellipse cx="0" cy="0" rx="14" ry="6" fill={isDusk ? "#3a2e2a" : "var(--clay)"} />
+          <ellipse cx="0" cy="-2" rx="12" ry="5" fill={isDusk ? "#4a3a34" : "var(--paper-3)"} />
         </g>
-      ) : null}
-
-      {has("foxglove") ? (
-        <g transform="translate(400 470)">
-          {[0, 1, 2].map((i) => {
-            const x = i * 14 - 14;
-            return (
-              <g key={i}>
-                <line x1={x} y1="6" x2={x} y2="-30" stroke="#3E5A3C" strokeWidth="1.4" />
-                {[0, 1, 2, 3, 4].map((j) => (
-                  <path
-                    key={j}
-                    d="M0 0 Q 3 1 3 4 Q 0 6 -3 4 Q -3 1 0 0 Z"
-                    fill="#C76A8B"
-                    transform={`translate(${x + (j % 2 ? 2 : -2)} ${-6 - j * 5})`}
-                  />
-                ))}
-              </g>
-            );
-          })}
+        <g transform="translate(850, 500)">
+          <ellipse cx="0" cy="0" rx="18" ry="8" fill={isDusk ? "#3a2e2a" : "var(--clay)"} />
+          <ellipse cx="0" cy="-2" rx="16" ry="7" fill={isDusk ? "#4a3a34" : "var(--paper-3)"} />
         </g>
-      ) : null}
 
-      {has("stone") ? (
-        <g transform="translate(460 440)">
-          <ellipse cx="0" cy="38" rx="22" ry="3" fill="#000" opacity="0.2" />
-          <path d="M-14 36 C -14 10, -6 -18, 4 -18 C 14 -18, 18 10, 16 36 Z" fill="#B5AC9A" />
-          <path d="M-14 36 C -14 22, -10 4, -4 -10" stroke="#fff" strokeWidth="1" fill="none" opacity="0.4" />
-        </g>
-      ) : null}
-
-      {has("mushroom") ? (
-        <g transform="translate(80 475)">
-          {[{ x: 0, y: 0, r: 6, h: 10 }, { x: 12, y: 4, r: 4, h: 7 }, { x: -10, y: 3, r: 3.5, h: 6 }].map((m, i) => (
-            <g key={i}>
-              <rect x={m.x - m.r * 0.28} y={m.y} width={m.r * 0.56} height={m.h} rx="2" fill="#F4EFE2" />
-              <path d={`M${m.x - m.r} ${m.y} Q ${m.x} ${m.y - m.r * 0.9} ${m.x + m.r} ${m.y} Q ${m.x} ${m.y + m.r * 0.35} ${m.x - m.r} ${m.y} Z`} fill="#C94B3A" />
-              <circle cx={m.x - m.r * 0.4} cy={m.y - m.r * 0.2} r="1" fill="#fff" />
-            </g>
-          ))}
-        </g>
-      ) : null}
-
-      {has("poppy") ? (
-        <g>
-          {[{ x: 340, y: 478 }, { x: 820, y: 482 }, { x: 890, y: 470 }, { x: 180, y: 480 }].map((p, i) => (
-            <g key={i} transform={`translate(${p.x} ${p.y})`}>
-              <line x1="0" y1="8" x2="0" y2="-8" stroke="#3E5A3C" strokeWidth="1.3" />
-              <path d="M-6 -8 Q 0 -14 6 -8 Q 0 -4 -6 -8 Z" fill="#C94B3A" />
-              <circle cx="0" cy="-9" r="1.2" fill="#2A2725" />
-            </g>
-          ))}
-        </g>
-      ) : null}
-
-      {has("bench") ? (
-        <g transform="translate(350 440)" opacity="0.95">
-          <rect x="-22" y="16" width="44" height="4" fill="#B5AC9A" />
-          <rect x="-18" y="20" width="4" height="16" fill="#8A8273" />
-          <rect x="14" y="20" width="4" height="16" fill="#8A8273" />
-        </g>
-      ) : null}
-
-      {has("lantern") ? (
-        <g transform="translate(568 318)">
-          <g className="lantern-sway">
-            <line x1="0" y1="-4" x2="0" y2="10" stroke="#4A3220" strokeWidth="1" />
-            <ellipse cx="0" cy="16" rx="9" ry="7" fill="#F4EFE2" stroke="#4A3220" strokeWidth="0.8" />
-            <circle cx="0" cy="16" r="7" fill="#F8C96A" opacity="0.6" />
-            <circle cx="0" cy="16" r="3" fill="#FFE4A8" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("butterfly") ? (
-        <g className="butterflies">
-          <g transform="translate(220 280)" onClick={() => poke("bfly1")} style={{ cursor: "pointer" }}>
-            <g className={cls("bfly1", "bfly bfly-1")}>
-              <path d="M0 0 Q -8 -6 -11 0 Q -8 4 0 3 Z" fill="#F5D88A" />
-              <path d="M0 0 Q 8 -6 11 0 Q 8 4 0 3 Z" fill="#F5D88A" />
-              <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="1" />
-            </g>
-          </g>
-          <g transform="translate(480 360)" onClick={() => poke("bfly2")} style={{ cursor: "pointer" }}>
-            <g className={cls("bfly2", "bfly bfly-2")}>
-              <path d="M0 0 Q -8 -6 -11 0 Q -8 4 0 3 Z" fill="#E8B4C2" />
-              <path d="M0 0 Q 8 -6 11 0 Q 8 4 0 3 Z" fill="#E8B4C2" />
-              <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="1" />
-            </g>
-          </g>
-          <g transform="translate(820 300)" onClick={() => poke("bfly3")} style={{ cursor: "pointer" }}>
-            <g className={cls("bfly3", "bfly bfly-3")}>
-              <path d="M0 0 Q -7 -5 -9 0 Q -7 3 0 2 Z" fill="#9FE8C5" />
-              <path d="M0 0 Q 7 -5 9 0 Q 7 3 0 2 Z" fill="#9FE8C5" />
-              <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="0.8" />
-            </g>
-          </g>
-        </g>
-      ) : null}
-
-      {has("rabbit") ? (
-        <g transform="translate(220 478)" onClick={() => poke("rabbit")} style={{ cursor: "pointer" }}>
-          <g className={cls("rabbit", "rabbit-body")}>
-            <ellipse cx="0" cy="-3" rx="10" ry="7" fill="#F4EFE2" />
-            <circle cx="8" cy="-8" r="5" fill="#F4EFE2" />
-            <ellipse cx="6" cy="-15" rx="1.6" ry="5" fill="#F4EFE2" transform="rotate(-8 6 -15)" />
-            <ellipse cx="10" cy="-15" rx="1.6" ry="5" fill="#F4EFE2" transform="rotate(6 10 -15)" />
-            <circle cx="10" cy="-8" r="0.7" fill="#2A2725" />
-            <circle cx="11" cy="-7" r="0.4" fill="#E8B4C2" />
-            <circle cx="-10" cy="-3" r="2.5" fill="#F4EFE2" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("deer") ? (
-        <g transform="translate(420 436)" onClick={() => poke("deer")} style={{ cursor: "pointer" }}>
-          <g className={cls("deer", "deer-body")}>
-            <ellipse cx="0" cy="0" rx="18" ry="10" fill="#C2905A" />
-            <g className={cls("deer", "deer-head")}>
-              <ellipse cx="16" cy="-6" rx="6" ry="8" fill="#C2905A" />
-              <circle cx="18" cy="-14" r="4" fill="#C2905A" />
-              <path d="M16 -17 L 14 -24 L 17 -20 Z" fill="#8A6240" />
-              <path d="M20 -17 L 22 -24 L 19 -20 Z" fill="#8A6240" />
-              <circle cx="19" cy="-14" r="0.7" fill="#2A2725" />
-            </g>
-            <path d="M-10 6 L -11 14 M-4 6 L -4 14 M6 6 L 6 14 M12 6 L 13 14" stroke="#8A6240" strokeWidth="2" strokeLinecap="round" />
-            {[{ x: -6, y: -4 }, { x: 2, y: -6 }, { x: 8, y: -2 }].map((s, i) => (
-              <circle key={i} cx={s.x} cy={s.y} r="0.8" fill="#F4EFE2" />
-            ))}
-          </g>
-        </g>
-      ) : null}
-
-      {has("squirrel") ? (
-        <g transform="translate(298 378)" onClick={() => poke("squirrel")} style={{ cursor: "pointer" }}>
-          <g className={cls("squirrel", "squirrel-body")}>
-            <path d="M-8 6 Q -14 -2 -10 -10 Q -4 -14 -4 -6 Q -6 0 -4 6 Z" fill="#B85A2A" />
-            <ellipse cx="0" cy="2" rx="6" ry="5" fill="#C2663B" />
-            <circle cx="6" cy="-4" r="4" fill="#C2663B" />
-            <circle cx="8" cy="-4" r="0.7" fill="#2A2725" />
-            <path d="M5 -8 L 3 -12 L 6 -10 Z" fill="#C2663B" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("hedgehog") ? (
-        <g transform="translate(160 486)" onClick={() => poke("hedgehog")} style={{ cursor: "pointer" }}>
-          <g className={cls("hedgehog", "hedgehog-body")}>
-            <ellipse cx="0" cy="0" rx="10" ry="6" fill="#8A6240" />
-            {Array.from({ length: 14 }).map((_, i) => {
-              const a = Math.PI + (i / 14) * Math.PI;
-              const x = Math.cos(a) * 8;
-              const y = Math.sin(a) * 5.5;
-              return <line key={i} x1={x} y1={y} x2={x + Math.cos(a) * 3} y2={y + Math.sin(a) * 3} stroke="#4A3220" strokeWidth="0.8" />;
-            })}
-            <circle cx="8" cy="0" r="3.5" fill="#D4B088" />
-            <circle cx="10" cy="-1" r="0.5" fill="#2A2725" />
-            <circle cx="10.5" cy="1" r="0.7" fill="#2A2725" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("snail") ? (
-        <g transform="translate(462 452)" onClick={() => poke("snail")} style={{ cursor: "pointer" }}>
-          <g className={cls("snail", "snail-body")}>
-            <path d="M-8 4 Q -10 -2 0 -2 L 10 -2 Q 14 0 12 4 Z" fill="#C8A878" />
-            <circle cx="4" cy="-2" r="6" fill="#8A6240" />
-            <circle cx="4" cy="-2" r="4" fill="#A87F52" />
-            <circle cx="4" cy="-2" r="2" fill="#8A6240" />
-            <g className={cls("snail", "snail-horns")}>
-              <path d="M-6 0 Q -10 -4 -8 -7" stroke="#C8A878" strokeWidth="1" fill="none" />
-              <circle cx="-8" cy="-7" r="0.6" fill="#2A2725" />
-            </g>
-          </g>
-        </g>
-      ) : null}
-
-      {has("ladybug") ? (
-        <g transform="translate(340 490)" onClick={() => poke("ladybug")} style={{ cursor: "pointer" }}>
-          <g className={cls("ladybug", "ladybug-body")}>
-            <ellipse cx="0" cy="0" rx="5" ry="4" fill="#C94B3A" />
-            <path d="M0 -4 V4" stroke="#2A2725" strokeWidth="0.6" />
-            <ellipse cx="0" cy="-3" rx="2.5" ry="1.5" fill="#2A2725" />
-            <circle cx="-2" cy="0" r="0.7" fill="#2A2725" />
-            <circle cx="2" cy="0" r="0.7" fill="#2A2725" />
-            <circle cx="-1" cy="2" r="0.6" fill="#2A2725" />
-            <circle cx="1" cy="2" r="0.6" fill="#2A2725" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("cat") ? (
-        <g transform="translate(368 444)" onClick={() => poke("cat")} style={{ cursor: "pointer" }}>
-          <g className={cls("cat", "cat-body")}>
-            <ellipse cx="0" cy="0" rx="12" ry="6" fill="#2A2725" />
-            <circle cx="11" cy="-4" r="5" fill="#2A2725" />
-            <path d="M7 -7 L 6 -12 L 10 -9 Z" fill="#2A2725" />
-            <path d="M15 -7 L 16 -12 L 12 -9 Z" fill="#2A2725" />
-            <ellipse cx="10" cy="-4" rx="0.7" ry="1.5" fill="#7BC47F" />
-            <ellipse cx="13" cy="-4" rx="0.7" ry="1.5" fill="#7BC47F" />
-            <path d="M-12 0 Q -18 -2 -16 -6" stroke="#2A2725" strokeWidth="2" fill="none" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("mouse") ? (
-        <g transform="translate(84 492)" onClick={() => poke("mouse")} style={{ cursor: "pointer" }}>
-          <g className={cls("mouse", "mouse-body")}>
-            <ellipse cx="0" cy="0" rx="6" ry="3" fill="#9B8878" />
-            <circle cx="5" cy="-2" r="3" fill="#9B8878" />
-            <circle cx="3" cy="-4" r="1.8" fill="#B8A898" />
-            <circle cx="7" cy="-4" r="1.8" fill="#B8A898" />
-            <circle cx="6" cy="-2" r="0.5" fill="#2A2725" />
-            <path d="M-6 0 Q -12 2 -12 -2" stroke="#9B8878" strokeWidth="1" fill="none" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("owl") ? (
-        <g transform="translate(900 260)" onClick={() => poke("owl")} style={{ cursor: "pointer" }}>
-          <g className={cls("owl", "owl-body")}>
-            <ellipse cx="0" cy="0" rx="10" ry="12" fill="#8A6240" />
-            <path d="M-8 -10 L -8 -15 L -4 -10 Z" fill="#8A6240" />
-            <path d="M8 -10 L 8 -15 L 4 -10 Z" fill="#8A6240" />
-            <circle cx="-4" cy="-3" r="3.5" fill="#F4EFE2" />
-            <circle cx="4" cy="-3" r="3.5" fill="#F4EFE2" />
-            <circle className={cls("owl", "owl-eye")} cx="-4" cy="-3" r="2" fill="#2A2725" />
-            <circle className={cls("owl", "owl-eye")} cx="4" cy="-3" r="2" fill="#2A2725" />
-            <path d="M0 0 L -2 3 L 2 3 Z" fill="#E8B84A" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("turtle") ? (
-        <g transform="translate(520 495)" onClick={() => poke("turtle")} style={{ cursor: "pointer" }}>
-          <g className="turtle-body">
-            <ellipse cx="0" cy="0" rx="12" ry="7" fill="#5F7A4A" />
-            <ellipse cx="0" cy="-1" rx="10" ry="5" fill="#7A9758" />
-            {[{ x: -4, y: -1 }, { x: 4, y: -1 }, { x: 0, y: 2 }, { x: -6, y: 2 }, { x: 6, y: 2 }].map((s, i) => (
-              <path
-                key={i}
-                d={`M${s.x} ${s.y} l -2 1 l 0 2 l 2 1 l 2 -1 l 0 -2 z`}
-                fill="#5F7A4A"
-                stroke="#4A6238"
-                strokeWidth="0.3"
+        {/* fireflies (dusk) / pollen (day) */}
+        {fireflies.map((f) => (
+          <circle
+            key={f.id}
+            cx={f.x * 10}
+            cy={f.y * 5.6}
+            r={isDusk ? 1.8 : 1}
+            fill={isDusk ? "#ffd080" : "var(--ochre)"}
+            opacity={isDusk ? 0.9 : 0.4}
+          >
+            <animate
+              attributeName="cx"
+              values={`${f.x * 10};${f.x * 10 + 40};${f.x * 10 - 20};${f.x * 10}`}
+              dur={`${f.dur}s`}
+              repeatCount="indefinite"
+              begin={`-${f.delay}s`}
+            />
+            <animate
+              attributeName="cy"
+              values={`${f.y * 5.6};${f.y * 5.6 - 30};${f.y * 5.6 + 10};${f.y * 5.6}`}
+              dur={`${f.dur}s`}
+              repeatCount="indefinite"
+              begin={`-${f.delay}s`}
+            />
+            {isDusk ? (
+              <animate
+                attributeName="opacity"
+                values="0.2;1;0.4;0.9;0.2"
+                dur="3s"
+                repeatCount="indefinite"
+                begin={`-${f.delay}s`}
               />
-            ))}
-            <g className={cls("turtle", "turtle-head")}>
-              <circle cx="10" cy="0" r="3" fill="#9BB870" />
-              <circle cx="11.5" cy="-0.8" r="0.4" fill="#2A2725" />
-            </g>
-            <ellipse cx="-9" cy="4" rx="2" ry="1" fill="#9BB870" />
-            <ellipse cx="9" cy="4" rx="2" ry="1" fill="#9BB870" />
-          </g>
-        </g>
-      ) : null}
+            ) : null}
+          </circle>
+        ))}
+      </svg>
 
-      {has("dragonfly") ? (
-        <g transform="translate(700 420)" onClick={() => poke("dfly")} style={{ cursor: "pointer" }}>
-          <g className={cls("dfly", "dfly-body")}>
-            <ellipse cx="0" cy="0" rx="1.2" ry="8" fill="#4A8FB8" />
-            <circle cx="0" cy="-7" r="2" fill="#2B6B94" />
-            <ellipse cx="-6" cy="-2" rx="6" ry="1.5" fill="#B8E0F2" opacity="0.75" />
-            <ellipse cx="6" cy="-2" rx="6" ry="1.5" fill="#B8E0F2" opacity="0.75" />
-            <ellipse cx="-5" cy="2" rx="5" ry="1.3" fill="#B8E0F2" opacity="0.7" />
-            <ellipse cx="5" cy="2" rx="5" ry="1.3" fill="#B8E0F2" opacity="0.7" />
-          </g>
-        </g>
-      ) : null}
+      {/* caption */}
+      <div className="garden-caption">{isDusk ? "The garden at dusk" : "The garden, midday"}</div>
 
-      {has("bee") ? (
-        <g transform="translate(260 438)" onClick={() => poke("bee")} style={{ cursor: "pointer" }}>
-          <g className={cls("bee", "bee-body")}>
-            <ellipse cx="0" cy="0" rx="4" ry="2.8" fill="#E8B84A" />
-            <rect x="-3" y="-1" width="6" height="1" fill="#2A2725" />
-            <rect x="-2" y="1" width="4" height="0.8" fill="#2A2725" />
-            <ellipse cx="-2" cy="-2.5" rx="3" ry="1.2" fill="#E0F2FA" opacity="0.8" />
-            <ellipse cx="2" cy="-2.5" rx="3" ry="1.2" fill="#E0F2FA" opacity="0.8" />
-            <circle cx="-4" cy="0" r="0.5" fill="#2A2725" />
-          </g>
-        </g>
-      ) : null}
-
-      {has("petals") ? (
-        <g className="petals">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <g key={i} transform={`translate(${80 + i * 90} -20)`}>
-              <ellipse className={`petal petal-${i % 5}`} cx="0" cy="0" rx="4" ry="2.2" fill="#F2C3D0" />
-            </g>
-          ))}
-        </g>
-      ) : null}
-
-      {has("firefly") ? (
-        <g className="fireflies">
-          {[{ x: 180, y: 360 }, { x: 420, y: 380 }, { x: 620, y: 350 }, { x: 300, y: 420 }, { x: 840, y: 410 }, { x: 540, y: 420 }].map((p, i) => (
-            <g key={i} transform={`translate(${p.x} ${p.y})`}>
-              <g className={`firefly ff-${i}`}>
-                <circle r="8" fill="#F8C96A" opacity="0.3" />
-                <circle r="2" fill="#F8E8A4" />
-              </g>
-            </g>
-          ))}
-        </g>
-      ) : null}
-
-      {/* vignette */}
-      <rect width="1000" height="520" fill="url(#vignette)" pointerEvents="none" />
-    </svg>
+      {/* clickable creatures */}
+      {PLACEMENTS.map((p) => (has(p.id) ? <CreatureSlot key={p.id} placement={p} isDusk={isDusk} /> : null))}
+    </div>
   );
+}
+
+function CreatureSlot({
+  placement,
+  isDusk,
+}: {
+  placement: CreaturePlacement;
+  isDusk: boolean;
+}) {
+  const [bounce, setBounce] = useState(false);
+  const onClick = () => {
+    setBounce(true);
+    setTimeout(() => setBounce(false), 600);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`creature-btn ${bounce ? "bounce" : ""}`}
+      style={{
+        left: placement.left,
+        bottom: placement.bottom,
+        top: placement.top,
+        width: placement.size,
+        height: placement.size,
+        filter: isDusk ? "brightness(0.85)" : undefined,
+      }}
+      aria-label={placement.id}
+      title={placement.id}
+    >
+      <CreatureArt id={placement.id} />
+    </button>
+  );
+}
+
+function CreatureArt({ id }: { id: CreatureId }) {
+  switch (id) {
+    case "cat":
+      return (
+        <svg viewBox="0 0 100 100">
+          <g>
+            <ellipse cx="50" cy="70" rx="28" ry="16" fill="var(--ink)" />
+            <circle cx="32" cy="58" r="14" fill="var(--ink)" />
+            <path d="M 22 52 L 26 42 L 32 50 Z M 38 50 L 42 42 L 44 52 Z" fill="var(--ink)" />
+            <path
+              d="M 78 72 Q 88 60 84 48"
+              stroke="var(--ink)"
+              strokeWidth="5"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <circle cx="28" cy="56" r="1.2" fill="var(--accent)" />
+            <circle cx="36" cy="56" r="1.2" fill="var(--accent)" />
+          </g>
+        </svg>
+      );
+    case "frog":
+      return (
+        <svg viewBox="0 0 100 100">
+          <g>
+            <ellipse cx="50" cy="66" rx="30" ry="18" fill="var(--moss)" />
+            <ellipse cx="34" cy="48" rx="10" ry="9" fill="var(--moss)" />
+            <ellipse cx="66" cy="48" rx="10" ry="9" fill="var(--moss)" />
+            <circle cx="34" cy="46" r="4" fill="var(--paper)" />
+            <circle cx="66" cy="46" r="4" fill="var(--paper)" />
+            <circle cx="34" cy="47" r="2" fill="var(--ink)" />
+            <circle cx="66" cy="47" r="2" fill="var(--ink)" />
+            <path
+              d="M 40 70 Q 50 76 60 70"
+              stroke="var(--ink)"
+              strokeWidth="1.2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </g>
+        </svg>
+      );
+    case "snail":
+      return (
+        <svg viewBox="0 0 100 100">
+          <g>
+            <path
+              d="M 16 78 Q 50 78 76 72 Q 80 68 76 64"
+              stroke="var(--clay)"
+              strokeWidth="12"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <circle cx="56" cy="50" r="22" fill="var(--ochre)" />
+            <path
+              d="M 56 50 m -14 0 a 14 14 0 1 1 28 0 a 10 10 0 1 1 -20 0 a 6 6 0 1 1 12 0"
+              stroke="var(--clay)"
+              strokeWidth="1.4"
+              fill="none"
+            />
+            <line x1="20" y1="74" x2="14" y2="64" stroke="var(--clay)" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="14" cy="63" r="1.5" fill="var(--ink)" />
+            <line x1="26" y1="72" x2="22" y2="62" stroke="var(--clay)" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="22" cy="61" r="1.5" fill="var(--ink)" />
+          </g>
+        </svg>
+      );
+    case "fox":
+      return (
+        <svg viewBox="0 0 100 100">
+          <g>
+            <path
+              d="M 70 70 Q 88 62 82 42"
+              stroke="var(--accent)"
+              strokeWidth="8"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <path
+              d="M 82 44 Q 88 40 84 36"
+              stroke="var(--paper)"
+              strokeWidth="3"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <ellipse cx="48" cy="66" rx="26" ry="14" fill="var(--accent)" />
+            <circle cx="34" cy="52" r="14" fill="var(--accent)" />
+            <path d="M 24 46 L 26 34 L 34 46 Z M 36 46 L 42 34 L 42 46 Z" fill="var(--accent)" />
+            <path d="M 30 54 Q 34 56 38 54 L 34 58 Z" fill="var(--paper)" />
+            <circle cx="28" cy="50" r="1.3" fill="var(--ink)" />
+            <circle cx="38" cy="50" r="1.3" fill="var(--ink)" />
+            <circle cx="34" cy="56" r="1" fill="var(--ink)" />
+          </g>
+        </svg>
+      );
+    case "owl":
+      return (
+        <svg viewBox="0 0 100 100">
+          <g>
+            <ellipse cx="50" cy="58" rx="24" ry="28" fill="var(--clay)" />
+            <path
+              d="M 28 38 L 34 46 M 72 38 L 66 46"
+              stroke="var(--clay)"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <circle cx="40" cy="52" r="9" fill="var(--paper)" />
+            <circle cx="60" cy="52" r="9" fill="var(--paper)" />
+            <circle cx="40" cy="53" r="4" fill="var(--ink)" />
+            <circle cx="60" cy="53" r="4" fill="var(--ink)" />
+            <path d="M 46 62 L 50 68 L 54 62 Z" fill="var(--ochre)" />
+            <path
+              d="M 40 76 L 42 84 M 60 76 L 58 84"
+              stroke="var(--ochre)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </g>
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
