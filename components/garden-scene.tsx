@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { GARDEN_PALETTE as PAL } from "@/lib/garden-palette";
 
 type GardenSceneProps = {
@@ -7,6 +8,11 @@ type GardenSceneProps = {
 };
 
 export function GardenScene({ timeOfDay = 0.5 }: GardenSceneProps) {
+  const [poked, setPoked] = useState<Record<string, number>>({});
+  const poke = (id: string) => setPoked((p) => ({ ...p, [id]: (p[id] ?? 0) + 1 }));
+  const cls = (id: string, base: string) =>
+    poked[id] ? `${base} poked poke-${poked[id] % 2}` : base;
+
   const isDusk = timeOfDay > 0.75;
   const isDawn = timeOfDay < 0.25;
   const skyTop = isDusk ? "#3E4A6B" : isDawn ? "#F4C4A0" : "#CFE0E8";
@@ -128,7 +134,7 @@ export function GardenScene({ timeOfDay = 0.5 }: GardenSceneProps) {
       {/* ground plane */}
       <rect x="0" y="395" width="1000" height="125" fill="url(#ground)" />
 
-      {/* pond with ripples */}
+      {/* pond with ripples + koi + lily pad creatures */}
       <g className="pond">
         <ellipse cx="720" cy="450" rx="150" ry="28" fill="#4F7388" opacity="0.9" />
         <ellipse cx="720" cy="448" rx="145" ry="25" fill="url(#pond-g)" />
@@ -147,11 +153,42 @@ export function GardenScene({ timeOfDay = 0.5 }: GardenSceneProps) {
         <ellipse cx="640" cy="450" rx="16" ry="5" fill="#5F7A58" />
         <ellipse cx="780" cy="455" rx="14" ry="4" fill="#5F7A58" />
         <circle cx="784" cy="453" r="2.5" fill={PAL.petal} />
-        <g transform="translate(680 450)">
-          <g className="koi-fish">
+        {/* koi — click makes it jump out of the water */}
+        <g transform="translate(680 450)" onClick={() => poke("koi")} style={{ cursor: "pointer" }}>
+          <g className={cls("koi", "koi-fish")}>
             <path d="M0 0 Q 10 -4 22 0 Q 30 4 22 6 Q 10 8 0 4 Z" fill="#F8C96A" />
             <path d="M-6 -2 L -12 -6 L -10 -2 L -12 2 Z" fill="#F5A34A" />
             <circle cx="18" cy="0" r="1" fill="#2A2725" />
+          </g>
+        </g>
+        {/* water splash when koi jumps */}
+        {poked["koi"] ? (
+          <g key={`splash-${poked.koi}`} className="koi-splash">
+            <circle cx="720" cy="448" r="4" fill="#fff" opacity="0.9" />
+            <circle cx="710" cy="446" r="2" fill="#fff" opacity="0.7" />
+            <circle cx="730" cy="446" r="2" fill="#fff" opacity="0.7" />
+          </g>
+        ) : null}
+        {/* frog on lily pad — leaps when poked */}
+        <g transform="translate(780 452)" onClick={() => poke("frog")} style={{ cursor: "pointer" }}>
+          <g className={cls("frog", "frog-body")}>
+            <ellipse cx="0" cy="0" rx="8" ry="5" fill="#6B8A4A" />
+            <ellipse cx="0" cy="-2" rx="7" ry="4" fill="#88A860" />
+            <circle cx="-3" cy="-4" r="2" fill="#88A860" />
+            <circle cx="3" cy="-4" r="2" fill="#88A860" />
+            <circle cx="-3" cy="-4" r="1" fill="#2A2725" />
+            <circle cx="3" cy="-4" r="1" fill="#2A2725" />
+            <path d="M-4 0 Q 0 2 4 0" stroke="#2A2725" strokeWidth="0.5" fill="none" />
+          </g>
+        </g>
+        {/* duck paddling on pond — dips on click */}
+        <g transform="translate(640 446)" onClick={() => poke("duck")} style={{ cursor: "pointer" }}>
+          <g className={cls("duck", "duck-body")}>
+            <ellipse cx="0" cy="0" rx="14" ry="6" fill="#F4EFE2" />
+            <circle cx="10" cy="-5" r="5" fill="#3E6A3E" />
+            <path d="M13 -4 L 18 -5 L 17 -2 L 13 -2 Z" fill="#E8B84A" />
+            <circle cx="11" cy="-6" r="0.8" fill="#2A2725" />
+            <path d="M-12 1 Q -16 4 -10 4" fill="#F4EFE2" />
           </g>
         </g>
       </g>
@@ -312,26 +349,197 @@ export function GardenScene({ timeOfDay = 0.5 }: GardenSceneProps) {
 
       {/* butterflies */}
       <g className="butterflies">
-        <g transform="translate(220 280)">
-          <g className="bfly bfly-1">
+        <g transform="translate(220 280)" onClick={() => poke("bfly1")} style={{ cursor: "pointer" }}>
+          <g className={cls("bfly1", "bfly bfly-1")}>
             <path d="M0 0 Q -8 -6 -11 0 Q -8 4 0 3 Z" fill="#F5D88A" />
             <path d="M0 0 Q 8 -6 11 0 Q 8 4 0 3 Z" fill="#F5D88A" />
             <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="1" />
           </g>
         </g>
-        <g transform="translate(480 360)">
-          <g className="bfly bfly-2">
+        <g transform="translate(480 360)" onClick={() => poke("bfly2")} style={{ cursor: "pointer" }}>
+          <g className={cls("bfly2", "bfly bfly-2")}>
             <path d="M0 0 Q -8 -6 -11 0 Q -8 4 0 3 Z" fill="#E8B4C2" />
             <path d="M0 0 Q 8 -6 11 0 Q 8 4 0 3 Z" fill="#E8B4C2" />
             <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="1" />
           </g>
         </g>
-        <g transform="translate(820 300)">
-          <g className="bfly bfly-3">
+        <g transform="translate(820 300)" onClick={() => poke("bfly3")} style={{ cursor: "pointer" }}>
+          <g className={cls("bfly3", "bfly bfly-3")}>
             <path d="M0 0 Q -7 -5 -9 0 Q -7 3 0 2 Z" fill="#9FE8C5" />
             <path d="M0 0 Q 7 -5 9 0 Q 7 3 0 2 Z" fill="#9FE8C5" />
             <line x1="0" y1="-2" x2="0" y2="4" stroke="#2A2725" strokeWidth="0.8" />
           </g>
+        </g>
+      </g>
+
+      {/* rabbit — hops on click */}
+      <g transform="translate(220 478)" onClick={() => poke("rabbit")} style={{ cursor: "pointer" }}>
+        <g className={cls("rabbit", "rabbit-body")}>
+          <ellipse cx="0" cy="-3" rx="10" ry="7" fill="#F4EFE2" />
+          <circle cx="8" cy="-8" r="5" fill="#F4EFE2" />
+          <ellipse cx="6" cy="-15" rx="1.6" ry="5" fill="#F4EFE2" transform="rotate(-8 6 -15)" />
+          <ellipse cx="10" cy="-15" rx="1.6" ry="5" fill="#F4EFE2" transform="rotate(6 10 -15)" />
+          <circle cx="10" cy="-8" r="0.7" fill="#2A2725" />
+          <circle cx="11" cy="-7" r="0.4" fill="#E8B4C2" />
+          <circle cx="-10" cy="-3" r="2.5" fill="#F4EFE2" />
+        </g>
+      </g>
+
+      {/* deer — grazes, then tosses head on click */}
+      <g transform="translate(420 436)" onClick={() => poke("deer")} style={{ cursor: "pointer" }}>
+        <g className={cls("deer", "deer-body")}>
+          <ellipse cx="0" cy="0" rx="18" ry="10" fill="#C2905A" />
+          <g className={cls("deer", "deer-head")}>
+            <ellipse cx="16" cy="-6" rx="6" ry="8" fill="#C2905A" />
+            <circle cx="18" cy="-14" r="4" fill="#C2905A" />
+            <path d="M16 -17 L 14 -24 L 17 -20 Z" fill="#8A6240" />
+            <path d="M20 -17 L 22 -24 L 19 -20 Z" fill="#8A6240" />
+            <circle cx="19" cy="-14" r="0.7" fill="#2A2725" />
+          </g>
+          <path d="M-10 6 L -11 14 M-4 6 L -4 14 M6 6 L 6 14 M12 6 L 13 14" stroke="#8A6240" strokeWidth="2" strokeLinecap="round" />
+          {[{ x: -6, y: -4 }, { x: 2, y: -6 }, { x: 8, y: -2 }].map((s, i) => (
+            <circle key={i} cx={s.x} cy={s.y} r="0.8" fill="#F4EFE2" />
+          ))}
+        </g>
+      </g>
+
+      {/* squirrel on tree trunk — scampers */}
+      <g transform="translate(298 378)" onClick={() => poke("squirrel")} style={{ cursor: "pointer" }}>
+        <g className={cls("squirrel", "squirrel-body")}>
+          <path d="M-8 6 Q -14 -2 -10 -10 Q -4 -14 -4 -6 Q -6 0 -4 6 Z" fill="#B85A2A" />
+          <ellipse cx="0" cy="2" rx="6" ry="5" fill="#C2663B" />
+          <circle cx="6" cy="-4" r="4" fill="#C2663B" />
+          <circle cx="8" cy="-4" r="0.7" fill="#2A2725" />
+          <path d="M5 -8 L 3 -12 L 6 -10 Z" fill="#C2663B" />
+        </g>
+      </g>
+
+      {/* hedgehog — curls up on click */}
+      <g transform="translate(160 486)" onClick={() => poke("hedgehog")} style={{ cursor: "pointer" }}>
+        <g className={cls("hedgehog", "hedgehog-body")}>
+          <ellipse cx="0" cy="0" rx="10" ry="6" fill="#8A6240" />
+          {Array.from({ length: 14 }).map((_, i) => {
+            const a = Math.PI + (i / 14) * Math.PI;
+            const x = Math.cos(a) * 8;
+            const y = Math.sin(a) * 5.5;
+            return <line key={i} x1={x} y1={y} x2={x + Math.cos(a) * 3} y2={y + Math.sin(a) * 3} stroke="#4A3220" strokeWidth="0.8" />;
+          })}
+          <circle cx="8" cy="0" r="3.5" fill="#D4B088" />
+          <circle cx="10" cy="-1" r="0.5" fill="#2A2725" />
+          <circle cx="10.5" cy="1" r="0.7" fill="#2A2725" />
+        </g>
+      </g>
+
+      {/* snail on stone — retracts on click */}
+      <g transform="translate(462 452)" onClick={() => poke("snail")} style={{ cursor: "pointer" }}>
+        <g className={cls("snail", "snail-body")}>
+          <path d="M-8 4 Q -10 -2 0 -2 L 10 -2 Q 14 0 12 4 Z" fill="#C8A878" />
+          <circle cx="4" cy="-2" r="6" fill="#8A6240" />
+          <circle cx="4" cy="-2" r="4" fill="#A87F52" />
+          <circle cx="4" cy="-2" r="2" fill="#8A6240" />
+          <g className={cls("snail", "snail-horns")}>
+            <path d="M-6 0 Q -10 -4 -8 -7" stroke="#C8A878" strokeWidth="1" fill="none" />
+            <circle cx="-8" cy="-7" r="0.6" fill="#2A2725" />
+          </g>
+        </g>
+      </g>
+
+      {/* ladybug on grass — flies off on click */}
+      <g transform="translate(340 490)" onClick={() => poke("ladybug")} style={{ cursor: "pointer" }}>
+        <g className={cls("ladybug", "ladybug-body")}>
+          <ellipse cx="0" cy="0" rx="5" ry="4" fill="#C94B3A" />
+          <path d="M0 -4 V4" stroke="#2A2725" strokeWidth="0.6" />
+          <ellipse cx="0" cy="-3" rx="2.5" ry="1.5" fill="#2A2725" />
+          <circle cx="-2" cy="0" r="0.7" fill="#2A2725" />
+          <circle cx="2" cy="0" r="0.7" fill="#2A2725" />
+          <circle cx="-1" cy="2" r="0.6" fill="#2A2725" />
+          <circle cx="1" cy="2" r="0.6" fill="#2A2725" />
+        </g>
+      </g>
+
+      {/* house cat — stretches on click */}
+      <g transform="translate(368 444)" onClick={() => poke("cat")} style={{ cursor: "pointer" }}>
+        <g className={cls("cat", "cat-body")}>
+          <ellipse cx="0" cy="0" rx="12" ry="6" fill="#2A2725" />
+          <circle cx="11" cy="-4" r="5" fill="#2A2725" />
+          <path d="M7 -7 L 6 -12 L 10 -9 Z" fill="#2A2725" />
+          <path d="M15 -7 L 16 -12 L 12 -9 Z" fill="#2A2725" />
+          <ellipse cx="10" cy="-4" rx="0.7" ry="1.5" fill="#7BC47F" />
+          <ellipse cx="13" cy="-4" rx="0.7" ry="1.5" fill="#7BC47F" />
+          <path d="M-12 0 Q -18 -2 -16 -6" stroke="#2A2725" strokeWidth="2" fill="none" />
+        </g>
+      </g>
+
+      {/* mouse — scurries */}
+      <g transform="translate(84 492)" onClick={() => poke("mouse")} style={{ cursor: "pointer" }}>
+        <g className={cls("mouse", "mouse-body")}>
+          <ellipse cx="0" cy="0" rx="6" ry="3" fill="#9B8878" />
+          <circle cx="5" cy="-2" r="3" fill="#9B8878" />
+          <circle cx="3" cy="-4" r="1.8" fill="#B8A898" />
+          <circle cx="7" cy="-4" r="1.8" fill="#B8A898" />
+          <circle cx="6" cy="-2" r="0.5" fill="#2A2725" />
+          <path d="M-6 0 Q -12 2 -12 -2" stroke="#9B8878" strokeWidth="1" fill="none" />
+        </g>
+      </g>
+
+      {/* owl in cypress — blinks on click */}
+      <g transform="translate(900 260)" onClick={() => poke("owl")} style={{ cursor: "pointer" }}>
+        <g className={cls("owl", "owl-body")}>
+          <ellipse cx="0" cy="0" rx="10" ry="12" fill="#8A6240" />
+          <path d="M-8 -10 L -8 -15 L -4 -10 Z" fill="#8A6240" />
+          <path d="M8 -10 L 8 -15 L 4 -10 Z" fill="#8A6240" />
+          <circle cx="-4" cy="-3" r="3.5" fill="#F4EFE2" />
+          <circle cx="4" cy="-3" r="3.5" fill="#F4EFE2" />
+          <circle className={cls("owl", "owl-eye")} cx="-4" cy="-3" r="2" fill="#2A2725" />
+          <circle className={cls("owl", "owl-eye")} cx="4" cy="-3" r="2" fill="#2A2725" />
+          <path d="M0 0 L -2 3 L 2 3 Z" fill="#E8B84A" />
+        </g>
+      </g>
+
+      {/* turtle — pulls in head on click */}
+      <g transform="translate(520 495)" onClick={() => poke("turtle")} style={{ cursor: "pointer" }}>
+        <g className="turtle-body">
+          <ellipse cx="0" cy="0" rx="12" ry="7" fill="#5F7A4A" />
+          <ellipse cx="0" cy="-1" rx="10" ry="5" fill="#7A9758" />
+          {[{ x: -4, y: -1 }, { x: 4, y: -1 }, { x: 0, y: 2 }, { x: -6, y: 2 }, { x: 6, y: 2 }].map((s, i) => (
+            <path
+              key={i}
+              d={`M${s.x} ${s.y} l -2 1 l 0 2 l 2 1 l 2 -1 l 0 -2 z`}
+              fill="#5F7A4A"
+              stroke="#4A6238"
+              strokeWidth="0.3"
+            />
+          ))}
+          <g className={cls("turtle", "turtle-head")}>
+            <circle cx="10" cy="0" r="3" fill="#9BB870" />
+            <circle cx="11.5" cy="-0.8" r="0.4" fill="#2A2725" />
+          </g>
+          <ellipse cx="-9" cy="4" rx="2" ry="1" fill="#9BB870" />
+          <ellipse cx="9" cy="4" rx="2" ry="1" fill="#9BB870" />
+        </g>
+      </g>
+
+      {/* dragonfly over pond — darts */}
+      <g transform="translate(700 420)" onClick={() => poke("dfly")} style={{ cursor: "pointer" }}>
+        <g className={cls("dfly", "dfly-body")}>
+          <ellipse cx="0" cy="0" rx="1.2" ry="8" fill="#4A8FB8" />
+          <circle cx="0" cy="-7" r="2" fill="#2B6B94" />
+          <ellipse cx="-6" cy="-2" rx="6" ry="1.5" fill="#B8E0F2" opacity="0.75" />
+          <ellipse cx="6" cy="-2" rx="6" ry="1.5" fill="#B8E0F2" opacity="0.75" />
+          <ellipse cx="-5" cy="2" rx="5" ry="1.3" fill="#B8E0F2" opacity="0.7" />
+          <ellipse cx="5" cy="2" rx="5" ry="1.3" fill="#B8E0F2" opacity="0.7" />
+        </g>
+      </g>
+
+      {/* bee near lavender */}
+      <g transform="translate(260 438)" onClick={() => poke("bee")} style={{ cursor: "pointer" }}>
+        <g className={cls("bee", "bee-body")}>
+          <ellipse cx="0" cy="0" rx="4" ry="2.8" fill="#E8B84A" />
+          <rect x="-3" y="-1" width="6" height="1" fill="#2A2725" />
+          <rect x="-2" y="1" width="4" height="0.8" fill="#2A2725" />
+          <ellipse cx="-2" cy="-2.5" rx="3" ry="1.2" fill="#E0F2FA" opacity="0.8" />
+          <ellipse cx="2" cy="-2.5" rx="3" ry="1.2" fill="#E0F2FA" opacity="0.8" />
+          <circle cx="-4" cy="0" r="0.5" fill="#2A2725" />
         </g>
       </g>
 
