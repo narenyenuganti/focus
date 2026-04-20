@@ -38,17 +38,17 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Start" }));
+  fireEvent.click(screen.getByRole("button", { name: "Begin" }));
 
   expect(intervalCallback).not.toBeNull();
-  expect(screen.getByText("25:00")).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: /25:00/ })).toBeInTheDocument();
 
   await act(async () => {
     vi.setSystemTime(new Date(startedAt.getTime() + 5_000));
     intervalCallback?.();
   });
 
-  expect(screen.getByText("24:55")).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: /24:55/ })).toBeInTheDocument();
 
   setIntervalSpy.mockRestore();
   clearIntervalSpy.mockRestore();
@@ -124,7 +124,7 @@ test("sub-minute early finish is not saved and earns no currency", async () => {
 
   // Start the session
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Start" }));
+    fireEvent.click(screen.getByRole("button", { name: "Begin" }));
   });
 
   // Advance only 4 seconds
@@ -133,14 +133,14 @@ test("sub-minute early finish is not saved and earns no currency", async () => {
     vi.advanceTimersByTime(1_000);
   });
 
-  // Pause first — "Finish Session" only appears when paused
+  // Pause first — "Finish" only appears when paused
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Pause" }));
   });
 
   // Finish early
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Finish Session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Finish" }));
   });
 
   // Allow pending promises to flush
@@ -172,7 +172,7 @@ test("32m 5s early finish earns 32 currency, not 33", async () => {
 
   // Start the session
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Start" }));
+    fireEvent.click(screen.getByRole("button", { name: "Begin" }));
   });
 
   // Advance 32 minutes and 5 seconds (1925 seconds)
@@ -188,7 +188,7 @@ test("32m 5s early finish earns 32 currency, not 33", async () => {
 
   // Finish early
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Finish Session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Finish" }));
   });
 
   await act(async () => {

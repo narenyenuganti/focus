@@ -22,7 +22,7 @@ test("renders the unlock screen", async ({ page }) => {
   await expect(page.locator(".topbar")).toBeVisible();
   await expect(page.locator(".nav")).toBeVisible();
   await expect(page.locator(".hub-dots")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Begin", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Statistics", exact: true })).toBeVisible();

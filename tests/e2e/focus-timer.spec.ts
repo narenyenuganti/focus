@@ -18,12 +18,12 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   await expect(page.locator(".nav")).toBeVisible();
   await expect(page.locator(".nav .utility-cluster")).toHaveCount(2);
   await expect(page.locator(".nav .nav-cluster")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Start", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Begin", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sync tracker data", exact: true })).toBeVisible();
   await expect(page.getByText("Classic Pomodoro", { exact: true })).toBeVisible();
   await expect(page.getByText("25 minute block", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Switch focus preset")).toBeVisible();
-  await expect(page.locator(".focus-ring__svg")).toBeVisible();
+  await expect(page.locator(".dial-svg")).toBeVisible();
   await expect(page.getByRole("button", { name: "Classic Pomodoro", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Tracking" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Achievements" })).toHaveCount(0);
@@ -53,15 +53,15 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   ).toBeLessThan(2);
   await expect(page.getByRole("button", { name: "View sync history", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "View history", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Finish" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
 
   const timer = page.locator(".timer-display");
-  const focusRing = page.locator(".focus-ring");
-  await page.getByRole("button", { name: "Start" }).click();
+  const dial = page.locator(".dial-wrap");
+  await page.getByRole("button", { name: "Begin" }).click();
   await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Start", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Finish Session" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Begin", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Finish" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
   const measurements = [];
   for (let index = 0; index < 4; index += 1) {
@@ -78,9 +78,9 @@ test("keeps the shell chrome visible while panels open", async ({ page }) => {
   expect(leftEdges.length).toBeGreaterThan(0);
   expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(2);
   expect(Math.max(...leftEdges) - Math.min(...leftEdges)).toBeLessThan(2);
-  const focusRingBox = await focusRing.boundingBox();
-  expect(focusRingBox).not.toBeNull();
-  expect(Math.max(...widths)).toBeLessThan(focusRingBox!.width - 32);
+  const dialBox = await dial.boundingBox();
+  expect(dialBox).not.toBeNull();
+  expect(Math.max(...widths)).toBeLessThan(dialBox!.width - 32);
 
   const pausedText = await timer.innerText();
   await page.getByRole("button", { name: "Pause" }).click();
@@ -101,16 +101,16 @@ test("keeps mobile shell spacing clear", async ({ page }) => {
   await unlock(page);
   await page.setViewportSize({ width: 390, height: 844 });
 
-  const focusRing = page.locator(".focus-ring");
+  const dial = page.locator(".dial-wrap");
   const bottomBar = page.locator(".nav");
-  await expect(focusRing).toBeVisible();
+  await expect(dial).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const focusRingBox = await focusRing.boundingBox();
+  const dialBox = await dial.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(focusRingBox).not.toBeNull();
+  expect(dialBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(dialBox!.y + dialBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "View sync history", exact: true }).dispatchEvent("click");
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -127,16 +127,16 @@ test("keeps tablet shell spacing clear", async ({ page }) => {
   await unlock(page);
   await page.setViewportSize({ width: 768, height: 900 });
 
-  const focusRing = page.locator(".focus-ring");
+  const dial = page.locator(".dial-wrap");
   const bottomBar = page.locator(".nav");
-  await expect(focusRing).toBeVisible();
+  await expect(dial).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const focusRingBox = await focusRing.boundingBox();
+  const dialBox = await dial.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(focusRingBox).not.toBeNull();
+  expect(dialBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(dialBox!.y + dialBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -153,16 +153,16 @@ test("keeps mid-range shell spacing clear", async ({ page }) => {
   await unlock(page);
   await page.setViewportSize({ width: 700, height: 900 });
 
-  const focusRing = page.locator(".focus-ring");
+  const dial = page.locator(".dial-wrap");
   const bottomBar = page.locator(".nav");
-  await expect(focusRing).toBeVisible();
+  await expect(dial).toBeVisible();
   await expect(bottomBar).toBeVisible();
 
-  const focusRingBox = await focusRing.boundingBox();
+  const dialBox = await dial.boundingBox();
   const bottomBarBox = await bottomBar.boundingBox();
-  expect(focusRingBox).not.toBeNull();
+  expect(dialBox).not.toBeNull();
   expect(bottomBarBox).not.toBeNull();
-  expect(focusRingBox!.y + focusRingBox!.height).toBeLessThan(bottomBarBox!.y);
+  expect(dialBox!.y + dialBox!.height).toBeLessThan(bottomBarBox!.y);
 
   await page.getByRole("button", { name: "View sync history", exact: true }).click();
   const syncHistory = page.getByRole("region", { name: "Sync history" });
@@ -183,9 +183,9 @@ test("logs a focus session from the dashboard", async ({ page }) => {
   const sessionsMetric = page.locator(".metric-pill").filter({ hasText: "sessions" }).first();
   const startingText = (await sessionsMetric.innerText()).trim();
 
-  await page.getByRole("button", { name: "Start" }).click();
+  await page.getByRole("button", { name: "Begin" }).click();
   await page.getByRole("button", { name: "Pause" }).click();
-  await page.getByRole("button", { name: "Finish Session" }).click();
+  await page.getByRole("button", { name: "Finish" }).click();
 
   await expect(page.getByText(/sessions logged today/i)).toBeVisible();
   await expect
