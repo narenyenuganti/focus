@@ -18,129 +18,127 @@ type LedgerViewProps = {
   totalMinutes: number;
 };
 
-const WEEKS = 24;
-const DAYS_PER_WEEK = 7;
-const CELL_COUNT = WEEKS * DAYS_PER_WEEK;
+const DAYS = 30;
 
-function buildCellsFromHeatmap(heatmap: HeatmapEntry[]) {
-  const cells: Array<{ level: number; date?: string; minutes?: number }> = Array.from(
-    { length: CELL_COUNT },
-    () => ({ level: 0 }),
-  );
-
-  if (heatmap.length === 0) return cells;
-
-  const byDate = new Map(heatmap.map((entry) => [entry.date, entry]));
+function buildRecentDays(heatmap: HeatmapEntry[]) {
+  const byDate = new Map(heatmap.map((e) => [e.date, e]));
   const sorted = [...heatmap].sort((a, b) => a.date.localeCompare(b.date));
-  const lastDate = new Date(`${sorted[sorted.length - 1].date}T00:00:00.000Z`);
-
-  for (let i = 0; i < CELL_COUNT; i += 1) {
-    const cellDate = new Date(lastDate.getTime());
-    cellDate.setUTCDate(lastDate.getUTCDate() - (CELL_COUNT - 1 - i));
-    const key = cellDate.toISOString().slice(0, 10);
+  const lastKey = sorted[sorted.length - 1]?.date;
+  const today = lastKey ? new Date(`${lastKey}T00:00:00.000Z`) : new Date();
+  const cells: Array<{ date: string; minutes: number }> = [];
+  for (let i = 0; i < DAYS; i += 1) {
+    const d = new Date(today);
+    d.setUTCDate(today.getUTCDate() - (DAYS - 1 - i));
+    const key = d.toISOString().slice(0, 10);
     const entry = byDate.get(key);
-    if (entry) {
-      cells[i] = { level: entry.level, date: entry.date, minutes: entry.minutes };
-    } else {
-      cells[i] = { level: 0, date: key };
-    }
+    cells.push({ date: key, minutes: entry?.minutes ?? 0 });
   }
   return cells;
 }
 
+function longestStreak(heatmap: HeatmapEntry[]) {
+  if (heatmap.length === 0) return 0;
+  const byDate = new Map(heatmap.map((e) => [e.date, e]));
+  const sorted = [...heatmap].sort((a, b) => a.date.localeCompare(b.date));
+  const first = new Date(`${sorted[0].date}T00:00:00.000Z`);
+  const last = new Date(`${sorted[sorted.length - 1].date}T00:00:00.000Z`);
+  const days = Math.round((last.getTime() - first.getTime()) / 86_400_000) + 1;
+  let current = 0;
+  let best = 0;
+  for (let i = 0; i < days; i += 1) {
+    const d = new Date(first);
+    d.setUTCDate(first.getUTCDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    if ((byDate.get(key)?.minutes ?? 0) > 0) {
+      current += 1;
+      if (current > best) best = current;
+    } else {
+      current = 0;
+    }
+  }
+  return best;
+}
+
 export function LedgerView({
   heatmap,
-  todayMinutes,
-  weeklyMinutes,
-  weeklyGoalMinutes,
   streakDays,
   totalSessions,
   totalMinutes,
 }: LedgerViewProps) {
-  const cells = useMemo(() => buildCellsFromHeatmap(heatmap), [heatmap]);
-  const goalPct = weeklyGoalMinutes > 0
-    ? Math.min(100, Math.round((weeklyMinutes / weeklyGoalMinutes) * 100))
-    : 0;
-  const lifetimeHours = Math.round(totalMinutes / 60);
-  const year = new Date().getUTCFullYear();
+  const days = useMemo(() => buildRecentDays(heatmap), [heatmap]);
+  const longest = useMemo(() => longestStreak(heatmap), [heatmap]);
+  const max = Math.max(1, ...days.map((d) => d.minutes));
+
+  const hours = Math.floor(totalMinutes / 60);
+  const leftoverMin = totalMinutes % 60;
+  const last30Sessions = useMemo(() => {
+    const byDate = new Map(heatmap.map((e) => [e.date, e]));
+    return days.reduce((sum, d) => sum + (byDate.get(d.date)?.minutes ?? 0 > 0 ? 1 : 0), 0);
+  }, [heatmap, days]);
 
   return (
-    <section>
-      <div className="section-head">
-        <h2 className="serif">
-          The <em>ledger</em>
-        </h2>
-        <span className="meta">Since January · {year}</span>
+    <section className="view">
+      <h2
+        style={{
+          fontFamily: "var(--font-serif), Georgia, serif",
+          fontStyle: "italic",
+          fontWeight: 400,
+          fontSize: 48,
+          margin: "0 0 32px",
+          letterSpacing: "-0.03em",
+          lineHeight: 1,
+        }}
+      >
+        A record of <em style={{ color: "var(--accent)" }}>quiet hours</em>.
+      </h2>
+
+      <div className="stats-grid">
+        <div className="stat-cell">
+          <div className="k">Sessions, 30d</div>
+          <div className="v">{last30Sessions}</div>
+        </div>
+        <div className="stat-cell">
+          <div className="k">Hours, total</div>
+          <div className="v">
+            {hours}
+            <span className="u">h {leftoverMin}m</span>
+          </div>
+        </div>
+        <div className="stat-cell">
+          <div className="k">Current streak</div>
+          <div className="v">
+            {streakDays}
+            <span className="u">days</span>
+          </div>
+        </div>
+        <div className="stat-cell">
+          <div className="k">Longest streak</div>
+          <div className="v">
+            {longest}
+            <span className="u">days</span>
+          </div>
+        </div>
       </div>
 
-      <div className="ledger">
-        <div className="ledger-main">
-          <div className="eyebrow">Focus minutes · last 24 weeks</div>
-          <div className="heatmap" aria-label="Focus activity heatmap">
-            {cells.map((cell, i) => (
-              <div
-                key={i}
-                className="heat"
-                data-level={cell.level}
-                title={
-                  cell.date
-                    ? `${cell.date}: ${cell.minutes ?? 0} focus minutes`
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-          <div className="months">
-            <span>Jan</span>
-            <span>Feb</span>
-            <span>Mar</span>
-            <span>Apr</span>
-            <span>May</span>
-            <span>Jun</span>
-          </div>
-        </div>
+      <div className="label" style={{ marginBottom: 4 }}>
+        Daily minutes, last 30 days
+      </div>
+      <div className="streak-bars" aria-label="Daily minutes, last 30 days">
+        {days.map((d, i) => {
+          const height = (d.minutes / max) * 100;
+          return (
+            <div
+              key={d.date}
+              className={`bar ${i === days.length - 1 ? "today" : ""}`}
+              style={{ height: `${height}%`, animationDelay: `${i * 20}ms` }}
+              title={`${d.date}: ${d.minutes} minutes`}
+            />
+          );
+        })}
+      </div>
 
-        <div className="ledger-side">
-          <div>
-            <div className="eyebrow">This week</div>
-            <div className="big-num serif">
-              {weeklyMinutes}
-              <em>m</em>
-            </div>
-            {weeklyGoalMinutes > 0 ? (
-              <>
-                <div className="goal-copy">
-                  {goalPct}% of {weeklyGoalMinutes}m goal
-                </div>
-                <div className="goal-bar">
-                  <span style={{ width: `${goalPct}%` }} />
-                </div>
-              </>
-            ) : null}
-          </div>
-
-          <div className="kpi-row">
-            <div>
-              <span className="k">Today</span>
-              <span className="v">{todayMinutes}m</span>
-            </div>
-            <div>
-              <span className="k">Streak</span>
-              <span className="v">{streakDays}d</span>
-            </div>
-          </div>
-
-          <div className="kpi-row">
-            <div>
-              <span className="k">Sessions</span>
-              <span className="v">{totalSessions}</span>
-            </div>
-            <div>
-              <span className="k">Lifetime</span>
-              <span className="v">{lifetimeHours}h</span>
-            </div>
-          </div>
-        </div>
+      <div className="label" style={{ marginTop: 40 }}>
+        Lifetime · {totalSessions} sessions
       </div>
     </section>
   );
