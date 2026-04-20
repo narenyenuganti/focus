@@ -1,0 +1,28 @@
+export const GARDEN_PALETTE = {
+  leafDark: "#3E5A3C",
+  leaf: "#6B8E5A",
+  leafLight: "#9FBF7F",
+  bark: "#6A4A32",
+  barkDark: "#4A3220",
+  stone: "#B5AC9A",
+  stoneDark: "#8A8273",
+  water: "#7FA4B8",
+  waterDark: "#4F7388",
+  petal: "#E8B4C2",
+  petalDeep: "#C76A8B",
+  rose: "#C23E4B",
+  lav: "#9B84C4",
+  lavDark: "#6B5795",
+  yellow: "#E8B84A",
+  red: "#C94B3A",
+  skyTop: "#E8D8B8",
+  skyBot: "#F5E6C8",
+  sun: "#F2A441",
+  moon: "#E8E0C8",
+  fox: "#C2663B",
+  koi: "#F5A34A",
+  cloud: "#F4EFE2",
+  trim: "#2A2725",
+} as const;
+
+export type GardenPaletteKey = keyof typeof GARDEN_PALETTE;
