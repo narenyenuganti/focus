@@ -59,7 +59,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         <div className="brand">
           <div className="mark" aria-hidden="true" />
           <div className="wordmark serif">
-            <span>Focus</span> <em>— 2026</em>
+            <span>Focus</span>
           </div>
         </div>
         <div className="topbar-right">
@@ -147,11 +147,8 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       </main>
 
       <footer className="footer">
-        <div className="colophon">
-          Set in <em className="serif">Instrument Serif</em> · Local-first · Quietly yours
-        </div>
         <div>
-          <span className="mono">{weekPct}% of weekly goal</span>
+          v2 · <span className="mono">{weekPct}% of weekly goal</span>
         </div>
       </footer>
     </div>
