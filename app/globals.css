@@ -1191,6 +1191,328 @@ a {
   50% { opacity: 1; }
 }
 
+/* ---------- creature interactions (click) ---------- */
+.garden-svg g[style*="cursor:pointer"],
+.garden-svg g[style*="cursor: pointer"] {
+  transition: filter 180ms ease;
+}
+
+.garden-svg g[style*="cursor:pointer"]:hover,
+.garden-svg g[style*="cursor: pointer"]:hover {
+  filter: brightness(1.08);
+}
+
+/* koi jumps out of the water */
+.garden-svg .poked.koi-fish {
+  animation: koiJump 1.3s cubic-bezier(.3, .2, .2, 1) 1;
+}
+
+@keyframes koiJump {
+  0% { transform: translate(60px, 0) rotate(0); }
+  25% { transform: translate(40px, -60px) rotate(-40deg); }
+  55% { transform: translate(80px, -75px) rotate(30deg); }
+  80% { transform: translate(120px, -10px) rotate(90deg); }
+  100% { transform: translate(120px, 0) rotate(0); }
+}
+
+.garden-svg .koi-splash {
+  animation: splash 0.9s ease-out 1;
+  transform-origin: center;
+}
+
+@keyframes splash {
+  0% { opacity: 0; transform: translate(720px, 448px) scale(0.2); }
+  30% { opacity: 1; transform: translate(720px, 440px) scale(1); }
+  100% { opacity: 0; transform: translate(720px, 448px) scale(1.4); }
+}
+
+/* frog leap */
+.garden-svg .poked.frog-body {
+  animation: frogLeap 0.8s cubic-bezier(.3, .2, .2, 1) 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes frogLeap {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-20px, -40px) scale(1.15, 0.85); }
+  55% { transform: translate(-40px, -10px) scale(0.9, 1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* duck dip */
+.garden-svg .poked.duck-body {
+  animation: duckDip 0.8s ease-in-out 1;
+  transform-box: fill-box;
+}
+
+@keyframes duckDip {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(6px) rotate(-10deg); }
+  60% { transform: translateY(6px) rotate(-10deg); }
+}
+
+/* rabbit hop */
+.garden-svg .poked.rabbit-body {
+  animation: rabbitHop 0.9s cubic-bezier(.3, .2, .2, 1) 1;
+  transform-box: fill-box;
+}
+
+@keyframes rabbitHop {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(-18px, -24px) rotate(-6deg); }
+  55% { transform: translate(-36px, -4px) rotate(-4deg); }
+  100% { transform: translate(0, 0); }
+}
+
+/* deer head toss */
+.garden-svg .poked.deer-head {
+  animation: deerHead 1.2s ease-in-out 1;
+  transform-box: fill-box;
+  transform-origin: 16px 0;
+}
+
+@keyframes deerHead {
+  0% { transform: rotate(0) translateY(0); }
+  15% { transform: rotate(-18deg) translateY(-6px); }
+  35% { transform: rotate(-22deg) translateY(-12px); }
+  55% { transform: rotate(-8deg) translateY(-4px); }
+  100% { transform: rotate(0) translateY(0); }
+}
+
+/* squirrel scamper */
+.garden-svg .poked.squirrel-body {
+  animation: squirrelRun 1s cubic-bezier(.4, 0, .3, 1) 1;
+  transform-box: fill-box;
+}
+
+@keyframes squirrelRun {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(0, -28px); }
+  50% { transform: translate(0, -50px) scale(0.9); }
+  75% { transform: translate(0, -70px) scale(0.85); opacity: 0.6; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+
+/* hedgehog curl */
+.garden-svg .poked.hedgehog-body {
+  animation: hedgehogCurl 1.2s ease-in-out 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes hedgehogCurl {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(0.75, 1.1) translateY(-2px); }
+  60% { transform: scale(0.8, 1.05); }
+}
+
+/* snail retract */
+.garden-svg .poked.snail-horns {
+  animation: snailRetract 1s ease-in-out 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes snailRetract {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  40%, 70% { transform: scaleY(0.1) translateY(4px); opacity: 0.3; }
+}
+
+.garden-svg .poked.snail-body {
+  animation: snailHuddle 1s ease-in-out 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes snailHuddle {
+  0%, 100% { transform: translate(0, 0); }
+  40%, 70% { transform: translate(0, 1px) scale(0.95); }
+}
+
+/* ladybug flies off */
+.garden-svg .poked.ladybug-body {
+  animation: ladybugFly 1.4s ease-in 1;
+  transform-box: fill-box;
+}
+
+@keyframes ladybugFly {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  20% { transform: translate(8px, -14px) rotate(-20deg); opacity: 1; }
+  60% { transform: translate(60px, -80px) rotate(-45deg); opacity: 0.6; }
+  80% { transform: translate(120px, -110px) rotate(-40deg); opacity: 0.2; }
+  100% { transform: translate(0, 0) rotate(0); opacity: 1; }
+}
+
+/* cat stretch */
+.garden-svg .poked.cat-body {
+  animation: catStretch 1.4s cubic-bezier(.3, .1, .2, 1) 1;
+  transform-box: fill-box;
+  transform-origin: right center;
+}
+
+@keyframes catStretch {
+  0%, 100% { transform: scale(1, 1); }
+  30% { transform: scale(1.35, 0.85) translateX(6px); }
+  60% { transform: scale(1.25, 0.9) translateX(4px); }
+}
+
+/* mouse scurry */
+.garden-svg .poked.mouse-body {
+  animation: mouseRun 1.1s cubic-bezier(.4, .1, .3, 1) 1;
+  transform-box: fill-box;
+}
+
+@keyframes mouseRun {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(30px, -2px); }
+  60% { transform: translate(80px, -4px); opacity: 0.5; }
+  80% { transform: translate(140px, -2px); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+
+/* owl bob + blink */
+.garden-svg .poked.owl-body {
+  animation: owlBob 1.2s ease-in-out 1;
+  transform-box: fill-box;
+}
+
+@keyframes owlBob {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-18deg); }
+  75% { transform: rotate(18deg); }
+}
+
+.garden-svg .poked.owl-eye {
+  animation: owlBlink 1.2s ease-in-out 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes owlBlink {
+  0%, 40%, 100% { transform: scaleY(1); }
+  45%, 55% { transform: scaleY(0.1); }
+}
+
+/* turtle head retract */
+.garden-svg .poked.turtle-head {
+  animation: turtleHead 1.2s ease-in-out 1;
+  transform-box: fill-box;
+}
+
+@keyframes turtleHead {
+  0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+  40%, 70% { transform: translateX(-6px) scale(0.3); opacity: 0.3; }
+}
+
+/* dragonfly dart */
+.garden-svg .poked.dfly-body {
+  animation: dflyDart 1.2s cubic-bezier(.3, .1, .3, 1) 1;
+  transform-box: fill-box;
+}
+
+@keyframes dflyDart {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(40px, -20px); }
+  50% { transform: translate(-30px, -40px); }
+  75% { transform: translate(60px, -10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* bee hum off */
+.garden-svg .poked.bee-body {
+  animation: beeOff 0.9s ease-in-out 1;
+  transform-box: fill-box;
+}
+
+@keyframes beeOff {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(6px, -10px); }
+  50% { transform: translate(-4px, -20px); }
+  75% { transform: translate(10px, -24px); }
+}
+
+/* idle motions so things aren't frozen */
+.garden-svg .rabbit-body,
+.garden-svg .deer-body,
+.garden-svg .hedgehog-body,
+.garden-svg .cat-body,
+.garden-svg .owl-body,
+.garden-svg .turtle-body,
+.garden-svg .mouse-body,
+.garden-svg .snail-body,
+.garden-svg .frog-body,
+.garden-svg .duck-body,
+.garden-svg .squirrel-body {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.garden-svg .frog-body {
+  animation: frogBreathe 3s ease-in-out infinite;
+}
+
+.garden-svg .poked.frog-body {
+  animation: frogLeap 0.8s cubic-bezier(.3, .2, .2, 1) 1;
+}
+
+@keyframes frogBreathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.06, 0.94); }
+}
+
+.garden-svg .rabbit-body {
+  animation: rabbitIdle 4s ease-in-out infinite;
+}
+
+.garden-svg .poked.rabbit-body {
+  animation: rabbitHop 0.9s cubic-bezier(.3, .2, .2, 1) 1;
+}
+
+@keyframes rabbitIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+.garden-svg .duck-body {
+  animation: duckBob 3s ease-in-out infinite;
+}
+
+.garden-svg .poked.duck-body {
+  animation: duckDip 0.8s ease-in-out 1;
+}
+
+@keyframes duckBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+.garden-svg .dfly-body {
+  animation: dflyHover 2.4s ease-in-out infinite;
+}
+
+.garden-svg .poked.dfly-body {
+  animation: dflyDart 1.2s cubic-bezier(.3, .1, .3, 1) 1;
+}
+
+@keyframes dflyHover {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -4px); }
+}
+
+.garden-svg .owl-eye {
+  animation: owlBlinkIdle 6s ease-in-out infinite;
+}
+
+.garden-svg .poked.owl-eye {
+  animation: owlBlink 1.2s ease-in-out 1;
+}
+
+@keyframes owlBlinkIdle {
+  0%, 40%, 46%, 100% { transform: scaleY(1); }
+  42%, 44% { transform: scaleY(0.1); }
+}
+
 /* ---------- garden ---------- */
 .garden {
   border: 1px solid var(--rule);
