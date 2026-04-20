@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
@@ -13,6 +13,18 @@ import type { Wallet, Inventory } from "@/lib/economy-types";
 import { getTheme } from "@/lib/themes";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
+
+const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function buildDateline(totalSessions: number) {
+  const now = new Date();
+  const issue = String(Math.max(1, totalSessions)).padStart(3, "0");
+  const dow = DAYS_OF_WEEK[now.getDay()];
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mon = MONTHS[now.getMonth()];
+  return `Vol. II · No. ${issue} · ${dow} ${dd} ${mon}`;
+}
 
 type TrackerShellProps = {
   snapshot: TrackerSnapshot;
@@ -31,6 +43,10 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const weekPct = goalMinutes > 0
     ? Math.min(100, Math.round((weekMinutes / goalMinutes) * 100))
     : 0;
+  const [dateline, setDateline] = useState("");
+  useEffect(() => {
+    setDateline(buildDateline(totalSessions));
+  }, [totalSessions]);
 
   const gardenPlantsCount = inventory.purchased.length;
   const ownedSet = useMemo(() => new Set(inventory.purchased), [inventory.purchased]);
@@ -57,26 +73,15 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">
-          <div className="mark" aria-hidden="true" />
-          <div className="wordmark serif">
-            <span>Focus</span>
-          </div>
-        </div>
-        <div className="topbar-right">
-          <div className="streak" title={`${streakDays} day streak`}>
-            <span>Streak</span>
-            <span className="dots">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <span key={i} className={`dot ${i < Math.min(7, streakDays) ? "on" : ""}`} />
-              ))}
-            </span>
-            <span className="mono">{streakDays}d</span>
-          </div>
-          <div className="wallet">
-            <span className="cur">{theme.currencyName}</span>
-            <span className="num mono">{wallet.socks}</span>
-          </div>
+        <div className="mark">Focus</div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 24,
+          }}
+        >
+          <div className="dateline">{dateline}</div>
           <form action={logoutTracker}>
             <button
               type="submit"
@@ -86,10 +91,11 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
                 background: "none",
                 border: 0,
                 cursor: "pointer",
+                fontFamily: "var(--font-mono), monospace",
                 fontSize: 11,
-                letterSpacing: "0.22em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-muted)",
               }}
             >
               Sign out

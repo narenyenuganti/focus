@@ -2189,44 +2189,27 @@ a {
 
 .topbar {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  padding: 24px 0 18px;
+  padding: 0 0 18px;
   border-bottom: 1px solid var(--rule);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand .mark {
-  width: 28px;
-  height: 28px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-.brand .mark::after {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
-  border-radius: 999px;
-}
-
-.brand .wordmark {
-  font-size: 26px;
-  line-height: 1;
-}
-
-.brand .wordmark em {
+.topbar .mark {
+  font-family: var(--font-serif), Georgia, serif;
   font-style: italic;
-  color: var(--ink-soft);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.topbar .dateline {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
 }
 
 .topbar-right {
