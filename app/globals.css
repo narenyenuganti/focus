@@ -85,6 +85,89 @@ a {
   padding: 24px;
 }
 
+/* ---------- focus preset rail ---------- */
+.preset-rail {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+}
+
+.preset-rail button {
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 14px 22px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  min-width: 120px;
+  position: relative;
+  transition: background 200ms ease;
+}
+
+.preset-rail button:last-child {
+  border-right: 0;
+}
+
+.preset-rail button:hover {
+  background: rgba(20, 20, 20, 0.03);
+}
+
+.preset-rail button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.preset-rail .p-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.preset-rail .p-mins {
+  font-family: var(--font-serif), serif;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.preset-rail .p-mins small {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-left: 2px;
+}
+
+.preset-rail button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.preset-rail button.is-active .p-label {
+  color: rgba(242, 238, 230, 0.6);
+}
+
+.preset-rail button.is-active .p-mins small {
+  color: rgba(242, 238, 230, 0.7);
+}
+
+@media (max-width: 720px) {
+  .preset-rail {
+    flex-wrap: wrap;
+  }
+  .preset-rail button {
+    min-width: 0;
+    flex: 1 1 40%;
+    border-bottom: 1px solid var(--rule);
+  }
+}
+
 /* ---------- revamped app shell ---------- */
 .app {
   min-height: 100vh;

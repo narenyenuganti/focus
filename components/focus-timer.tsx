@@ -93,7 +93,6 @@ export function FocusTimer({
   const [feedback, setFeedback] = useState(
     buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
   );
-  const [isPresetInfoOpen, setIsPresetInfoOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // Bean + gamification state
@@ -103,7 +102,6 @@ export function FocusTimer({
   const lofiPlayerRef = useRef<ReturnType<typeof createLofiPlayer> | null>(null);
 
   const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
-  const activePresetGuidance = activePreset ? getPresetGuidance(activePreset.label) : null;
   const selectedMinutesRef = useRef(selectedMinutes);
   const secondsRemainingRef = useRef(secondsRemaining);
   const elapsedRunningSecondsRef = useRef(0);
@@ -340,14 +338,6 @@ export function FocusTimer({
     setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
   }, [status, todayMinutes, todaySessions, weeklyGoalMinutes, weeklyMinutes]);
 
-  useEffect(() => {
-    setIsPresetInfoOpen(false);
-  }, [activePreset?.label]);
-
-  const tooltipId = activePreset
-    ? `preset-tooltip-${activePreset.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
-    : undefined;
-
   function handleCancelSession() {
     elapsedRunningSecondsRef.current = 0;
     currentRunStartedAtRef.current = null;
@@ -410,58 +400,28 @@ export function FocusTimer({
 
       <p className="focus-feedback">{feedback}</p>
 
-      <div className="focus-preset-strip" aria-label="Focus presets">
-        <div className="focus-preset-strip__copy">
-          <p className="eyebrow">Preset</p>
-          <div className="focus-preset-strip__headline">
-            <strong>{activePreset?.label ?? "Focus block"}</strong>
-            {activePreset && activePresetGuidance ? (
-              <span
-                className="focus-preset-strip__tooltip-shell"
-                onMouseEnter={() => setIsPresetInfoOpen(true)}
-                onMouseLeave={() => setIsPresetInfoOpen(false)}
-              >
-                <button
-                  type="button"
-                  className={isPresetInfoOpen ? "preset-info-button is-open" : "preset-info-button"}
-                  aria-label={`About ${activePreset.label}`}
-                  aria-describedby={isPresetInfoOpen ? tooltipId : undefined}
-                  aria-expanded={isPresetInfoOpen}
-                  onMouseEnter={() => setIsPresetInfoOpen(true)}
-                  onMouseLeave={() => setIsPresetInfoOpen(false)}
-                  onFocus={() => setIsPresetInfoOpen(true)}
-                  onBlur={() => setIsPresetInfoOpen(false)}
-                  onClick={() => setIsPresetInfoOpen(true)}
-                >
-                  i
-                </button>
-                {isPresetInfoOpen ? (
-                  <span id={tooltipId} role="tooltip" className="preset-info-tooltip">
-                    {activePresetGuidance}
-                  </span>
-                ) : null}
+      <div className="preset-rail" role="tablist" aria-label="Focus presets">
+        {presets.map((preset) => {
+          const active = preset.minutes === selectedMinutes;
+          return (
+            <button
+              key={`${preset.label}-${preset.minutes}`}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              className={active ? "is-active" : ""}
+              onClick={() => setSelectedMinutes(preset.minutes)}
+              disabled={status !== "idle" || isPending}
+              title={getPresetGuidance(preset.label) ?? preset.label}
+            >
+              <span className="p-label">{preset.label}</span>
+              <span className="p-mins">
+                {preset.minutes}
+                <small>m</small>
               </span>
-            ) : null}
-          </div>
-          <span>
-            {activePreset ? `${activePreset.minutes} minute block` : `${presets.length} options`}
-          </span>
-        </div>
-        <label className="focus-preset-strip__control">
-          <span className="sr-only">Switch focus preset</span>
-          <select
-            value={selectedMinutes}
-            onChange={(event) => setSelectedMinutes(Number(event.target.value))}
-            disabled={status !== "idle" || isPending}
-            aria-label="Switch focus preset"
-          >
-            {presets.map((preset) => (
-              <option key={`${preset.label}-${preset.minutes}`} value={preset.minutes}>
-                {preset.label} • {preset.minutes}m
-              </option>
-            ))}
-          </select>
-        </label>
+            </button>
+          );
+        })}
       </div>
 
       <div className={status === "idle" ? "timer-actions is-idle" : "timer-actions"} aria-label="Timer controls">
