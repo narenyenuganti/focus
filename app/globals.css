@@ -2265,29 +2265,29 @@ a {
 
 .nav {
   display: flex;
-  justify-content: center;
-  gap: 2px;
-  padding: 18px 0 10px;
+  gap: 28px;
+  padding: 10px 0 0;
   border-bottom: 1px solid var(--rule);
   position: relative;
 }
 
 .nav button {
   font: inherit;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
   background: none;
   border: 0;
   cursor: pointer;
-  font-size: 12px;
-  letter-spacing: 0.26em;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 10px 22px;
+  padding: 10px 0 14px;
   position: relative;
   transition: color 300ms ease;
 }
 
 .nav button:hover {
-  color: var(--ink);
+  color: var(--ink-soft);
 }
 
 .nav button.is-active {
@@ -2299,7 +2299,7 @@ a {
   left: 0;
   bottom: -1px;
   height: 1px;
-  background: var(--ink);
+  background: var(--accent);
   transition: transform 420ms cubic-bezier(.7, 0, .2, 1),
     width 420ms cubic-bezier(.7, 0, .2, 1);
   will-change: transform, width;

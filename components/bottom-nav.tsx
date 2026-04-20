@@ -8,7 +8,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "focus", label: "Focus" },
   { id: "garden", label: "Garden" },
   { id: "market", label: "Market" },
-  { id: "ledger", label: "Ledger" },
+  { id: "ledger", label: "Stats" },
   { id: "settings", label: "Settings" },
 ];
 
