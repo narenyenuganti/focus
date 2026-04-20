@@ -19,6 +19,7 @@ export const settingsSchema = z.object({
   ambientMusic: z.boolean().default(true),
   breakDurationMinutes: z.number().int().min(1).max(30).default(5),
   theme: z.enum(["bean", "zelda"]).default("bean"),
+  gardenAutoTimeOfDay: z.boolean().default(true),
 });
 
 export const settingsPatchSchema = z.object({
@@ -29,6 +30,7 @@ export const settingsPatchSchema = z.object({
   ambientMusic: z.boolean().optional(),
   breakDurationMinutes: z.number().int().min(1).max(30).optional(),
   theme: z.enum(["bean", "zelda"]).optional(),
+  gardenAutoTimeOfDay: z.boolean().optional(),
 });
 
 const focusSessionSchema = z.object({
