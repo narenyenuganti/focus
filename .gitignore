@@ -11,3 +11,6 @@ test-results/
 data/tracker.db
 data/tracker.db-wal
 data/tracker.db-shm
+
+# TypeScript incremental build
+tsconfig.tsbuildinfo
