@@ -88,6 +88,7 @@ export function FocusTimer({
   const [isPending, startTransition] = useTransition();
 
   const [isOnBreak, setIsOnBreak] = useState(false);
+  const [celebrateKey, setCelebrateKey] = useState(0);
   const lofiPlayerRef = useRef<ReturnType<typeof createLofiPlayer> | null>(null);
 
   const activePreset = presets.find((preset) => preset.minutes === selectedMinutes) ?? presets[0];
@@ -237,6 +238,7 @@ export function FocusTimer({
       setFeedback(
         `${payload.summary.todaySessions} sessions logged today • ${payload.summary.todayMinutes} focus minutes`,
       );
+      setCelebrateKey(Date.now());
 
       setTimeout(() => {
         setIsOnBreak(true);
@@ -307,6 +309,12 @@ export function FocusTimer({
 
     setFeedback(buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes));
   }, [status, todayMinutes, todaySessions, weeklyGoalMinutes, weeklyMinutes]);
+
+  useEffect(() => {
+    if (celebrateKey === 0) return;
+    const id = window.setTimeout(() => setCelebrateKey(0), 1800);
+    return () => window.clearTimeout(id);
+  }, [celebrateKey]);
 
   function handleCancelSession() {
     elapsedRunningSecondsRef.current = 0;
@@ -462,6 +470,12 @@ export function FocusTimer({
           notificationSound={notificationSound}
         />
       )}
+
+      {celebrateKey > 0 ? (
+        <div key={celebrateKey} className="celebrate" role="status" aria-live="polite">
+          <div className="msg serif">Well done.</div>
+        </div>
+      ) : null}
     </section>
   );
 }

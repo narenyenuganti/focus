@@ -1452,6 +1452,43 @@ a {
   text-align: center;
 }
 
+/* ---------- celebration flash ---------- */
+.celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.celebrate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(232, 97, 44, 0.08);
+  animation: celebrate-flash 1800ms ease-out forwards;
+}
+
+@keyframes celebrate-flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.celebrate .msg {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-size: 56px;
+  color: var(--ink);
+  animation: celebrate-rise 1800ms cubic-bezier(.2, .8, .2, 1) forwards;
+}
+
+@keyframes celebrate-rise {
+  0% { transform: translateY(24px); opacity: 0; }
+  30% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
 /* ---------- focus dial ---------- */
 .dial-wrap {
   position: relative;
