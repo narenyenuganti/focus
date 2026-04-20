@@ -1,62 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { GardenGlyph } from "@/components/garden-glyph";
 import {
-  getDecorationsForTheme,
-  type DecorationCategory,
-  type ThemeId,
-} from "@/lib/decoration-catalog";
-import { ROOM_CATALOG } from "@/lib/room-catalog";
-import { DecorationSprite } from "@/components/sprites/decorations";
+  GARDEN_CATALOG,
+  GARDEN_CATEGORIES,
+  RARITY_LABEL,
+  getGardenItem,
+  type GardenCategory,
+  type GardenRarity,
+} from "@/lib/garden-catalog";
 
 type ShopPanelProps = {
   socks: number;
   purchased: string[];
   onPurchase: (itemId: string) => void;
-  themeId: ThemeId;
-  currencyIcon: string;
-  unlockedRooms: string[];
-  selectedRoom: string;
-  onUnlockRoom: (roomId: string) => void;
-  onSelectRoom: (roomId: string) => void;
 };
 
-type FilterId = DecorationCategory | "all" | "rooms";
+type FilterCategory = "All" | GardenCategory;
+type FilterRarity = "any" | GardenRarity;
 
-const CATEGORIES: { id: FilterId; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "wall", label: "Wall" },
-  { id: "floor", label: "Floor" },
-  { id: "furniture", label: "Furniture" },
-  { id: "rooms", label: "Rooms" },
-];
+const FEATURED_ID = "sakura";
+const RARITIES: FilterRarity[] = ["any", "common", "rare", "legendary"];
 
-function formatCategory(category: DecorationCategory) {
-  return category.charAt(0).toUpperCase() + category.slice(1);
-}
+export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
+  const [cat, setCat] = useState<FilterCategory>("All");
+  const [rarity, setRarity] = useState<FilterRarity>("any");
+  const [query, setQuery] = useState("");
 
-export function ShopPanel({
-  socks,
-  purchased,
-  onPurchase,
-  themeId,
-  currencyIcon,
-  unlockedRooms,
-  selectedRoom,
-  onUnlockRoom,
-  onSelectRoom,
-}: ShopPanelProps) {
-  const [filter, setFilter] = useState<FilterId>("all");
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return GARDEN_CATALOG.filter((item) => {
+      if (cat !== "All" && item.cat !== cat) return false;
+      if (rarity !== "any" && item.rarity !== rarity) return false;
+      if (q && !item.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [cat, rarity, query]);
 
-  const themeDecorations = getDecorationsForTheme(themeId);
-  const decorationItems =
-    filter === "all"
-      ? themeDecorations
-      : filter === "rooms"
-        ? []
-        : themeDecorations.filter((item) => item.category === filter);
-
-  const showRooms = filter === "rooms";
+  const featured = getGardenItem(FEATURED_ID) ?? GARDEN_CATALOG[0];
+  const ownedCount = purchased.filter((id) =>
+    GARDEN_CATALOG.some((item) => item.id === id),
+  ).length;
 
   return (
     <section>
@@ -64,132 +49,167 @@ export function ShopPanel({
         <h2 className="serif">
           The <em>market</em>
         </h2>
-        <span className="meta">{socks} seeds to spend</span>
-      </div>
-
-      <div className="filters" role="tablist">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            role="tab"
-            aria-selected={filter === cat.id}
-            className={filter === cat.id ? "is-active" : ""}
-            onClick={() => setFilter(cat.id)}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {showRooms ? (
-        <div className="market">
-          {ROOM_CATALOG.map((room) => {
-            const isUnlocked = unlockedRooms.includes(room.id);
-            const isSelected = selectedRoom === room.id;
-            const canAfford = socks >= room.cost;
-            return (
-              <article key={room.id} className={`market-item ${isUnlocked ? "owned" : ""}`}>
-                <div className="art">
-                  <svg viewBox="0 0 80 60" width="96" height="72" shapeRendering="crispEdges">
-                    <polygon
-                      points="5,15 65,15 65,40 5,40"
-                      fill={room.wallColor}
-                      stroke={room.baseboardColor}
-                      strokeWidth="1"
-                    />
-                    <polygon
-                      points="65,15 75,10 75,50 65,40"
-                      fill={room.wallDarkColor}
-                      stroke={room.baseboardColor}
-                      strokeWidth="1"
-                    />
-                    <polygon
-                      points="5,40 65,40 75,50 75,58 0,58 0,45"
-                      fill={room.floorColor}
-                      stroke={room.baseboardColor}
-                      strokeWidth="1"
-                    />
-                  </svg>
-                </div>
-                <div className="name">
-                  <strong>{room.name}</strong>
-                  <span className="cat">Room</span>
-                </div>
-                <div className="buy">
-                  <span className="price">
-                    {room.cost === 0 ? "Free" : room.cost}
-                    {room.cost > 0 ? <span className="unit"> seeds</span> : null}
-                  </span>
-                  {isUnlocked ? (
-                    <button
-                      type="button"
-                      disabled={isSelected}
-                      onClick={() => onSelectRoom(room.id)}
-                      aria-label={`Select ${room.name}`}
-                    >
-                      {isSelected ? "Active ✓" : "Select →"}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={!canAfford}
-                      onClick={() => onUnlockRoom(room.id)}
-                      aria-label={`Unlock ${room.name}`}
-                    >
-                      Unlock →
-                    </button>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+        <div className="market-head-meta">
+          <span>
+            <strong className="mono">{socks}</strong> seeds
+          </span>
+          <span className="sep">·</span>
+          <span>
+            <strong className="mono">{ownedCount}</strong> of {GARDEN_CATALOG.length} owned
+          </span>
         </div>
-      ) : (
-        <div className="market">
-          {decorationItems.map((item) => {
-            const owned = purchased.includes(item.id);
-            const canAfford = socks >= item.cost;
-            return (
-              <article
-                key={item.id}
-                data-item-id={item.id}
-                className={`market-item ${owned ? "owned" : ""}`}
+      </div>
+
+      <article className="market-hero">
+        <div className="mh-art">
+          <div className="mh-art-bg" />
+          <GardenGlyph kind={featured.glyph} size={220} />
+          <span className="mh-tag">This week's bloom</span>
+        </div>
+        <div className="mh-copy">
+          <div className="mh-eyebrow">
+            {RARITY_LABEL[featured.rarity]} · {featured.cat.slice(0, -1)}
+          </div>
+          <h3 className="serif">{featured.name}</h3>
+          <p>
+            {featured.blurb} Plant one this week and it blooms through every focused
+            session, shedding petals that drift across the whole garden.
+          </p>
+          <div className="mh-actions">
+            <button
+              type="button"
+              className="btn primary"
+              disabled={purchased.includes(featured.id) || socks < featured.cost}
+              onClick={() => onPurchase(featured.id)}
+            >
+              {purchased.includes(featured.id)
+                ? "In your garden"
+                : `Acquire for ${featured.cost} seeds →`}
+            </button>
+            <button type="button" className="btn ghost">
+              Preview in garden
+            </button>
+          </div>
+          <div className="mh-meta">
+            <div>
+              <span className="k">Bloom time</span>
+              <span className="v">7 days</span>
+            </div>
+            <div>
+              <span className="k">Grows in</span>
+              <span className="v">Open ground</span>
+            </div>
+            <div>
+              <span className="k">Pairs with</span>
+              <span className="v">Lantern, pond</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div className="market-toolbar">
+        <div className="filters" role="tablist">
+          {(["All", ...GARDEN_CATEGORIES] as FilterCategory[]).map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={cat === c}
+              className={c === cat ? "is-active" : ""}
+              onClick={() => setCat(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        <div className="toolbar-right">
+          <div className="rarity-pills" role="tablist" aria-label="Rarity">
+            {RARITIES.map((r) => (
+              <button
+                key={r}
+                type="button"
+                role="tab"
+                aria-selected={rarity === r}
+                className={rarity === r ? "on" : ""}
+                onClick={() => setRarity(r)}
               >
-                <div className="art">
-                  <svg width="80" height="80" viewBox="0 0 40 40" shapeRendering="crispEdges">
-                    <DecorationSprite spriteId={item.sprite} x={4} y={4} />
-                  </svg>
-                </div>
-                <div className="name">
-                  <strong>{item.name}</strong>
-                  <span className="cat">{formatCategory(item.category)}</span>
-                </div>
-                <div className="buy">
-                  <span className="price">
-                    {item.cost}
-                    <span className="unit"> {currencyIcon || "seeds"}</span>
-                  </span>
-                  {owned ? (
-                    <button type="button" data-owned>
-                      Owned ✓
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={!canAfford}
-                      onClick={() => onPurchase(item.id)}
-                      aria-label={`Buy ${item.name}`}
-                    >
-                      Acquire →
-                    </button>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+                {r === "any" ? "All rarities" : RARITY_LABEL[r]}
+              </button>
+            ))}
+          </div>
+          <label className="market-search">
+            <span className="sr-only">Search seeds</span>
+            <input
+              type="search"
+              placeholder="Search seeds…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </label>
         </div>
-      )}
+      </div>
+
+      <div className="market-grid">
+        {filtered.map((item) => {
+          const owned = purchased.includes(item.id);
+          const canAfford = socks >= item.cost;
+          return (
+            <article
+              key={item.id}
+              data-item-id={item.id}
+              className={`mg-card r-${item.rarity} ${owned ? "owned" : ""}`}
+            >
+              <div className="mg-ribbon">{RARITY_LABEL[item.rarity]}</div>
+              <div className="mg-art">
+                <div className="mg-art-glow" />
+                <GardenGlyph kind={item.glyph} size={110} />
+              </div>
+              <div className="mg-name">
+                <strong>{item.name}</strong>
+                <span className="mg-cat">{item.cat}</span>
+              </div>
+              <p className="mg-blurb">{item.blurb}</p>
+              <div className="mg-foot">
+                <span className="mg-price">
+                  <span className="seed-dot" />
+                  <span className="mono">{item.cost}</span>
+                  <span className="mg-price-unit">seeds</span>
+                </span>
+                <button
+                  type="button"
+                  className="mg-buy"
+                  disabled={owned || !canAfford}
+                  onClick={() => onPurchase(item.id)}
+                  aria-label={owned ? `${item.name} owned` : `Acquire ${item.name}`}
+                >
+                  {owned ? "Owned" : !canAfford ? "Save up" : "Acquire →"}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+        {filtered.length === 0 ? (
+          <div className="mg-empty">Nothing here by that name. Try a different filter.</div>
+        ) : null}
+      </div>
+
+      <div className="market-footnote">
+        <div>
+          <div className="k">How seeds work</div>
+          <p>
+            One seed for every minute of focus. Seeds never expire; legendary items
+            unlock after a streak.
+          </p>
+        </div>
+        <div>
+          <div className="k">Refund policy</div>
+          <p>Uproot anything within a week for a full refund. The garden holds no grudges.</p>
+        </div>
+        <div>
+          <div className="k">Coming soon</div>
+          <p>Seasonal collections, gifting a seed to a friend, and a tiny shed for tools.</p>
+        </div>
+      </div>
     </section>
   );
 }

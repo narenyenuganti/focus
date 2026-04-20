@@ -9,7 +9,7 @@ import { ShopPanel } from "@/components/shop-panel";
 import { GardenView } from "@/components/garden-view";
 import { TopNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
-import type { Wallet, Inventory, RoomState } from "@/lib/economy-types";
+import type { Wallet, Inventory } from "@/lib/economy-types";
 import { getTheme } from "@/lib/themes";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
@@ -22,7 +22,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activeTab, setActiveTab] = useState<TabId>("focus");
   const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
-  const [roomState, setRoomState] = useState<RoomState>(snapshot.economy.roomState);
   const theme = getTheme(snapshot.settings.theme);
 
   const streakDays = snapshot.focus.currentStreakDays ?? 0;
@@ -45,29 +44,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     const data = await response.json();
     setWallet(data.wallet);
     setInventory(data.inventory);
-  }
-
-  async function handleUnlockRoom(roomId: string) {
-    const response = await fetch("/api/economy/room", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId }),
-    });
-    if (!response.ok) return;
-    const data = await response.json();
-    setWallet(data.wallet);
-    setRoomState(data.roomState);
-  }
-
-  async function handleSelectRoom(roomId: string) {
-    const response = await fetch("/api/economy/room", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId }),
-    });
-    if (!response.ok) return;
-    const data = await response.json();
-    setRoomState(data.roomState);
   }
 
   function handleSocksEarned(amount: number) {
@@ -152,12 +128,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             socks={wallet.socks}
             purchased={inventory.purchased}
             onPurchase={handlePurchase}
-            themeId={theme.id}
-            currencyIcon={theme.currencyIcon}
-            unlockedRooms={roomState.unlockedRooms}
-            selectedRoom={roomState.selectedRoom}
-            onUnlockRoom={handleUnlockRoom}
-            onSelectRoom={handleSelectRoom}
           />
         )}
 

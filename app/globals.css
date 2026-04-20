@@ -383,17 +383,164 @@ a {
 }
 
 /* ---------- market ---------- */
+.market-head-meta {
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.market-head-meta .mono {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.market-head-meta .sep {
+  color: var(--rule);
+}
+
+.market-hero {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 0;
+  border: 1px solid var(--rule);
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, rgba(232, 180, 194, 0.18), rgba(242, 164, 65, 0.08));
+  position: relative;
+  overflow: hidden;
+}
+
+.mh-art {
+  position: relative;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  place-items: center;
+  padding: 36px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(232, 180, 194, 0.35), transparent 65%),
+    repeating-linear-gradient(45deg, transparent 0 8px, rgba(20, 20, 20, 0.02) 8px 9px);
+}
+
+.mh-art-bg {
+  position: absolute;
+  inset: 40px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(248, 201, 106, 0.2), transparent 70%);
+}
+
+.mh-art svg {
+  position: relative;
+  z-index: 1;
+}
+
+.mh-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 10px;
+}
+
+.mh-copy {
+  padding: 36px 40px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.mh-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.mh-copy h3 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.mh-copy p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  max-width: 56ch;
+}
+
+.mh-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.mh-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.mh-meta > div {
+  padding: 14px 0;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 4px;
+  padding-right: 14px;
+}
+
+.mh-meta > div:last-child {
+  border-right: 0;
+  padding-left: 14px;
+  padding-right: 0;
+}
+
+.mh-meta > div:not(:first-child) {
+  padding-left: 14px;
+}
+
+.mh-meta .k {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.mh-meta .v {
+  font-family: var(--font-serif), serif;
+  font-size: 18px;
+}
+
+.market-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: end;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+  padding-bottom: 0;
+}
+
 .filters {
   display: flex;
   gap: 24px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .filters button {
   font: inherit;
   color: var(--ink-soft);
-  background: none;
+  background: transparent;
   border: 0;
   cursor: pointer;
   padding: 14px 0;
@@ -422,97 +569,236 @@ a {
   background: var(--ink);
 }
 
-.market {
+.toolbar-right {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+.rarity-pills {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+}
+
+.rarity-pills button {
+  font: inherit;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.rarity-pills button:last-child {
+  border-right: 0;
+}
+
+.rarity-pills button.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.market-search {
+  border: 1px solid var(--rule);
+  padding: 6px 12px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.market-search::before {
+  content: "⌕";
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.market-search input {
+  border: 0;
+  background: transparent;
+  outline: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  width: 100%;
+  color: var(--ink);
+}
+
+.market-search input::placeholder {
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+.market-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   border-top: 1px solid var(--rule);
+  margin-top: 0;
 }
 
-.market-item {
-  padding: 28px 24px;
+.mg-card {
+  position: relative;
+  padding: 24px 24px 20px;
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 14px;
-  position: relative;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 12px;
   transition: background 200ms ease;
 }
 
-.market .market-item:nth-child(3n) {
+.market-grid .mg-card:nth-child(3n) {
   border-right: 0;
 }
 
-.market-item:hover {
-  background: rgba(20, 20, 20, 0.02);
+.mg-card:hover {
+  background: rgba(20, 20, 20, 0.025);
 }
 
-.market-item .art {
-  height: 140px;
+.mg-card.owned {
+  opacity: 0.65;
+}
+
+.mg-card.owned .mg-buy {
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+
+.mg-ribbon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  background: var(--paper);
+}
+
+.mg-card.r-rare .mg-ribbon {
+  color: #6B5795;
+  border-color: #9B84C4;
+}
+
+.mg-card.r-legendary .mg-ribbon {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.mg-art {
+  position: relative;
+  height: 150px;
   display: grid;
   place-items: center;
   border: 1px dashed var(--rule);
-  background: repeating-linear-gradient(
-    45deg,
-    transparent 0 6px,
-    rgba(20, 20, 20, 0.02) 6px 7px
-  );
+  background:
+    radial-gradient(circle at 50% 55%, rgba(242, 164, 65, 0.08), transparent 65%),
+    repeating-linear-gradient(45deg, transparent 0 6px, rgba(20, 20, 20, 0.02) 6px 7px);
+  overflow: hidden;
 }
 
-.market-item .art svg {
+.mg-art-glow {
+  position: absolute;
+  inset: 20%;
+  background: radial-gradient(circle, rgba(242, 164, 65, 0.18), transparent 70%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.mg-card.r-rare .mg-art-glow {
+  background: radial-gradient(circle, rgba(155, 132, 196, 0.22), transparent 70%);
+}
+
+.mg-card.r-legendary .mg-art-glow {
+  background: radial-gradient(circle, rgba(242, 164, 65, 0.35), transparent 70%);
+}
+
+.mg-card:hover .mg-art-glow {
+  opacity: 1;
+}
+
+.mg-art svg {
+  position: relative;
+  z-index: 1;
   transition: transform 400ms cubic-bezier(.7, 0, .2, 1);
 }
 
-.market-item:hover .art svg {
+.mg-card:hover .mg-art svg {
   transform: scale(1.08) rotate(-2deg);
 }
 
-.market-item .name {
+.mg-name {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
 
-.market-item .name strong {
+.mg-name strong {
   font-family: var(--font-serif), serif;
   font-weight: 400;
   font-size: 22px;
   line-height: 1.1;
 }
 
-.market-item .cat {
+.mg-cat {
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  white-space: nowrap;
 }
 
-.market-item .price {
-  font-family: var(--font-mono), monospace;
+.mg-blurb {
+  margin: 0;
   font-size: 13px;
-  color: var(--ink);
-}
-
-.market-item .price .unit {
+  line-height: 1.55;
   color: var(--ink-soft);
 }
 
-.market-item .buy {
+.mg-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid var(--rule);
 }
 
-.market-item .buy button {
+.mg-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.mg-price-unit {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.seed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.mg-buy {
   font: inherit;
   color: var(--ink);
-  background: none;
+  background: transparent;
   border: 0;
   cursor: pointer;
   font-size: 11px;
@@ -524,33 +810,87 @@ a {
   transition: color 160ms ease;
 }
 
-.market-item .buy button:hover:not(:disabled) {
+.mg-buy:hover:not(:disabled) {
   color: var(--accent);
 }
 
-.market-item .buy button:disabled {
-  cursor: not-allowed;
+.mg-buy:disabled {
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.mg-empty {
+  grid-column: 1 / -1;
+  padding: 60px 24px;
+  text-align: center;
+  font-style: italic;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--rule);
+}
+
+.market-footnote {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+
+.market-footnote > div {
+  padding: 22px 24px;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 8px;
+}
+
+.market-footnote > div:last-child {
+  border-right: 0;
+}
+
+.market-footnote .k {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   color: var(--ink-soft);
 }
 
-.market-item.owned {
-  opacity: 0.55;
-}
-
-.market-item.owned .buy button {
-  color: var(--sage);
-  pointer-events: none;
+.market-footnote p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
 }
 
 @media (max-width: 720px) {
-  .market {
+  .market-grid {
     grid-template-columns: 1fr 1fr;
   }
-  .market .market-item:nth-child(3n) {
+  .market-grid .mg-card:nth-child(3n) {
     border-right: 1px solid var(--rule);
   }
-  .market .market-item:nth-child(2n) {
+  .market-grid .mg-card:nth-child(2n) {
     border-right: 0;
+  }
+  .market-hero {
+    grid-template-columns: 1fr;
+  }
+  .mh-art {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .market-toolbar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .market-footnote {
+    grid-template-columns: 1fr;
+  }
+  .market-footnote > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .market-footnote > div:last-child {
+    border-bottom: 0;
   }
 }
 
