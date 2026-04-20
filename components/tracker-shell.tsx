@@ -4,7 +4,7 @@ import { useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
-import { StatsOverview } from "@/components/stats-overview";
+import { LedgerView } from "@/components/ledger-view";
 import { ShopPanel } from "@/components/shop-panel";
 import { GardenView, type GardenPlant } from "@/components/garden-view";
 import { TopNav, type TabId } from "@/components/bottom-nav";
@@ -24,19 +24,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
   const [roomState, setRoomState] = useState<RoomState>(snapshot.economy.roomState);
   const theme = getTheme(snapshot.settings.theme);
-
-  const statisticsCards = [
-    {
-      label: "today",
-      value: `${snapshot.focus.todayMinutes}m`,
-      detail: `${snapshot.focus.todaySessions} focus sessions`,
-    },
-    {
-      label: "this week",
-      value: `${snapshot.focus.weeklyMinutes}m`,
-      detail: `${snapshot.insights.goalProgress[0]?.percent ?? 0}% of ${snapshot.settings.weeklyFocusGoalMinutes}m goal`,
-    },
-  ];
 
   const streakDays = snapshot.focus.currentStreakDays ?? 0;
   const weekMinutes = snapshot.focus.weeklyMinutes;
@@ -192,7 +179,17 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
           />
         )}
 
-        {activeTab === "ledger" && <StatsOverview cards={statisticsCards} />}
+        {activeTab === "ledger" && (
+          <LedgerView
+            heatmap={snapshot.focus.heatmap}
+            todayMinutes={snapshot.focus.todayMinutes}
+            weeklyMinutes={snapshot.focus.weeklyMinutes}
+            weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
+            streakDays={streakDays}
+            totalSessions={snapshot.focus.totalSessions ?? 0}
+            totalMinutes={snapshot.focus.totalMinutes ?? 0}
+          />
+        )}
 
         {activeTab === "settings" && <SettingsPanel settings={snapshot.settings} />}
       </main>
