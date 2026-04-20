@@ -4,42 +4,33 @@ type FocusDialProps = {
   totalSeconds: number;
   remaining: number;
   running: boolean;
-  presetLabel: string;
+  presetLabel?: string;
 };
 
-const SIZE = 440;
-const CENTER = SIZE / 2;
-const RADIUS = 180;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const R = 180;
+const CIRCUMFERENCE = 2 * Math.PI * R;
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-type Tick = { x1: number; y1: number; x2: number; y2: number; major: boolean };
-
-// Round tick coordinates so server and client serialize identical attribute
-// strings (Math.cos/sin output can differ in the last significant digit on
-// re-evaluation, tripping React's hydration check).
 function r(n: number) {
   return Math.round(n * 1000) / 1000;
 }
 
-const TICKS: Tick[] = Array.from({ length: 60 }, (_, i) => {
-  const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
-  const major = i % 5 === 0;
-  const outer = major ? 196 : 198;
-  const length = major ? 10 : 4;
+type Tick = { x1: number; y1: number; x2: number; y2: number };
+
+const HOUR_TICKS: Tick[] = Array.from({ length: 12 }, (_, i) => {
+  const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
   return {
-    x1: r(CENTER + Math.cos(angle) * outer),
-    y1: r(CENTER + Math.sin(angle) * outer),
-    x2: r(CENTER + Math.cos(angle) * (outer - length)),
-    y2: r(CENTER + Math.sin(angle) * (outer - length)),
-    major,
+    x1: r(Math.cos(a) * 186),
+    y1: r(Math.sin(a) * 186),
+    x2: r(Math.cos(a) * 196),
+    y2: r(Math.sin(a) * 196),
   };
 });
 
-export function FocusDial({ totalSeconds, remaining, running, presetLabel }: FocusDialProps) {
+export function FocusDial({ totalSeconds, remaining, running }: FocusDialProps) {
   const pct = totalSeconds > 0 ? 1 - remaining / totalSeconds : 0;
   const offset = CIRCUMFERENCE * (1 - pct);
   const mm = pad(Math.floor(remaining / 60));
@@ -47,53 +38,39 @@ export function FocusDial({ totalSeconds, remaining, running, presetLabel }: Foc
   const isIdle = !running && remaining === totalSeconds;
 
   return (
-    <div className="dial-wrap" role="img" aria-label={`${mm}:${ss} remaining`}>
-      <svg className="dial-svg" viewBox={`0 0 ${SIZE} ${SIZE}`}>
+    <div className="focus-ring-wrap breathing" role="img" aria-label={`${mm}:${ss} remaining`}>
+      <svg viewBox="-220 -220 440 440">
+        {/* outer decorative dotted ring */}
+        <circle r="210" fill="none" stroke="var(--rule)" strokeWidth="0.6" strokeDasharray="1 6" opacity="0.8" />
+        <circle r="195" fill="none" stroke="var(--rule)" strokeWidth="0.4" opacity="0.5" />
+        {/* hour tick marks */}
+        {HOUR_TICKS.map((t, i) => (
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="var(--ink-soft)" strokeWidth="0.8" />
+        ))}
+        {/* background arc */}
+        <circle r={R} fill="none" stroke="var(--rule)" strokeWidth="1" />
+        {/* progress arc */}
         <circle
-          className={`dial-breath ${running ? "on" : ""}`}
-          cx={CENTER}
-          cy={CENTER}
-          r={210}
-        />
-        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke="var(--rule)" strokeWidth="1" />
-        <circle
-          className="dial-progress"
-          cx={CENTER}
-          cy={CENTER}
-          r={RADIUS}
+          r={R}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="3"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
-          transform={`rotate(-90 ${CENTER} ${CENTER})`}
-          stroke="var(--accent)"
-          strokeWidth="2"
-          fill="none"
+          transform="rotate(-90)"
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 1s linear" }}
         />
-        <g stroke="var(--ink)" strokeLinecap="round">
-          {TICKS.map((t, i) => (
-            <line
-              key={i}
-              x1={t.x1}
-              y1={t.y1}
-              x2={t.x2}
-              y2={t.y2}
-              strokeWidth={t.major ? 1.4 : 0.8}
-              opacity={t.major ? 0.9 : 0.45}
-            />
-          ))}
-        </g>
+        {/* inner ornamental ring */}
+        <circle r="150" fill="none" stroke="var(--rule)" strokeWidth="0.3" opacity="0.6" />
       </svg>
-      <div className="dial-content">
-        <div className="dial-eyebrow">
-          {running ? "In session" : isIdle ? "Ready" : "Paused"} · {presetLabel}
+      <div className="focus-time">
+        <div className="time">
+          {mm}
+          <span style={{ opacity: 0.35, margin: "0 0.05em" }}>:</span>
+          {ss}
         </div>
-        <div className={`timer-digits mono ${isIdle ? "is-idle" : ""}`}>
-          <span>{mm}</span>
-          <span className="colon">:</span>
-          <span>{ss}</span>
-        </div>
-        <div className="timer-sub">
-          {running ? "attend to the work" : isIdle ? "press begin" : "pick up where you left off"}
-        </div>
+        <div className="sub">{running ? "in session" : isIdle ? "ready when you are" : "paused"}</div>
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Begin" }));
+  fireEvent.click(screen.getByRole("button", { name: /^Begin session/ }));
 
   expect(intervalCallback).not.toBeNull();
   expect(screen.getByRole("img", { name: /25:00/ })).toBeInTheDocument();
@@ -124,7 +124,7 @@ test("sub-minute early finish is not saved and earns no currency", async () => {
 
   // Start the session
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Begin" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Begin session/ }));
   });
 
   // Advance only 4 seconds
@@ -135,12 +135,12 @@ test("sub-minute early finish is not saved and earns no currency", async () => {
 
   // Pause first — "Finish" only appears when paused
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Pause session/ }));
   });
 
   // Finish early
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Finish" }));
+    fireEvent.click(screen.getByRole("button", { name: "End early" }));
   });
 
   // Allow pending promises to flush
@@ -172,7 +172,7 @@ test("32m 5s early finish earns 32 currency, not 33", async () => {
 
   // Start the session
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Begin" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Begin session/ }));
   });
 
   // Advance 32 minutes and 5 seconds (1925 seconds)
@@ -183,12 +183,12 @@ test("32m 5s early finish earns 32 currency, not 33", async () => {
 
   // Pause first
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Pause session/ }));
   });
 
   // Finish early
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Finish" }));
+    fireEvent.click(screen.getByRole("button", { name: "End early" }));
   });
 
   await act(async () => {

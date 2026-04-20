@@ -327,139 +327,121 @@ export function FocusTimer({
     );
   }
 
-  return (
-    <section className="focus-wrap">
-      <div className="preset-rail" role="tablist" aria-label="Focus presets">
-        {presets.map((preset) => {
-          const active = preset.minutes === selectedMinutes;
-          return (
-            <button
-              key={`${preset.label}-${preset.minutes}`}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              className={active ? "is-active" : ""}
-              onClick={() => setSelectedMinutes(preset.minutes)}
-              disabled={status !== "idle" || isPending}
-              title={getPresetGuidance(preset.label) ?? preset.label}
-            >
-              <span className="p-label">{preset.label}</span>
-              <span className="p-mins">
-                {preset.minutes}
-                <small>m</small>
-              </span>
-            </button>
-          );
-        })}
-      </div>
+  const running = status === "running";
+  const primaryLabel = running
+    ? "Pause session"
+    : status === "paused"
+      ? "Resume session"
+      : "Begin session";
+  const issueNumber = String(Math.max(1, todaySessions + 1)).padStart(3, "0");
 
+  return (
+    <section className="view focus-hero" aria-label="Focus session">
       <FocusDial
         totalSeconds={totalSeconds}
         remaining={secondsRemaining}
-        running={status === "running"}
-        presetLabel={activePreset?.label ?? "Focus"}
+        running={running}
       />
 
-      <div className="dial-controls" aria-label="Timer controls">
-        {status === "idle" ? (
+      <div className={`focus-side ${running ? "running" : ""}`}>
+        <div className="eyebrow">A quiet hour · No. {issueNumber}</div>
+        <h1>
+          Make a small
+          <br />
+          opening for
+          <br />
+          deep work.
+        </h1>
+        <p className="lede">
+          Choose a duration. The garden grows with every uninterrupted
+          minute — slowly, patiently, like any true thing.
+        </p>
+
+        <div className="duration-row" role="tablist" aria-label="Focus presets">
+          {presets.map((preset) => {
+            const active = preset.minutes === selectedMinutes;
+            return (
+              <button
+                key={`${preset.label}-${preset.minutes}`}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={`${preset.minutes}m (${preset.label})`}
+                className={`duration-chip ${active ? "active" : ""}`}
+                onClick={() => setSelectedMinutes(preset.minutes)}
+                disabled={status !== "idle" || isPending}
+                title={getPresetGuidance(preset.label) ?? preset.label}
+              >
+                {preset.minutes}
+                <span style={{ opacity: 0.5, marginLeft: 4 }}>m</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="action-row">
           <button
             type="button"
-            className="btn primary"
-            onClick={() => {
-              warmUpAudio();
-              requestNotificationPermission();
-              elapsedRunningSecondsRef.current = 0;
-              currentRunStartedAtRef.current = Date.now();
-              setStartedAt(new Date().toISOString());
-              setSecondsRemaining(selectedMinutes * 60);
-              setStatus("running");
-              setFeedback("Timer running. Stay with the work.");
-            }}
+            className="btn-primary"
             disabled={controlsDisabled}
-          >
-            Begin
-          </button>
-        ) : null}
-        {status === "running" ? (
-          <button
-            type="button"
-            className="btn"
             onClick={() => {
-              const snapshot = syncCountdown();
-              elapsedRunningSecondsRef.current = snapshot.elapsedSeconds;
-              currentRunStartedAtRef.current = null;
-              setStatus("paused");
-              setFeedback("Timer paused. Resume when ready.");
-            }}
-            disabled={controlsDisabled}
-          >
-            Pause
-          </button>
-        ) : null}
-        {status === "paused" ? (
-          <>
-            <button
-              type="button"
-              className="btn primary"
-              onClick={() => {
+              if (status === "running") {
+                const snapshot = syncCountdown();
+                elapsedRunningSecondsRef.current = snapshot.elapsedSeconds;
+                currentRunStartedAtRef.current = null;
+                setStatus("paused");
+                setFeedback("Timer paused. Resume when ready.");
+              } else if (status === "paused") {
                 currentRunStartedAtRef.current = Date.now();
                 setStatus("running");
                 setFeedback("Timer running. Stay with the work.");
-              }}
-              disabled={controlsDisabled}
-            >
-              Resume
-            </button>
+              } else {
+                warmUpAudio();
+                requestNotificationPermission();
+                elapsedRunningSecondsRef.current = 0;
+                currentRunStartedAtRef.current = Date.now();
+                setStartedAt(new Date().toISOString());
+                setSecondsRemaining(selectedMinutes * 60);
+                setStatus("running");
+                setFeedback("Timer running. Stay with the work.");
+              }
+            }}
+          >
+            {primaryLabel}
+            <svg className="arrow" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+              <path
+                d="M1 5h12m0 0L9 1m4 4L9 9"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+          {status !== "idle" ? (
             <button
               type="button"
-              className="btn ghost"
-              onClick={handleCancelSession}
-              disabled={controlsDisabled}
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              className="btn danger"
+              className="btn-ghost"
               onClick={() => {
-                void saveSession(selectedMinutes, false);
+                if (status === "paused") {
+                  void saveSession(selectedMinutes, false);
+                } else {
+                  handleCancelSession();
+                }
               }}
               disabled={controlsDisabled}
             >
-              Finish
+              {status === "paused" ? "End early" : "Reset"}
             </button>
-          </>
-        ) : null}
-      </div>
+          ) : null}
+        </div>
 
-      <div className="session-meta" aria-label="Session summary">
-        <div>
-          <span className="k">Today</span>
-          <span className="v mono">
-            {todayMinutes}
-            <small>m</small>
-          </span>
-        </div>
-        <div>
-          <span className="k">Week</span>
-          <span className="v mono">
-            {weeklyMinutes}
-            <small>m</small>
-            {weeklyGoalMinutes > 0 ? (
-              <span className="goal">/ {weeklyGoalMinutes}m</span>
-            ) : null}
-          </span>
-        </div>
-        <div>
-          <span className="k">Streak</span>
-          <span className="v mono">
-            {streakDays}
-            <small>d</small>
-          </span>
-        </div>
+        <p
+          className="label"
+          style={{ marginTop: 32, color: "var(--ink-muted)" }}
+        >
+          {feedback}
+        </p>
       </div>
-
-      <p className="focus-feedback-quiet">{feedback}</p>
 
       {/* Break timer */}
       {isOnBreak && (

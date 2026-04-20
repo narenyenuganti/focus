@@ -1825,7 +1825,209 @@ a {
   line-height: 1.7;
 }
 
-/* ---------- focus screen ---------- */
+/* ---------- focus screen (v4) ---------- */
+.focus-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+  min-height: 560px;
+  animation: viewIn 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.focus-ring-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.focus-ring-wrap svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.focus-time {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.focus-time .time {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(72px, 10vw, 128px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-time .sub {
+  position: absolute;
+  bottom: 18%;
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.breathing {
+  animation: focus-breathe 7s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes focus-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.focus-side {
+  padding-left: 8px;
+}
+
+.focus-side .eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 18px;
+}
+
+.focus-side h1 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0 0 24px;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.focus-side p.lede {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 38ch;
+  margin: 0 0 36px;
+}
+
+.duration-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.duration-chip {
+  flex: 1;
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  padding: 14px 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+
+.duration-chip:last-child {
+  border-right: 0;
+}
+
+.duration-chip:hover:not(:disabled) {
+  color: var(--ink-soft);
+  background: color-mix(in oklab, var(--paper-2) 50%, transparent);
+}
+
+.duration-chip.active {
+  color: var(--ink);
+  background: var(--paper-2);
+}
+
+.duration-chip:disabled {
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  padding: 16px 28px 16px 24px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), background 300ms;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateX(4px);
+  background: var(--accent);
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn-primary .arrow {
+  width: 14px;
+  height: 10px;
+}
+
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--rule);
+  padding: 14px 22px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 240ms ease;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.action-row {
+  display: flex;
+  gap: 14px;
+}
+
+.focus-side.running .btn-primary {
+  background: var(--accent);
+}
+
+/* legacy focus-wrap kept until old panels remove */
 .focus-wrap {
   display: grid;
   grid-template-columns: 1fr;
