@@ -14,3 +14,6 @@ data/tracker.db-shm
 
 # TypeScript incremental build
 tsconfig.tsbuildinfo
+
+# Claude Code local config
+.claude/
