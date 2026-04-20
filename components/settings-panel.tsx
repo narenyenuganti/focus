@@ -119,6 +119,38 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
 
         <div className="settings-row">
           <label>
+            <strong>Garden time</strong>
+            <span>
+              When on, the garden scene follows the wall clock. Off lets you scrub
+              Dawn → Dusk manually.
+            </span>
+          </label>
+          <div className="control">
+            <div className="seg" role="tablist" aria-label="Garden time">
+              <button
+                type="button"
+                className={settings.gardenAutoTimeOfDay ? "on" : ""}
+                onClick={() =>
+                  setSettings((current) => ({ ...current, gardenAutoTimeOfDay: true }))
+                }
+              >
+                Follow real time
+              </button>
+              <button
+                type="button"
+                className={!settings.gardenAutoTimeOfDay ? "on" : ""}
+                onClick={() =>
+                  setSettings((current) => ({ ...current, gardenAutoTimeOfDay: false }))
+                }
+              >
+                Manual
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-row">
+          <label>
             <strong>End of session</strong>
             <span>What should happen when the ring closes.</span>
           </label>
