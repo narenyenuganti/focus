@@ -85,6 +85,143 @@ a {
   padding: 24px;
 }
 
+/* ---------- settings ---------- */
+.settings-form {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--rule);
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.settings-row > label {
+  padding: 24px 28px;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+
+.settings-row > label strong {
+  font-family: var(--font-serif), serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.settings-row > label span {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.settings-row .control {
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.input {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 8px 0;
+  min-width: 120px;
+  font-family: var(--font-mono), monospace;
+  background: transparent;
+  transition: border-color 200ms ease;
+}
+
+.input:focus {
+  outline: 0;
+  border-color: var(--ink);
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+}
+
+.seg button {
+  font: inherit;
+  color: var(--ink-soft);
+  background: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 0;
+  border-right: 1px solid var(--rule);
+}
+
+.seg button:last-child {
+  border-right: 0;
+}
+
+.seg button.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.seg button:hover:not(.on) {
+  color: var(--ink);
+}
+
+.preset-editor {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+.preset-editor-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px auto;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.preset-editor-row:last-child {
+  border-bottom: 0;
+}
+
+.preset-editor-row .unit {
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.settings-status {
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .settings-row {
+    grid-template-columns: 1fr;
+  }
+  .settings-row > label {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+}
+
 /* ---------- ledger ---------- */
 .ledger {
   display: grid;
