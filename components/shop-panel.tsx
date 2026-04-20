@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GardenGlyph } from "@/components/garden-glyph";
 import {
   GARDEN_CATALOG,
@@ -27,6 +27,28 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
   const [cat, setCat] = useState<FilterCategory>("All");
   const [rarity, setRarity] = useState<FilterRarity>("any");
   const [query, setQuery] = useState("");
+  const [catOpen, setCatOpen] = useState(false);
+  const catRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!catOpen) return;
+    const onDown = (event: MouseEvent) => {
+      if (catRef.current && !catRef.current.contains(event.target as Node)) {
+        setCatOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [catOpen]);
+
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<FilterCategory, number>();
+    counts.set("All", GARDEN_CATALOG.length);
+    for (const c of GARDEN_CATEGORIES) {
+      counts.set(c, GARDEN_CATALOG.filter((item) => item.cat === c).length);
+    }
+    return counts;
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -108,20 +130,38 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
       </article>
 
       <div className="market-toolbar">
-        <div className="filters" role="tablist">
-          {(["All", ...GARDEN_CATEGORIES] as FilterCategory[]).map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="tab"
-              aria-selected={cat === c}
-              className={c === cat ? "is-active" : ""}
-              onClick={() => setCat(c)}
-            >
-              {c}
-            </button>
-          ))}
+        <div className={`cat-dropdown ${catOpen ? "open" : ""}`} ref={catRef}>
+          <button
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded={catOpen}
+            onClick={() => setCatOpen((o) => !o)}
+          >
+            <span>{cat}</span>
+            <span className="caret" aria-hidden="true">
+              ▾
+            </span>
+          </button>
+          <div className="cat-menu" role="listbox">
+            {(["All", ...GARDEN_CATEGORIES] as FilterCategory[]).map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="option"
+                aria-selected={cat === c}
+                className={c === cat ? "on" : ""}
+                onClick={() => {
+                  setCat(c);
+                  setCatOpen(false);
+                }}
+              >
+                <span>{c}</span>
+                <span className="count">{categoryCounts.get(c) ?? 0}</span>
+              </button>
+            ))}
+          </div>
         </div>
+        <div />
         <div className="toolbar-right">
           <div className="rarity-pills" role="tablist" aria-label="Rarity">
             {RARITIES.map((r) => (

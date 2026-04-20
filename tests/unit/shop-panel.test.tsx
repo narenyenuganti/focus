@@ -40,9 +40,10 @@ describe("ShopPanel", () => {
     });
   });
 
-  it("narrows grid by category tab", () => {
+  it("narrows grid by category dropdown", () => {
     render(<ShopPanel {...defaultProps} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Stones" }));
+    fireEvent.click(screen.getByRole("button", { expanded: false }));
+    fireEvent.click(screen.getByRole("option", { name: /Stones/i }));
     expect(screen.getByText(/Standing stone/i)).toBeInTheDocument();
     expect(screen.queryByText(/Hart's-tongue fern/i)).not.toBeInTheDocument();
   });
