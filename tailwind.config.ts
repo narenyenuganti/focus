@@ -23,7 +23,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        poppins: ["var(--font-poppins)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Iowan Old Style", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "Menlo", "monospace"],
       },
     },
   },
