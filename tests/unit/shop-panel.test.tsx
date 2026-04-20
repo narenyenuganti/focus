@@ -23,27 +23,23 @@ describe("ShopPanel", () => {
     const fernCard = document.querySelector('[data-item-id="fern"]');
     expect(fernCard).not.toBeNull();
     expect(fernCard).toHaveClass("owned");
-    expect(fernCard?.querySelector(".mg-buy")).toHaveTextContent("Owned");
+    expect(fernCard).toBeDisabled();
   });
 
-  it("shows Save up on items the wallet can't afford", () => {
+  it("disables cards the wallet can't afford", () => {
     render(<ShopPanel {...defaultProps} socks={10} />);
-    const cards = Array.from(document.querySelectorAll(".mg-card"));
-    expect(cards.length).toBeGreaterThan(0);
-    const saveUpButtons = cards
-      .map((card) => card.querySelector(".mg-buy"))
-      .filter((btn): btn is Element => Boolean(btn))
-      .filter((btn) => btn.textContent?.includes("Save up"));
-    expect(saveUpButtons.length).toBeGreaterThan(0);
-    saveUpButtons.forEach((btn) => {
-      expect(btn).toBeDisabled();
+    const disabled = Array.from(document.querySelectorAll<HTMLButtonElement>(".market-card"))
+      .filter((card) => !card.classList.contains("owned"))
+      .filter((card) => card.disabled);
+    expect(disabled.length).toBeGreaterThan(0);
+    disabled.forEach((card) => {
+      expect(card.querySelector(".label")).toHaveTextContent(/Save up/);
     });
   });
 
-  it("narrows grid by category dropdown", () => {
+  it("narrows grid by category tab", () => {
     render(<ShopPanel {...defaultProps} />);
-    fireEvent.click(screen.getByRole("button", { expanded: false }));
-    fireEvent.click(screen.getByRole("option", { name: /Stones/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /Stones/i }));
     expect(screen.getByText(/Standing stone/i)).toBeInTheDocument();
     expect(screen.queryByText(/Hart's-tongue fern/i)).not.toBeInTheDocument();
   });
