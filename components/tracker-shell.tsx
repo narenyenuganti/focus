@@ -6,10 +6,10 @@ import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StatsOverview } from "@/components/stats-overview";
 import { ShopPanel } from "@/components/shop-panel";
-import { RoomEditor } from "@/components/room-editor";
+import { GardenView, type GardenPlant } from "@/components/garden-view";
 import { TopNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
-import type { Wallet, Inventory, RoomPlacements, RoomState } from "@/lib/economy-types";
+import type { Wallet, Inventory, RoomState } from "@/lib/economy-types";
 import { getTheme } from "@/lib/themes";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
@@ -22,7 +22,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [activeTab, setActiveTab] = useState<TabId>("focus");
   const [wallet, setWallet] = useState<Wallet>(snapshot.economy.wallet);
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
-  const [room, setRoom] = useState<RoomPlacements>(snapshot.economy.room);
   const [roomState, setRoomState] = useState<RoomState>(snapshot.economy.roomState);
   const theme = getTheme(snapshot.settings.theme);
 
@@ -42,9 +41,28 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const streakDays = snapshot.focus.currentStreakDays ?? 0;
   const weekMinutes = snapshot.focus.weeklyMinutes;
   const goalMinutes = snapshot.settings.weeklyFocusGoalMinutes;
+  const totalSessions = snapshot.focus.totalSessions ?? 0;
   const weekPct = goalMinutes > 0
     ? Math.min(100, Math.round((weekMinutes / goalMinutes) * 100))
     : 0;
+
+  const gardenPlants: GardenPlant[] = [];
+  if (totalSessions >= 1) {
+    gardenPlants.push({ key: "fern", kind: "fern", label: `Fern · ${Math.min(streakDays, 99)}d`, size: 90 });
+  }
+  if (totalSessions >= 4) {
+    gardenPlants.push({ key: "lavender", kind: "lavender", label: `Lavender · ${Math.min(streakDays, 99)}d`, size: 90 });
+  }
+  if (totalSessions >= 10) {
+    const hours = Math.floor((snapshot.focus.totalMinutes ?? 0) / 60);
+    gardenPlants.push({ key: "olive", kind: "tree", label: `Olive · ${hours}h`, size: 130 });
+  }
+  if (totalSessions >= 20) {
+    gardenPlants.push({ key: "stone", kind: "stone", label: "Stone · 1d", size: 70 });
+  }
+  if (totalSessions >= 35) {
+    gardenPlants.push({ key: "lavender2", kind: "lavender", label: "Lavender · 3d", size: 80 });
+  }
 
   async function handlePurchase(itemId: string) {
     const response = await fetch("/api/economy/purchase", {
@@ -56,28 +74,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     const data = await response.json();
     setWallet(data.wallet);
     setInventory(data.inventory);
-  }
-
-  async function handlePlace(slotId: string, itemId: string) {
-    const response = await fetch("/api/economy/place", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slotId, itemId }),
-    });
-    if (!response.ok) return;
-    const data = await response.json();
-    setRoom(data.room);
-  }
-
-  async function handleRemove(slotId: string) {
-    const response = await fetch("/api/economy/place", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slotId }),
-    });
-    if (!response.ok) return;
-    const data = await response.json();
-    setRoom(data.room);
   }
 
   async function handleUnlockRoom(roomId: string) {
@@ -173,11 +169,12 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
         )}
 
         {activeTab === "garden" && (
-          <RoomEditor
-            placements={room.placements}
-            purchased={inventory.purchased}
-            onPlace={handlePlace}
-            onRemove={handleRemove}
+          <GardenView
+            plants={gardenPlants}
+            seeds={wallet.socks}
+            todayMinutes={snapshot.focus.todayMinutes}
+            weeklyMinutes={snapshot.focus.weeklyMinutes}
+            streakDays={streakDays}
           />
         )}
 
