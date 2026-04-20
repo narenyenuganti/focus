@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GardenScene } from "@/components/garden-scene";
 
 type GardenViewProps = {
@@ -8,6 +8,7 @@ type GardenViewProps = {
   plantsCount: number;
   streakDays: number;
   owned: ReadonlySet<string>;
+  autoTimeOfDay: boolean;
   nextUnlockName?: string;
   nextUnlockCost?: number;
 };
@@ -20,10 +21,14 @@ const TIMES: Array<{ id: number; label: string }> = [
   { id: 0.92, label: "Dusk" },
 ];
 
-function defaultTimeOfDay() {
+function currentTimeOfDay(): number {
   if (typeof window === "undefined") return 0.5;
   const h = new Date().getHours();
-  return Math.max(0.05, Math.min(0.95, (h - 6) / 14));
+  if (h >= 5 && h < 8) return 0.1;
+  if (h >= 8 && h < 11) return 0.3;
+  if (h >= 11 && h < 15) return 0.5;
+  if (h >= 15 && h < 18) return 0.75;
+  return 0.92;
 }
 
 export function GardenView({
@@ -31,10 +36,19 @@ export function GardenView({
   plantsCount,
   streakDays,
   owned,
+  autoTimeOfDay,
   nextUnlockName = "Reflecting pond",
   nextUnlockCost = 320,
 }: GardenViewProps) {
-  const [timeOfDay, setTimeOfDay] = useState<number>(defaultTimeOfDay);
+  const [timeOfDay, setTimeOfDay] = useState<number>(currentTimeOfDay);
+
+  useEffect(() => {
+    if (!autoTimeOfDay) return;
+    setTimeOfDay(currentTimeOfDay());
+    const id = window.setInterval(() => setTimeOfDay(currentTimeOfDay()), 60_000);
+    return () => window.clearInterval(id);
+  }, [autoTimeOfDay]);
+
   const unlockPct = nextUnlockCost > 0
     ? Math.min(100, (seeds / nextUnlockCost) * 100)
     : 0;
@@ -46,18 +60,27 @@ export function GardenView({
           Your <em>garden</em>
         </h2>
         <div className="time-scrubber" role="tablist" aria-label="Time of day">
-          {TIMES.map((t) => (
-            <button
-              key={t.label}
-              type="button"
-              role="tab"
-              aria-selected={Math.abs(timeOfDay - t.id) < 0.05}
-              className={Math.abs(timeOfDay - t.id) < 0.05 ? "on" : ""}
-              onClick={() => setTimeOfDay(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
+          {TIMES.map((t) => {
+            const active = Math.abs(timeOfDay - t.id) < 0.05;
+            return (
+              <button
+                key={t.label}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-disabled={autoTimeOfDay || undefined}
+                className={active ? "on" : ""}
+                disabled={autoTimeOfDay}
+                title={autoTimeOfDay ? "Auto-following real time — disable in Settings to scrub" : undefined}
+                onClick={() => {
+                  if (autoTimeOfDay) return;
+                  setTimeOfDay(t.id);
+                }}
+              >
+                {t.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

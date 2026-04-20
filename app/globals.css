@@ -1023,6 +1023,14 @@ a {
   color: var(--paper);
 }
 
+.time-scrubber button:disabled {
+  cursor: not-allowed;
+}
+
+.time-scrubber button:disabled:not(.on):hover {
+  color: var(--ink-soft);
+}
+
 /* ---------- garden frame + scene ---------- */
 .garden-frame {
   position: relative;

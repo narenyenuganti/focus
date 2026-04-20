@@ -47,6 +47,7 @@ test("returns sensible defaults when the settings file is missing", async () => 
     ambientMusic: true,
     breakDurationMinutes: 5,
     theme: "bean",
+    gardenAutoTimeOfDay: true,
   });
 });
 
@@ -104,6 +105,7 @@ test("serves and updates settings through the authenticated route", async () => 
       ambientMusic: true,
       breakDurationMinutes: 5,
       theme: "bean",
+      gardenAutoTimeOfDay: true,
     },
   });
 });
