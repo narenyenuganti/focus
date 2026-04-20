@@ -9,18 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cozy: {
-          bg: "#F8F5F0",
-          card: "#FFFFFF",
-          border: "#E8E4DC",
-          primary: "#1D5A5D",
-          action: "#B0C423",
-          text: "#333333",
-          muted: "#666666",
-          pill: "#E8F5E9",
-          wall: "#FDF6E3",
-          floor: "#F5ECD7",
+        paper: {
+          DEFAULT: "#F2EEE6",
+          2: "#EAE4D8",
+          3: "#E0D9C9",
         },
+        ink: {
+          DEFAULT: "#141414",
+          2: "#2A2725",
+          soft: "#6E665C",
+        },
+        rule: "#D7CFBE",
+        accent: "#E8612C",
+        sage: "#5F6F52",
+        rose: "#B34D4D",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
