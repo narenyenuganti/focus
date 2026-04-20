@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
@@ -33,6 +33,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     : 0;
 
   const gardenPlantsCount = inventory.purchased.length;
+  const ownedSet = useMemo(() => new Set(inventory.purchased), [inventory.purchased]);
 
   async function handlePurchase(itemId: string) {
     const response = await fetch("/api/economy/purchase", {
@@ -120,6 +121,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             seeds={wallet.socks}
             plantsCount={gardenPlantsCount}
             streakDays={streakDays}
+            owned={ownedSet}
           />
         )}
 

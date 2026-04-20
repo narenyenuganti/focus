@@ -7,6 +7,7 @@ type GardenViewProps = {
   seeds: number;
   plantsCount: number;
   streakDays: number;
+  owned: ReadonlySet<string>;
   nextUnlockName?: string;
   nextUnlockCost?: number;
 };
@@ -29,6 +30,7 @@ export function GardenView({
   seeds,
   plantsCount,
   streakDays,
+  owned,
   nextUnlockName = "Reflecting pond",
   nextUnlockCost = 320,
 }: GardenViewProps) {
@@ -60,7 +62,7 @@ export function GardenView({
       </div>
 
       <div className="garden-frame">
-        <GardenScene timeOfDay={timeOfDay} />
+        <GardenScene timeOfDay={timeOfDay} owned={owned} />
         <div className="garden-frame-overlay">
           <div className="garden-chip">
             <span className="k">Streak</span>
