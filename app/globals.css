@@ -828,9 +828,15 @@ a {
 
 .mg-price {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
   font-size: 13px;
+  line-height: 1;
+}
+
+.mg-price .mono {
+  font-size: 15px;
+  line-height: 1;
 }
 
 .mg-price-unit {
@@ -838,6 +844,7 @@ a {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-soft);
+  line-height: 1;
 }
 
 .seed-dot {
@@ -846,6 +853,8 @@ a {
   border-radius: 999px;
   background: var(--accent);
   display: inline-block;
+  align-self: center;
+  transform: translateY(-1px);
 }
 
 .mg-buy {
