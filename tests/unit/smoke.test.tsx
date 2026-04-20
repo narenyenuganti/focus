@@ -30,6 +30,7 @@ test("renders focus timer transport controls", async () => {
       todaySessions={0}
       weeklyMinutes={0}
       weeklyGoalMinutes={1200}
+      streakDays={0}
       presets={[
         { label: "Classic Pomodoro", minutes: 25 },
         { label: "Deep Work", minutes: 90 },

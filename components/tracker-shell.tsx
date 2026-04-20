@@ -163,6 +163,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             todaySessions={snapshot.focus.todaySessions}
             weeklyMinutes={snapshot.focus.weeklyMinutes}
             weeklyGoalMinutes={snapshot.settings.weeklyFocusGoalMinutes}
+            streakDays={streakDays}
             presets={snapshot.settings.focusPresets}
             notificationSound={snapshot.settings.notificationSound}
             ambientMusic={snapshot.settings.ambientMusic}

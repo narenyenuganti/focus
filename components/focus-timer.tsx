@@ -37,6 +37,7 @@ type FocusTimerProps = {
   todaySessions: number;
   weeklyMinutes: number;
   weeklyGoalMinutes: number;
+  streakDays: number;
   presets: TrackerSettings["focusPresets"];
   notificationSound: string;
   ambientMusic: boolean;
@@ -68,6 +69,7 @@ export function FocusTimer({
   todaySessions,
   weeklyMinutes,
   weeklyGoalMinutes,
+  streakDays,
   presets,
   notificationSound,
   ambientMusic,
@@ -350,13 +352,11 @@ export function FocusTimer({
         presetLabel={activePreset?.label ?? "Focus"}
       />
 
-      <p className="focus-feedback">{feedback}</p>
-
-      <div className={status === "idle" ? "timer-actions is-idle" : "timer-actions"} aria-label="Timer controls">
+      <div className="dial-controls" aria-label="Timer controls">
         {status === "idle" ? (
           <button
             type="button"
-            className="primary-button primary-button--focus"
+            className="btn primary"
             onClick={() => {
               warmUpAudio();
               requestNotificationPermission();
@@ -369,13 +369,13 @@ export function FocusTimer({
             }}
             disabled={controlsDisabled}
           >
-            Start
+            Begin
           </button>
         ) : null}
         {status === "running" ? (
           <button
             type="button"
-            className="secondary-button secondary-button--focus"
+            className="btn"
             onClick={() => {
               const snapshot = syncCountdown();
               elapsedRunningSecondsRef.current = snapshot.elapsedSeconds;
@@ -392,7 +392,7 @@ export function FocusTimer({
           <>
             <button
               type="button"
-              className="primary-button primary-button--focus"
+              className="btn primary"
               onClick={() => {
                 currentRunStartedAtRef.current = Date.now();
                 setStatus("running");
@@ -404,25 +404,54 @@ export function FocusTimer({
             </button>
             <button
               type="button"
-              className="secondary-button secondary-button--focus"
-              onClick={() => {
-                void saveSession(selectedMinutes, false);
-              }}
-              disabled={controlsDisabled}
-            >
-              Finish Session
-            </button>
-            <button
-              type="button"
-              className="ghost-button ghost-button--focus"
+              className="btn ghost"
               onClick={handleCancelSession}
               disabled={controlsDisabled}
             >
               Reset
             </button>
+            <button
+              type="button"
+              className="btn danger"
+              onClick={() => {
+                void saveSession(selectedMinutes, false);
+              }}
+              disabled={controlsDisabled}
+            >
+              Finish
+            </button>
           </>
         ) : null}
       </div>
+
+      <div className="session-meta" aria-label="Session summary">
+        <div>
+          <span className="k">Today</span>
+          <span className="v mono">
+            {todayMinutes}
+            <small>m</small>
+          </span>
+        </div>
+        <div>
+          <span className="k">Week</span>
+          <span className="v mono">
+            {weeklyMinutes}
+            <small>m</small>
+            {weeklyGoalMinutes > 0 ? (
+              <span className="goal">/ {weeklyGoalMinutes}m</span>
+            ) : null}
+          </span>
+        </div>
+        <div>
+          <span className="k">Streak</span>
+          <span className="v mono">
+            {streakDays}
+            <small>d</small>
+          </span>
+        </div>
+      </div>
+
+      <p className="focus-feedback-quiet">{feedback}</p>
 
       {/* Break timer */}
       {isOnBreak && (

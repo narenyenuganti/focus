@@ -28,6 +28,7 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
       todaySessions={0}
       weeklyMinutes={0}
       weeklyGoalMinutes={1200}
+      streakDays={0}
       presets={[{ label: "Classic Pomodoro", minutes: 25 }]}
       notificationSound="secret-discovered"
       ambientMusic={false}
@@ -100,6 +101,7 @@ function renderTimerWithFetch(
       todaySessions={0}
       weeklyMinutes={0}
       weeklyGoalMinutes={1200}
+      streakDays={0}
       presets={[{ label: "Focus", minutes: presetMinutes }]}
       notificationSound="secret-discovered"
       ambientMusic={false}

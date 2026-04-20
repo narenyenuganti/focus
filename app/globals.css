@@ -85,6 +85,131 @@ a {
   padding: 24px;
 }
 
+/* ---------- focus screen ---------- */
+.focus-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  justify-items: center;
+}
+
+.dial-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  padding: 12px 24px;
+  min-width: 96px;
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  border-radius: 0;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn.ghost {
+  border-color: var(--rule);
+  color: var(--ink-soft);
+}
+
+.btn.ghost:hover:not(:disabled) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.btn.danger {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: var(--rose);
+  color: var(--paper);
+}
+
+.session-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  width: 560px;
+  max-width: 90vw;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.session-meta > div {
+  padding: 18px 20px;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 6px;
+}
+
+.session-meta > div:last-child {
+  border-right: 0;
+}
+
+.session-meta .k {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.session-meta .v {
+  font-family: var(--font-serif), serif;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.session-meta .v small {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-left: 2px;
+}
+
+.session-meta .v .goal {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-left: 4px;
+}
+
+.focus-feedback-quiet {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+  text-align: center;
+}
+
 /* ---------- focus dial ---------- */
 .dial-wrap {
   position: relative;
