@@ -6,39 +6,44 @@ const defaultProps = {
   socks: 500,
   purchased: [] as string[],
   onPurchase: vi.fn(),
-  themeId: "bean" as const,
-  currencyIcon: "🧦",
-  unlockedRooms: ["basic"],
-  selectedRoom: "basic",
-  onUnlockRoom: vi.fn(),
-  onSelectRoom: vi.fn(),
 };
 
 describe("ShopPanel", () => {
-  it("renders all decoration items", () => {
+  it("renders garden catalog items in the grid", () => {
     render(<ShopPanel {...defaultProps} />);
-    expect(screen.getByText("Small Plant")).toBeInTheDocument();
-    expect(screen.getByText("Record Player")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Cherry blossom/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Hart's-tongue fern/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ancient oak/i)).toBeInTheDocument();
   });
 
-  it("shows owned badge on purchased items", () => {
-    render(<ShopPanel {...defaultProps} purchased={["small-plant"]} />);
-    const plantCard = screen.getByText("Small Plant").closest("[data-item-id]");
-    expect(plantCard?.querySelector("[data-owned]")).toBeInTheDocument();
+  it("marks purchased items as owned", () => {
+    render(<ShopPanel {...defaultProps} purchased={["fern"]} />);
+    const fernCard = document.querySelector('[data-item-id="fern"]');
+    expect(fernCard).not.toBeNull();
+    expect(fernCard).toHaveClass("owned");
+    expect(fernCard?.querySelector(".mg-buy")).toHaveTextContent("Owned");
   });
 
-  it("disables buy button when insufficient socks", () => {
+  it("shows Save up on items the wallet can't afford", () => {
     render(<ShopPanel {...defaultProps} socks={10} />);
-    const buyButtons = screen.getAllByRole("button", { name: /buy/i });
-    expect(buyButtons.every((btn) => btn.hasAttribute("disabled"))).toBe(true);
+    const cards = Array.from(document.querySelectorAll(".mg-card"));
+    expect(cards.length).toBeGreaterThan(0);
+    const saveUpButtons = cards
+      .map((card) => card.querySelector(".mg-buy"))
+      .filter((btn): btn is Element => Boolean(btn))
+      .filter((btn) => btn.textContent?.includes("Save up"));
+    expect(saveUpButtons.length).toBeGreaterThan(0);
+    saveUpButtons.forEach((btn) => {
+      expect(btn).toBeDisabled();
+    });
   });
 
-  it("renders room variants section", () => {
-    render(<ShopPanel {...defaultProps} socks={1000} />);
-    // Click the Rooms tab
-    fireEvent.click(screen.getByText("Rooms"));
-    expect(screen.getByText("Basic Room")).toBeInTheDocument();
-    expect(screen.getByText("Cozy Cottage")).toBeInTheDocument();
-    expect(screen.getByText("Dungeon Workshop")).toBeInTheDocument();
+  it("narrows grid by category tab", () => {
+    render(<ShopPanel {...defaultProps} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Stones" }));
+    expect(screen.getByText(/Standing stone/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Hart's-tongue fern/i)).not.toBeInTheDocument();
   });
 });
