@@ -1,85 +1,124 @@
 "use client";
 
-import { GardenGlyph, type GlyphKind } from "@/components/garden-glyph";
-
-type GardenPlant = {
-  key: string;
-  kind: GlyphKind;
-  label: string;
-  size: number;
-};
+import { useState } from "react";
+import { GardenScene } from "@/components/garden-scene";
 
 type GardenViewProps = {
-  plants: GardenPlant[];
   seeds: number;
-  todayMinutes: number;
-  weeklyMinutes: number;
+  plantsCount: number;
   streakDays: number;
+  nextUnlockName?: string;
+  nextUnlockCost?: number;
 };
 
+const TIMES: Array<{ id: number; label: string }> = [
+  { id: 0.1, label: "Dawn" },
+  { id: 0.3, label: "Morning" },
+  { id: 0.5, label: "Noon" },
+  { id: 0.75, label: "Evening" },
+  { id: 0.92, label: "Dusk" },
+];
+
+function defaultTimeOfDay() {
+  if (typeof window === "undefined") return 0.5;
+  const h = new Date().getHours();
+  return Math.max(0.05, Math.min(0.95, (h - 6) / 14));
+}
+
 export function GardenView({
-  plants,
   seeds,
-  todayMinutes,
-  weeklyMinutes,
+  plantsCount,
   streakDays,
+  nextUnlockName = "Reflecting pond",
+  nextUnlockCost = 320,
 }: GardenViewProps) {
+  const [timeOfDay, setTimeOfDay] = useState<number>(defaultTimeOfDay);
+  const unlockPct = nextUnlockCost > 0
+    ? Math.min(100, (seeds / nextUnlockCost) * 100)
+    : 0;
+
   return (
     <>
       <div className="section-head">
         <h2 className="serif">
           Your <em>garden</em>
         </h2>
-        <span className="meta">Grown over {streakDays} days</span>
+        <div className="time-scrubber" role="tablist" aria-label="Time of day">
+          {TIMES.map((t) => (
+            <button
+              key={t.label}
+              type="button"
+              role="tab"
+              aria-selected={Math.abs(timeOfDay - t.id) < 0.05}
+              className={Math.abs(timeOfDay - t.id) < 0.05 ? "on" : ""}
+              onClick={() => setTimeOfDay(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="garden" role="img" aria-label="Focus garden">
-        <div className="garden-sun" aria-hidden="true" />
-        <div className="garden-ground" aria-hidden="true" />
-        {plants.length > 0 ? (
-          <div className="garden-plot">
-            {plants.map((plant) => (
-              <div key={plant.key} className="plant">
-                <GardenGlyph kind={plant.kind} size={plant.size} />
-                <span className="plant-label">{plant.label}</span>
-              </div>
-            ))}
+      <div className="garden-frame">
+        <GardenScene timeOfDay={timeOfDay} />
+        <div className="garden-frame-overlay">
+          <div className="garden-chip">
+            <span className="k">Streak</span>
+            <span className="v mono">{streakDays}d</span>
           </div>
-        ) : null}
-      </div>
-
-      <div className="garden-stats">
-        <div>
-          <span className="k">Seeds</span>
-          <span className="v mono">{seeds}</span>
-        </div>
-        <div>
-          <span className="k">Plants</span>
-          <span className="v mono">{plants.length}</span>
-        </div>
-        <div>
-          <span className="k">Today</span>
-          <span className="v mono">
-            {todayMinutes}
-            <small>m</small>
-          </span>
-        </div>
-        <div>
-          <span className="k">Week</span>
-          <span className="v mono">
-            {weeklyMinutes}
-            <small>m</small>
-          </span>
+          <div className="garden-chip">
+            <span className="k">Plants</span>
+            <span className="v mono">{plantsCount}</span>
+          </div>
+          <div className="garden-chip">
+            <span className="k">Seeds</span>
+            <span className="v mono">{seeds}</span>
+          </div>
         </div>
       </div>
 
-      <p className="garden-note">
-        Every focused minute plants a seed. Seeds grow into plants — ferns,
-        lavender, and eventually a tree — visible only to you. The garden rewards
-        attention, not achievement; it will not ask you to come back.
+      <div className="garden-story">
+        <div className="gs-col">
+          <div className="gs-k">This season</div>
+          <div className="gs-v serif">Spring, year two</div>
+          <div className="gs-sub">
+            Lavender budding · cherries in bloom · fireflies by week six
+          </div>
+        </div>
+        <div className="gs-col">
+          <div className="gs-k">Next to unlock</div>
+          <div className="gs-v serif">
+            {nextUnlockName} <em>→</em>
+          </div>
+          <div className="gs-sub">
+            <div className="goal-bar" style={{ marginTop: 6 }}>
+              <span style={{ width: `${unlockPct}%` }} />
+            </div>
+            <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>
+              {seeds} / {nextUnlockCost} seeds
+            </span>
+          </div>
+        </div>
+        <div className="gs-col">
+          <div className="gs-k">Weather</div>
+          <div className="gs-v serif">Clear, 18°</div>
+          <div className="gs-sub">A soft westerly. Butterflies are out.</div>
+        </div>
+      </div>
+
+      <p
+        style={{
+          marginTop: 28,
+          fontSize: 14,
+          color: "var(--ink-soft)",
+          maxWidth: 720,
+          lineHeight: 1.75,
+        }}
+      >
+        Every focused minute plants a seed. Your garden grows quietly, in its own
+        time — ferns take a week, oaks take a season. It doesn't keep score and
+        it won't ask you to come back. It is simply here when you are.
       </p>
     </>
   );
 }
-
-export type { GardenPlant };

@@ -6,7 +6,7 @@ import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { LedgerView } from "@/components/ledger-view";
 import { ShopPanel } from "@/components/shop-panel";
-import { GardenView, type GardenPlant } from "@/components/garden-view";
+import { GardenView } from "@/components/garden-view";
 import { TopNav, type TabId } from "@/components/bottom-nav";
 import type { getTrackerSnapshot } from "@/lib/server/dashboard";
 import type { Wallet, Inventory, RoomState } from "@/lib/economy-types";
@@ -33,23 +33,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     ? Math.min(100, Math.round((weekMinutes / goalMinutes) * 100))
     : 0;
 
-  const gardenPlants: GardenPlant[] = [];
-  if (totalSessions >= 1) {
-    gardenPlants.push({ key: "fern", kind: "fern", label: `Fern · ${Math.min(streakDays, 99)}d`, size: 90 });
-  }
-  if (totalSessions >= 4) {
-    gardenPlants.push({ key: "lavender", kind: "lavender", label: `Lavender · ${Math.min(streakDays, 99)}d`, size: 90 });
-  }
-  if (totalSessions >= 10) {
-    const hours = Math.floor((snapshot.focus.totalMinutes ?? 0) / 60);
-    gardenPlants.push({ key: "olive", kind: "olive", label: `Olive · ${hours}h`, size: 130 });
-  }
-  if (totalSessions >= 20) {
-    gardenPlants.push({ key: "stone", kind: "stone", label: "Stone · 1d", size: 70 });
-  }
-  if (totalSessions >= 35) {
-    gardenPlants.push({ key: "lavender2", kind: "lavender", label: "Lavender · 3d", size: 80 });
-  }
+  const gardenPlantsCount = inventory.purchased.length;
 
   async function handlePurchase(itemId: string) {
     const response = await fetch("/api/economy/purchase", {
@@ -157,10 +141,8 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
 
         {activeTab === "garden" && (
           <GardenView
-            plants={gardenPlants}
             seeds={wallet.socks}
-            todayMinutes={snapshot.focus.todayMinutes}
-            weeklyMinutes={snapshot.focus.weeklyMinutes}
+            plantsCount={gardenPlantsCount}
             streakDays={streakDays}
           />
         )}
