@@ -42,7 +42,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   }
   if (totalSessions >= 10) {
     const hours = Math.floor((snapshot.focus.totalMinutes ?? 0) / 60);
-    gardenPlants.push({ key: "olive", kind: "tree", label: `Olive · ${hours}h`, size: 130 });
+    gardenPlants.push({ key: "olive", kind: "olive", label: `Olive · ${hours}h`, size: 130 });
   }
   if (totalSessions >= 20) {
     gardenPlants.push({ key: "stone", kind: "stone", label: "Stone · 1d", size: 70 });

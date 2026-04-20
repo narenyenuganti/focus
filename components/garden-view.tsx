@@ -40,7 +40,7 @@ export function GardenView({
           <div className="garden-plot">
             {plants.map((plant) => (
               <div key={plant.key} className="plant">
-                <GardenGlyph kind={plant.kind} size={plant.size} stroke="var(--ink)" />
+                <GardenGlyph kind={plant.kind} size={plant.size} />
                 <span className="plant-label">{plant.label}</span>
               </div>
             ))}
