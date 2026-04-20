@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { FocusTimer } from "@/components/focus-timer";
-import { getTheme } from "@/lib/themes";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -33,8 +32,6 @@ test("catches up to elapsed wall-clock time after a delayed interval callback", 
       notificationSound="secret-discovered"
       ambientMusic={false}
       breakDurationMinutes={5}
-      placements={{}}
-      theme={getTheme("bean")}
       onSocksEarned={() => {}}
 
     />,
@@ -107,8 +104,6 @@ function renderTimerWithFetch(
       notificationSound="secret-discovered"
       ambientMusic={false}
       breakDurationMinutes={5}
-      placements={{}}
-      theme={getTheme("bean")}
       onSocksEarned={onSocksEarned}
     />,
   );

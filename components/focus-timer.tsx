@@ -5,14 +5,10 @@ import { useRouter } from "next/navigation";
 import type { TrackerSettings } from "@/lib/server/schema";
 import { playSound } from "@/lib/sounds";
 import type { SoundId } from "@/lib/sounds";
-import { RoomView } from "@/components/room-view";
-
+import { FocusDial } from "@/components/focus-dial";
 import { BreakTimer } from "@/components/break-timer";
 import { createLofiPlayer, warmUpAudio } from "@/lib/lofi";
 import { notify, requestNotificationPermission } from "@/lib/notifications";
-import type { BeanState } from "@/components/bean";
-import type { RoomPlacements } from "@/lib/economy-types";
-import type { ThemeConfig } from "@/lib/themes";
 
 const PRESET_GUIDANCE: Record<string, string> = {
   "classic pomodoro":
@@ -45,9 +41,6 @@ type FocusTimerProps = {
   notificationSound: string;
   ambientMusic: boolean;
   breakDurationMinutes: number;
-  placements: RoomPlacements["placements"];
-  theme: ThemeConfig;
-  roomId?: string;
   onSocksEarned: (amount: number) => void;
 };
 
@@ -79,9 +72,6 @@ export function FocusTimer({
   notificationSound,
   ambientMusic,
   breakDurationMinutes,
-  placements,
-  theme,
-  roomId,
   onSocksEarned,
 }: FocusTimerProps) {
   const router = useRouter();
@@ -95,9 +85,6 @@ export function FocusTimer({
   );
   const [isPending, startTransition] = useTransition();
 
-  // Bean + gamification state
-  const [beanState, setBeanState] = useState<BeanState>("idle");
-  const [socksJustEarned, setSocksJustEarned] = useState<number | null>(null);
   const [isOnBreak, setIsOnBreak] = useState(false);
   const lofiPlayerRef = useRef<ReturnType<typeof createLofiPlayer> | null>(null);
 
@@ -110,8 +97,6 @@ export function FocusTimer({
     async (_durationMinutes: number, _completedFullSession: boolean) => {},
   );
   const totalSeconds = selectedMinutes * 60;
-  const progress =
-    totalSeconds > 0 ? Math.min(1, Math.max(0, 1 - secondsRemaining / totalSeconds)) : 0;
   const controlsDisabled = status === "saving" || isPending;
 
   useEffect(() => {
@@ -157,15 +142,6 @@ export function FocusTimer({
     };
   }, [status, ambientMusic]);
 
-  // Sync bean state with timer status
-  useEffect(() => {
-    if (status === "running") {
-      setBeanState("focusing");
-    } else if (status === "idle" && beanState !== "celebrating" && beanState !== "sad") {
-      setBeanState("idle");
-    }
-  }, [status, beanState]);
-
   const getCountdownSnapshot = useCallback((now = Date.now()) => {
     const totalSelectedSeconds = selectedMinutesRef.current * 60;
     const currentRunElapsedSeconds =
@@ -207,7 +183,6 @@ export function FocusTimer({
         elapsedRunningSecondsRef.current = 0;
         currentRunStartedAtRef.current = null;
         setSecondsRemaining(selectedMinutes * 60);
-        setBeanState("idle");
         setFeedback("Session too short to log. Try again!");
         return;
       }
@@ -230,7 +205,6 @@ export function FocusTimer({
 
       if (!response.ok) {
         setStatus("idle");
-        setBeanState("idle");
         setFeedback("Could not save the session. Try again.");
         return;
       }
@@ -262,13 +236,7 @@ export function FocusTimer({
         `${payload.summary.todaySessions} sessions logged today • ${payload.summary.todayMinutes} focus minutes`,
       );
 
-      // Celebration flow
-      setBeanState("celebrating");
-      setSocksJustEarned(earnedAmount > 0 ? earnedAmount : null);
-
       setTimeout(() => {
-        setBeanState("idle");
-        setSocksJustEarned(null);
         setIsOnBreak(true);
       }, 3000);
 
@@ -347,59 +315,10 @@ export function FocusTimer({
     setFeedback(
       buildIdleFeedback(todaySessions, todayMinutes, weeklyMinutes, weeklyGoalMinutes),
     );
-    setBeanState("sad");
-    setTimeout(() => setBeanState("idle"), 2000);
   }
 
   return (
-    <section className="focus-panel">
-      <div className="focus-panel__top">
-        <div>
-          <p className="eyebrow">Focus session</p>
-        </div>
-        <div className="focus-panel__ambient">
-          <span>{weeklyGoalMinutes}m weekly goal</span>
-          <span>{presets.length} presets</span>
-        </div>
-      </div>
-
-      {/* Room with Bean and timer overlay */}
-      <div style={{ position: "relative", width: "100%" }}>
-        <RoomView
-          beanState={beanState}
-          socksEarned={socksJustEarned ?? undefined}
-          placements={placements}
-          theme={theme}
-          roomId={roomId}
-        >
-          <div className="timer-display">{formatSeconds(secondsRemaining)}</div>
-          {/* Progress bar */}
-          <div
-            style={{
-              width: "80%",
-              height: 6,
-              borderRadius: 3,
-              background: "var(--border)",
-              margin: "8px auto 0",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: `${progress * 100}%`,
-                borderRadius: 3,
-                background: "var(--action)",
-                transition: "width 220ms linear",
-              }}
-            />
-          </div>
-        </RoomView>
-
-      </div>
-
-      <p className="focus-feedback">{feedback}</p>
-
+    <section className="focus-wrap">
       <div className="preset-rail" role="tablist" aria-label="Focus presets">
         {presets.map((preset) => {
           const active = preset.minutes === selectedMinutes;
@@ -424,6 +343,15 @@ export function FocusTimer({
         })}
       </div>
 
+      <FocusDial
+        totalSeconds={totalSeconds}
+        remaining={secondsRemaining}
+        running={status === "running"}
+        presetLabel={activePreset?.label ?? "Focus"}
+      />
+
+      <p className="focus-feedback">{feedback}</p>
+
       <div className={status === "idle" ? "timer-actions is-idle" : "timer-actions"} aria-label="Timer controls">
         {status === "idle" ? (
           <button
@@ -438,7 +366,6 @@ export function FocusTimer({
               setSecondsRemaining(selectedMinutes * 60);
               setStatus("running");
               setFeedback("Timer running. Stay with the work.");
-              setBeanState("focusing");
             }}
             disabled={controlsDisabled}
           >

@@ -167,9 +167,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             notificationSound={snapshot.settings.notificationSound}
             ambientMusic={snapshot.settings.ambientMusic}
             breakDurationMinutes={snapshot.settings.breakDurationMinutes}
-            placements={room.placements}
-            theme={theme}
-            roomId={roomState.selectedRoom}
             onSocksEarned={handleSocksEarned}
           />
         )}

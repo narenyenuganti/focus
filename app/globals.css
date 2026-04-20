@@ -85,6 +85,111 @@ a {
   padding: 24px;
 }
 
+/* ---------- focus dial ---------- */
+.dial-wrap {
+  position: relative;
+  width: 440px;
+  max-width: 90vw;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+
+.dial-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dial-progress {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  transition: stroke-dashoffset 900ms linear;
+}
+
+.dial-breath {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.dial-breath.on {
+  opacity: 0.7;
+  animation: breath 7s ease-in-out infinite;
+}
+
+@keyframes breath {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(1.03); opacity: 0.75; }
+}
+
+.dial-content {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  z-index: 2;
+  text-align: center;
+  position: relative;
+}
+
+.dial-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.timer-digits {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 300;
+  font-size: 96px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  color: var(--ink);
+}
+
+.timer-digits .colon {
+  padding: 0 6px;
+  color: var(--ink-soft);
+  animation: blink 1.6s step-end infinite;
+}
+
+.timer-digits.is-idle .colon {
+  animation: none;
+  opacity: 0.4;
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+.timer-sub {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+@media (max-width: 720px) {
+  .timer-digits {
+    font-size: 72px;
+  }
+}
+
 /* ---------- focus preset rail ---------- */
 .preset-rail {
   display: flex;
