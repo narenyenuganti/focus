@@ -59,7 +59,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
       </header>
 
       <main className={isGarden ? "garden-wrap" : "stage"}>
-        {activeTab === "focus" && (
+        <div hidden={activeTab !== "focus"}>
           <FocusTimer
             todayMinutes={snapshot.focus.todayMinutes}
             todaySessions={snapshot.focus.todaySessions}
@@ -72,7 +72,7 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
             breakDurationMinutes={snapshot.settings.breakDurationMinutes}
             onSocksEarned={handleSocksEarned}
           />
-        )}
+        </div>
 
         {activeTab === "garden" && (
           <GardenView
