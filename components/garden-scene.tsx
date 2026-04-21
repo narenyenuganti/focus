@@ -534,11 +534,13 @@ export function GardenScene({ owned }: GardenSceneProps) {
       </svg>
 
       {/* creature layer */}
-      {ownCat && <StaticCreature id="cat" left="10%" bottom="16%" size={90} isNight={isNight} />}
-      {ownFox && <StaticCreature id="fox" left="78%" bottom="18%" size={96} isNight={isNight} />}
-      {ownFrog && <StaticCreature id="frog" left="52%" bottom="10%" size={74} isNight={isNight} />}
-      {ownSnail && <StaticCreature id="snail" left="30%" bottom="9%" size={76} isNight={isNight} />}
-      {ownOwl && !isNight && <StaticCreature id="owl" left="16%" top="28%" size={70} isNight={isNight} />}
+      {ownCat && <WanderingCreature id="cat" path="left" isNight={isNight} />}
+      {ownFox && <WanderingCreature id="fox" path="right" isNight={isNight} />}
+      {ownFrog && <HoppingFrog isNight={isNight} />}
+      {ownSnail && <CrawlingSnail isNight={isNight} />}
+      {ownOwl && <FlyingOwl isNight={isNight} />}
+      <FlyingVisitor kind="butterfly" isNight={isNight} />
+      <FlyingVisitor kind="bee" isNight={isNight} />
 
       <div className="garden-hud">
         <div className="hud-time">{formatTime(dayT)}</div>
@@ -550,46 +552,199 @@ export function GardenScene({ owned }: GardenSceneProps) {
   );
 }
 
-// ── Static creatures (animation layers come in follow-up commits) ──
+// ── Animated creatures ──
 
-function StaticCreature({
+function WanderingCreature({
   id,
-  left,
-  bottom,
-  top,
-  size,
+  path,
   isNight,
 }: {
-  id: "cat" | "frog" | "snail" | "fox" | "owl";
-  left: string;
-  bottom?: string;
-  top?: string;
-  size: number;
+  id: "cat" | "fox";
+  path: "left" | "right";
   isNight: boolean;
 }) {
-  const [bounce, setBounce] = useState(false);
-  const handleClick = () => {
-    setBounce(true);
-    window.setTimeout(() => setBounce(false), 600);
-  };
+  const size = id === "cat" ? 90 : 96;
+  const speedSec = id === "cat" ? 140 : 130;
+  const bottom = path === "left" ? "14%" : "18%";
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className={`creature-btn ${bounce ? "bounce" : ""}`}
+    <div
       style={{
-        left,
+        position: "absolute",
         bottom,
-        top,
         width: size,
         height: size,
-        filter: isNight ? "brightness(0.82)" : undefined,
+        animation: `wander-ground-${path} ${speedSec}s ease-in-out infinite`,
+        zIndex: 2,
+        cursor: "pointer",
+        filter: isNight ? "brightness(0.78)" : undefined,
       }}
       aria-label={id}
       title={id}
     >
-      <CreatureArt id={id} />
-    </button>
+      <div style={{ animation: "bob 2.6s ease-in-out infinite" }}>
+        <CreatureArt id={id} />
+      </div>
+    </div>
+  );
+}
+
+function HoppingFrog({ isNight }: { isNight: boolean }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "10%",
+        width: 74,
+        height: 74,
+        animation: "frog-hop 22s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        zIndex: 2,
+        cursor: "pointer",
+        filter: isNight ? "brightness(0.78)" : undefined,
+      }}
+      aria-label="frog"
+      title="frog"
+    >
+      <CreatureArt id="frog" />
+    </div>
+  );
+}
+
+function CrawlingSnail({ isNight }: { isNight: boolean }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "9%",
+        width: 76,
+        height: 76,
+        animation: "snail-crawl 280s linear infinite",
+        zIndex: 2,
+        cursor: "pointer",
+        filter: isNight ? "brightness(0.78)" : undefined,
+      }}
+      aria-label="snail"
+      title="snail"
+    >
+      <div style={{ animation: "snail-sway 7s ease-in-out infinite" }}>
+        <CreatureArt id="snail" />
+      </div>
+    </div>
+  );
+}
+
+function FlyingOwl({ isNight }: { isNight: boolean }) {
+  if (!isNight) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "30%",
+          left: "16%",
+          width: 70,
+          height: 70,
+          zIndex: 2,
+          cursor: "pointer",
+          animation: "perch-bob 6s ease-in-out infinite",
+        }}
+        aria-label="owl"
+        title="owl"
+      >
+        <CreatureArt id="owl" />
+      </div>
+    );
+  }
+  return (
+    <div
+      style={{
+        position: "absolute",
+        width: 70,
+        height: 70,
+        animation: "owl-path 90s linear infinite",
+        zIndex: 2,
+        cursor: "pointer",
+        filter: "brightness(0.85)",
+      }}
+      aria-label="owl"
+      title="owl"
+    >
+      <div style={{ animation: "flap-owl 1.8s ease-in-out infinite" }}>
+        <CreatureArt id="owl" />
+      </div>
+    </div>
+  );
+}
+
+function FlyingVisitor({ kind, isNight }: { kind: "butterfly" | "bee"; isNight: boolean }) {
+  if (isNight) return null;
+  const cfg =
+    kind === "butterfly"
+      ? { size: 40, dur: 70, path: "butterfly-path", flap: "flap-fast", flapDur: "1.2s" }
+      : { size: 36, dur: 55, path: "bee-path", flap: "flap-fast", flapDur: "1s" };
+  return (
+    <div
+      style={{
+        position: "absolute",
+        width: cfg.size,
+        height: cfg.size,
+        animation: `${cfg.path} ${cfg.dur}s linear infinite`,
+        zIndex: 2,
+        cursor: "pointer",
+      }}
+      aria-label={kind}
+      title={kind}
+    >
+      <div style={{ animation: `${cfg.flap} ${cfg.flapDur} ease-in-out infinite` }}>
+        <VisitorArt kind={kind} />
+      </div>
+    </div>
+  );
+}
+
+function VisitorArt({ kind }: { kind: "butterfly" | "bee" }) {
+  if (kind === "butterfly") {
+    return (
+      <svg viewBox="0 0 100 100">
+        <ellipse cx="50" cy="52" rx="3" ry="18" fill={INK} />
+        <path
+          d="M 50 42 Q 20 20 24 48 Q 28 62 50 54 Z"
+          fill="#e88ca0"
+          stroke={INK}
+          strokeWidth="1.2"
+        />
+        <path
+          d="M 50 42 Q 80 20 76 48 Q 72 62 50 54 Z"
+          fill="#e88ca0"
+          stroke={INK}
+          strokeWidth="1.2"
+        />
+        <path
+          d="M 50 58 Q 30 68 30 80 Q 36 76 50 68 Z"
+          fill="#f2c4cf"
+          stroke={INK}
+          strokeWidth="1.1"
+        />
+        <path
+          d="M 50 58 Q 70 68 70 80 Q 64 76 50 68 Z"
+          fill="#f2c4cf"
+          stroke={INK}
+          strokeWidth="1.1"
+        />
+        <circle cx="33" cy="40" r="2" fill="#b85a3a" />
+        <circle cx="67" cy="40" r="2" fill="#b85a3a" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 100 100">
+      <ellipse cx="50" cy="56" rx="22" ry="14" fill="#e8c040" stroke={INK} strokeWidth="1.4" />
+      <rect x="34" y="46" width="8" height="20" fill={INK} opacity="0.85" />
+      <rect x="56" y="46" width="10" height="20" fill={INK} opacity="0.85" />
+      <ellipse cx="40" cy="40" rx="14" ry="8" fill="#f4ede1" stroke={INK} strokeWidth="1" opacity="0.85" />
+      <ellipse cx="60" cy="40" rx="14" ry="8" fill="#f4ede1" stroke={INK} strokeWidth="1" opacity="0.85" />
+      <circle cx="30" cy="50" r="1.4" fill={INK} />
+      <line x1="22" y1="42" x2="18" y2="36" stroke={INK} strokeWidth="1" strokeLinecap="round" />
+      <line x1="24" y1="44" x2="20" y2="40" stroke={INK} strokeWidth="1" strokeLinecap="round" />
+    </svg>
   );
 }
 
