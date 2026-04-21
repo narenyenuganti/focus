@@ -6,20 +6,22 @@
 :root[data-theme="terracotta"] {
   color-scheme: light;
   /* Palette — warm terracotta */
-  --paper: #fdf9ef;
-  --paper-2: #f8f1df;
-  --paper-3: #f0e6cd;
-  --ink: #2a1f17;
+  --paper: #f4ede1;
+  --paper-2: #ebe1d0;
+  --paper-3: #ddd0b8;
+  --ink: #2a1f16;
   --ink-2: #2a2725;
-  --ink-soft: #5a4a3a;
-  --ink-muted: #8a7a66;
-  --rule: #c6b494;
-  --accent: #b8563a;        /* terracotta */
-  --accent-soft: #d47a5c;
+  --ink-soft: #63503e;
+  --ink-muted: #9b8976;
+  --rule: #d8c8ad;
+  --rule-soft: #e4d8c0;
+  --accent: #b85a3a;        /* terracotta */
+  --accent-soft: #d18766;
+  --accent-deep: #8a3e24;
   --moss: #6b7a3a;
   --moss-deep: #4a5528;
   --ochre: #c99443;
-  --clay: #9a5a3e;
+  --clay: #a5624a;
   --sage: var(--moss);
   --rose: var(--clay);
   --shadow-color: rgba(60, 40, 20, 0.12);
@@ -41,20 +43,22 @@
 
 :root[data-theme="olive"] {
   color-scheme: light;
-  --paper: #faf5e2;
-  --paper-2: #f1e9ce;
-  --paper-3: #e3d7b5;
-  --ink: #22251a;
+  --paper: #ede7d5;
+  --paper-2: #e2dbc3;
+  --paper-3: #d0c7a8;
+  --ink: #242317;
   --ink-2: #2a2725;
-  --ink-soft: #4a4e38;
-  --ink-muted: #7a7b60;
-  --rule: #b8ac86;
+  --ink-soft: #524c36;
+  --ink-muted: #8b8064;
+  --rule: #bfb28c;
+  --rule-soft: #cfc49f;
   --accent: #8b6f28;
-  --accent-soft: #b08c3a;
+  --accent-soft: #ad8a3e;
+  --accent-deep: #5d4a16;
   --moss: #5e6a2a;
   --moss-deep: #3d4518;
   --ochre: #a87820;
-  --clay: #6b4f26;
+  --clay: #7a5a26;
   --sage: var(--moss);
   --rose: var(--clay);
   --shadow-color: rgba(50, 50, 20, 0.12);
@@ -75,20 +79,22 @@
 
 :root[data-theme="dusk"] {
   color-scheme: dark;
-  --paper: #221c1a;
-  --paper-2: #2c2522;
-  --paper-3: #362d29;
-  --ink: #f0e4d2;
-  --ink-2: #f0e4d2;
-  --ink-soft: #c8b8a2;
-  --ink-muted: #8a7a68;
-  --rule: #4a3f38;
-  --accent: #d48b4a;
-  --accent-soft: #e3a970;
+  --paper: #1f1814;
+  --paper-2: #28201b;
+  --paper-3: #322923;
+  --ink: #ebdfcb;
+  --ink-2: #ebdfcb;
+  --ink-soft: #b8a58e;
+  --ink-muted: #7d6e5c;
+  --rule: #443830;
+  --rule-soft: #352c25;
+  --accent: #d48b58;
+  --accent-soft: #e5a478;
+  --accent-deep: #b16d3c;
   --moss: #8aa058;
   --moss-deep: #5a6a3a;
   --ochre: #e0a868;
-  --clay: #b87048;
+  --clay: #b4714a;
   --sage: var(--moss);
   --rose: var(--clay);
   --shadow-color: rgba(0, 0, 0, 0.5);

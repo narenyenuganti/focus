@@ -24,7 +24,8 @@
     }
   ],
   "notificationSound": "secret-discovered",
-  "ambientMusic": true,
+  "ambientMusic": false,
   "breakDurationMinutes": 5,
-  "theme": "bean"
+  "theme": "terracotta",
+  "gardenAutoTimeOfDay": true
 }
