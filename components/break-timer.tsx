@@ -18,7 +18,11 @@ function formatBreakTime(seconds: number) {
 }
 
 export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, notificationSound }: BreakTimerProps) {
-  const [secondsRemaining, setSecondsRemaining] = useState(durationMinutes * 60);
+  const totalSeconds = durationMinutes * 60;
+  const [secondsRemaining, setSecondsRemaining] = useState(totalSeconds);
+  const breakStartedAtRef = useRef(Date.now());
+  const totalSecondsRef = useRef(totalSeconds);
+  const hasEndedRef = useRef(false);
   const onBreakEndRef = useRef(onBreakEnd);
   onBreakEndRef.current = onBreakEnd;
 
@@ -31,21 +35,47 @@ export function BreakTimer({ durationMinutes, onBreakEnd, onSkip, notificationSo
   }, [notificationSound]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    breakStartedAtRef.current = Date.now();
+    totalSecondsRef.current = totalSeconds;
+    hasEndedRef.current = false;
+    setSecondsRemaining(totalSeconds);
+  }, [totalSeconds]);
 
-    return () => clearInterval(interval);
-  }, [handleEnd]);
+  const syncCountdown = useCallback((now = Date.now()) => {
+    const elapsedSeconds = Math.min(
+      totalSecondsRef.current,
+      Math.floor((now - breakStartedAtRef.current) / 1000),
+    );
+    const nextSecondsRemaining = Math.max(0, totalSecondsRef.current - elapsedSeconds);
+    setSecondsRemaining(nextSecondsRemaining);
+    return nextSecondsRemaining;
+  }, []);
 
   useEffect(() => {
-    if (secondsRemaining === 0) {
+    const tick = () => {
+      syncCountdown();
+    };
+
+    const interval = window.setInterval(tick, 1000);
+    tick();
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        tick();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [syncCountdown]);
+
+  useEffect(() => {
+    if (secondsRemaining === 0 && !hasEndedRef.current) {
+      hasEndedRef.current = true;
       handleEnd();
     }
   }, [secondsRemaining, handleEnd]);
