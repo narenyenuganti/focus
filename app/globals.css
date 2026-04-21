@@ -2305,23 +2305,24 @@ a {
   line-height: 1.7;
 }
 
-/* ---------- focus screen (v4) ---------- */
+/* ---------- focus screen (v5) ---------- */
 .focus-hero {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 72px;
-  align-items: center;
-  min-height: 560px;
+  grid-template-columns: 1fr;
+  place-items: center;
+  text-align: center;
+  padding-top: 40px;
   animation: viewIn 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes viewIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .focus-ring-wrap {
   position: relative;
+  width: min(560px, 72vw);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -2336,115 +2337,93 @@ a {
 .focus-time {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
   pointer-events: none;
 }
 
 .focus-time .time {
   font-family: var(--font-serif), Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
+  font-weight: 200;
   font-variation-settings: "opsz" 144;
-  font-size: clamp(72px, 10vw, 128px);
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-size: clamp(84px, 11vw, 140px);
+  letter-spacing: -0.05em;
+  line-height: 0.9;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
+.focus-time .time .colon {
+  color: var(--accent);
+  font-style: italic;
+  margin: 0 0.04em;
+  font-weight: 300;
+}
+
 .focus-time .sub {
-  position: absolute;
-  bottom: 18%;
-  font-family: var(--font-mono), monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.2em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
 
 .breathing {
-  animation: focus-breathe 7s ease-in-out infinite;
+  animation: focus-breathe 9s ease-in-out infinite;
   transform-origin: center;
 }
 
 @keyframes focus-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.015); }
+  50% { transform: scale(1.008); }
 }
 
-.focus-side {
-  padding-left: 8px;
-}
-
-.focus-side .eyebrow {
-  font-family: var(--font-mono), monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  margin-bottom: 18px;
-}
-
-.focus-side h1 {
-  font-family: var(--font-serif), Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  font-variation-settings: "opsz" 144;
-  font-size: 54px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  margin: 0 0 24px;
-  color: var(--ink);
-  text-wrap: pretty;
-}
-
-.focus-side p.lede {
-  font-size: 15.5px;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  max-width: 38ch;
-  margin: 0 0 36px;
+.focus-controls {
+  margin-top: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
 }
 
 .duration-row {
   display: flex;
   gap: 0;
-  margin-bottom: 28px;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
+  padding: 4px;
+  background: var(--paper-2);
+  border-radius: 999px;
 }
 
 .duration-chip {
-  flex: 1;
   background: none;
   border: 0;
-  border-right: 1px solid var(--rule);
-  padding: 14px 8px;
-  font-family: var(--font-mono), monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  padding: 10px 22px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
   color: var(--ink-muted);
   cursor: pointer;
-  transition: all 300ms ease;
-}
-
-.duration-chip:last-child {
-  border-right: 0;
+  transition: all 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: 999px;
+  font-weight: 400;
 }
 
 .duration-chip:hover:not(:disabled) {
   color: var(--ink-soft);
-  background: color-mix(in oklab, var(--paper-2) 50%, transparent);
 }
 
 .duration-chip.active {
+  background: var(--paper);
   color: var(--ink);
-  background: var(--paper-2);
+  box-shadow: 0 1px 2px rgba(42, 31, 22, 0.06);
 }
 
 .duration-chip:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .btn-primary {
@@ -2454,19 +2433,20 @@ a {
   background: var(--ink);
   color: var(--paper);
   border: 0;
-  padding: 16px 28px 16px 24px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  padding: 18px 48px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: var(--radius);
-  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), background 300ms;
+  border-radius: 999px;
+  transition: background 300ms ease, transform 300ms ease;
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateX(4px);
   background: var(--accent);
+  transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
@@ -2481,30 +2461,25 @@ a {
 
 .btn-ghost {
   background: none;
-  border: 1px solid var(--rule);
-  padding: 14px 22px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  border: 0;
+  padding: 18px 24px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
   cursor: pointer;
-  border-radius: var(--radius);
-  transition: all 240ms ease;
+  transition: color 200ms ease;
 }
 
 .btn-ghost:hover:not(:disabled) {
-  color: var(--ink);
-  border-color: var(--ink-soft);
+  color: var(--ink-soft);
 }
 
 .action-row {
   display: flex;
-  gap: 14px;
-}
-
-.focus-side.running .btn-primary {
-  background: var(--accent);
+  gap: 4px;
+  align-items: center;
 }
 
 /* legacy focus-wrap kept until old panels remove */

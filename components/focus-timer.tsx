@@ -328,12 +328,7 @@ export function FocusTimer({
   }
 
   const running = status === "running";
-  const primaryLabel = running
-    ? "Pause session"
-    : status === "paused"
-      ? "Resume session"
-      : "Begin session";
-  const issueNumber = String(Math.max(1, todaySessions + 1)).padStart(3, "0");
+  const primaryLabel = running ? "Pause" : status === "paused" ? "Resume" : "Begin";
 
   return (
     <section className="view focus-hero" aria-label="Focus session">
@@ -343,20 +338,7 @@ export function FocusTimer({
         running={running}
       />
 
-      <div className={`focus-side ${running ? "running" : ""}`}>
-        <div className="eyebrow">A quiet hour · No. {issueNumber}</div>
-        <h1>
-          Make a small
-          <br />
-          opening for
-          <br />
-          deep work.
-        </h1>
-        <p className="lede">
-          Choose a duration. The garden grows with every uninterrupted
-          minute — slowly, patiently, like any true thing.
-        </p>
-
+      <div className="focus-controls">
         <div className="duration-row" role="tablist" aria-label="Focus presets">
           {presets.map((preset) => {
             const active = preset.minutes === selectedMinutes;
@@ -372,8 +354,7 @@ export function FocusTimer({
                 disabled={status !== "idle" || isPending}
                 title={getPresetGuidance(preset.label) ?? preset.label}
               >
-                {preset.minutes}
-                <span style={{ opacity: 0.5, marginLeft: 4 }}>m</span>
+                {preset.minutes}m
               </button>
             );
           })}
@@ -408,14 +389,6 @@ export function FocusTimer({
             }}
           >
             {primaryLabel}
-            <svg className="arrow" viewBox="0 0 14 10" fill="none" aria-hidden="true">
-              <path
-                d="M1 5h12m0 0L9 1m4 4L9 9"
-                stroke="currentColor"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-              />
-            </svg>
           </button>
           {status !== "idle" ? (
             <button
@@ -434,16 +407,8 @@ export function FocusTimer({
             </button>
           ) : null}
         </div>
-
-        <p
-          className="label"
-          style={{ marginTop: 32, color: "var(--ink-muted)" }}
-        >
-          {feedback}
-        </p>
       </div>
 
-      {/* Break timer */}
       {isOnBreak && (
         <BreakTimer
           durationMinutes={activePreset?.breakMinutes ?? breakDurationMinutes}
