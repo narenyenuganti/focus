@@ -1898,6 +1898,150 @@ a {
   50%      { transform: translateY(-0.5px) rotate(1deg); }
 }
 
+/* ── clickable interactions ── */
+.clickable {
+  cursor: pointer;
+  transition: filter 200ms ease;
+}
+.clickable:hover {
+  filter: brightness(1.08) drop-shadow(0 0 4px rgba(244, 237, 225, 0.4));
+}
+
+@keyframes shake-big {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-2deg); }
+  30% { transform: rotate(2deg); }
+  45% { transform: rotate(-1.5deg); }
+  60% { transform: rotate(1.5deg); }
+  75% { transform: rotate(-0.8deg); }
+  90% { transform: rotate(0.4deg); }
+}
+.shake-big { animation: shake-big 1.2s ease-out; }
+
+@keyframes shake-small {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-1.5deg); }
+  40% { transform: rotate(1.5deg); }
+  60% { transform: rotate(-1deg); }
+  80% { transform: rotate(0.5deg); }
+}
+.shake-small { animation: shake-small 1s ease-out; }
+
+@keyframes wobble {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-2px) scale(1.04, 0.96); }
+  60% { transform: translateY(0) scale(0.98, 1.02); }
+  80% { transform: translateY(-1px) scale(1.02, 0.98); }
+}
+.wobble { animation: wobble 0.8s ease-out; }
+
+@keyframes glow-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25) drop-shadow(0 0 12px rgba(244, 201, 120, 0.7)); }
+}
+.glow-pulse { animation: glow-pulse 2s ease-in-out; }
+
+@keyframes pond-splash {
+  0%, 100% { transform: scaleY(1); }
+  25% { transform: scaleY(0.85); }
+  50% { transform: scaleY(1.1); }
+  75% { transform: scaleY(0.95); }
+}
+.pond-splash { animation: pond-splash 0.8s ease-out; }
+
+@keyframes bloom {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+.bloom { animation: bloom 0.6s ease-out; }
+
+/* creature click animations */
+@keyframes cat-stretch {
+  0%, 100% { transform: scale(1, 1); }
+  40% { transform: scale(1.15, 0.9); }
+  70% { transform: scale(0.95, 1.05); }
+}
+.cat-stretch { animation: cat-stretch 1.2s ease-in-out; transform-origin: bottom center; }
+
+@keyframes fox-wag {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+  75% { transform: rotate(-2deg); }
+}
+.fox-wag { animation: fox-wag 0.8s ease-in-out 2; transform-origin: bottom center; }
+
+.frog-tongue { position: relative; animation: frog-squish 1.2s ease-out; transform-origin: bottom center; }
+.frog-tongue::after {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  width: 2px;
+  height: 2px;
+  background: #e88ca0;
+  border: 1px solid #2a1f16;
+  border-radius: 1px;
+  animation: frog-tongue-shoot 1.2s ease-out forwards;
+  transform-origin: right center;
+  pointer-events: none;
+}
+@keyframes frog-squish {
+  0%, 100% { transform: scaleY(1); }
+  20% { transform: scaleY(0.88); }
+  40% { transform: scaleY(1.08); }
+}
+@keyframes frog-tongue-shoot {
+  0% { width: 0; left: 20%; }
+  30% { width: 36px; left: -16px; }
+  55% { width: 36px; left: -16px; }
+  100% { width: 0; left: 20%; opacity: 0; }
+}
+
+@keyframes snail-retract {
+  0%, 100% { transform: translateX(0) scale(1, 1); }
+  25% { transform: translateX(6px) scale(0.85, 1.05); }
+  55% { transform: translateX(6px) scale(0.85, 1.05); }
+}
+.snail-retract { animation: snail-retract 1.6s ease-in-out; transform-origin: right center; }
+
+@keyframes owl-blink {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scaleY(0.92); filter: brightness(0.85); }
+  60% { transform: scaleY(1); }
+}
+.owl-blink { animation: owl-blink 0.8s ease-in-out 2; transform-origin: center; }
+
+@keyframes flutter-fast {
+  0%, 100% { transform: scaleY(1); }
+  25% { transform: scaleY(0.6); }
+  50% { transform: scaleY(1.05); }
+  75% { transform: scaleY(0.65); }
+}
+.flutter-fast { animation: flutter-fast 0.25s linear 4; }
+
+/* particle trajectories */
+@keyframes particle-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  15% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+@keyframes droplet-splash {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  60% { transform: translate(calc(var(--dx) * 1.2), calc(var(--dy) * -1)) scale(1.1); opacity: 1; }
+  100% { transform: translate(calc(var(--dx) * 1.5), 8px) scale(0.4); opacity: 0; }
+}
+@keyframes sparkle-pop {
+  0% { transform: scale(0); opacity: 1; }
+  40% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.5) translate(var(--dx), calc(var(--dy) * -1)); opacity: 0; }
+}
+@keyframes heart-float {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { transform: translate(0, -6px) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.8); opacity: 0; }
+}
+
 .garden-frame-overlay {
   position: absolute;
   top: 16px;

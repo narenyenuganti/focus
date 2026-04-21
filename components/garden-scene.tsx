@@ -241,12 +241,71 @@ function StoneLantern({
 
 type Mote = { id: number; x: number; y: number; delay: number; dur: number };
 
+type ParticleKind =
+  | "leaf-oak"
+  | "leaf-green"
+  | "petal"
+  | "pine-needle"
+  | "droplet"
+  | "sparkle"
+  | "heart";
+
+type ParticleItem = {
+  id: string;
+  kind: ParticleKind;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  rot: number;
+  delay: number;
+  dur: number;
+};
+
 // ── Scene ────────────────────────────────────────────────────────
 
 export function GardenScene({ owned }: GardenSceneProps) {
   const [dayT, setDayT] = useState(0.5);
   const [simulating, setSimulating] = useState(false);
   const [motes, setMotes] = useState<Mote[]>([]);
+  const [pokes, setPokes] = useState<Record<string, number>>({});
+  const [particles, setParticles] = useState<ParticleItem[]>([]);
+  const [, setTick] = useState(0);
+
+  const poke = (key: string) => setPokes((p) => ({ ...p, [key]: Date.now() }));
+
+  const spawnParticles = (
+    origin: { x: number; y: number; spread?: number; dy?: number },
+    kind: ParticleKind,
+    count = 6,
+  ) => {
+    const stamp = Date.now();
+    const items: ParticleItem[] = Array.from({ length: count }, (_, i) => ({
+      id: `${stamp}-${i}-${Math.random()}`,
+      kind,
+      x: origin.x + (Math.random() - 0.5) * (origin.spread ?? 40),
+      y: origin.y + (Math.random() - 0.5) * 8,
+      dx: (Math.random() - 0.5) * 30,
+      dy: (origin.dy ?? 60) + Math.random() * 30,
+      rot: Math.random() * 360,
+      delay: Math.random() * 0.3,
+      dur: 2 + Math.random() * 1.5,
+    }));
+    setParticles((p) => [...p, ...items]);
+    window.setTimeout(() => {
+      setParticles((p) => p.filter((x) => !items.find((i) => i.id === x.id)));
+    }, 5000);
+  };
+
+  const isPoked = (key: string, ms = 1200) => Date.now() - (pokes[key] ?? 0) < ms;
+  const pokedClass = (key: string, cls: string, ms = 1200) => (isPoked(key, ms) ? cls : "");
+
+  useEffect(() => {
+    const active = Object.values(pokes).some((t) => Date.now() - t < 1500);
+    if (!active) return;
+    const id = window.setInterval(() => setTick((t) => t + 1), 200);
+    return () => window.clearInterval(id);
+  }, [pokes]);
 
   useEffect(() => {
     setDayT(getDayT());
@@ -432,22 +491,115 @@ export function GardenScene({ owned }: GardenSceneProps) {
           <ellipse key={i} cx={x} cy={y} rx="4" ry="2" fill="#8a7868" opacity={0.7 - darkness * 0.3} />
         ))}
 
-        <OakTree x={180} y={350} scale={1.1} darkness={darkness} />
-        <CherryTree x={780} y={380} scale={0.85} darkness={darkness} />
-        <PineTree x={880} y={400} scale={0.9} darkness={darkness} />
-        <PineTree x={940} y={420} scale={0.7} darkness={darkness} />
+        <g
+          className={`clickable ${pokedClass("oak", "shake-big")}`}
+          onClick={() => {
+            poke("oak");
+            spawnParticles({ x: 180, y: 380, spread: 70 }, "leaf-oak", 8);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "180px 500px" }}
+        >
+          <OakTree x={180} y={350} scale={1.1} darkness={darkness} />
+        </g>
+        <g
+          className={`clickable ${pokedClass("cherry", "shake-big")}`}
+          onClick={() => {
+            poke("cherry");
+            spawnParticles({ x: 780, y: 400, spread: 60 }, "petal", 10);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "780px 500px" }}
+        >
+          <CherryTree x={780} y={380} scale={0.85} darkness={darkness} />
+        </g>
+        <g
+          className={`clickable ${pokedClass("pine1", "shake-small")}`}
+          onClick={() => {
+            poke("pine1");
+            spawnParticles({ x: 880, y: 420, spread: 30 }, "pine-needle", 6);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "880px 500px" }}
+        >
+          <PineTree x={880} y={400} scale={0.9} darkness={darkness} />
+        </g>
+        <g
+          className={`clickable ${pokedClass("pine2", "shake-small")}`}
+          onClick={() => {
+            poke("pine2");
+            spawnParticles({ x: 940, y: 430, spread: 25 }, "pine-needle", 5);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "940px 500px" }}
+        >
+          <PineTree x={940} y={420} scale={0.7} darkness={darkness} />
+        </g>
 
-        <Bush x={60} y={482} scale={1.1} darkness={darkness} color="#5a8a4a" />
-        <Bush x={340} y={490} scale={0.9} darkness={darkness} color="#6a9a5a" />
-        <Bush x={860} y={490} scale={0.85} darkness={darkness} color="#5a8a4a" />
+        <g
+          className={`clickable ${pokedClass("bush1", "shake-small")}`}
+          onClick={() => {
+            poke("bush1");
+            spawnParticles({ x: 60, y: 490, spread: 40 }, "leaf-green", 5);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "60px 500px" }}
+        >
+          <Bush x={60} y={482} scale={1.1} darkness={darkness} color="#5a8a4a" />
+        </g>
+        <g
+          className={`clickable ${pokedClass("bush2", "shake-small")}`}
+          onClick={() => {
+            poke("bush2");
+            spawnParticles({ x: 340, y: 498, spread: 35 }, "leaf-green", 5);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "340px 500px" }}
+        >
+          <Bush x={340} y={490} scale={0.9} darkness={darkness} color="#6a9a5a" />
+        </g>
+        <g
+          className={`clickable ${pokedClass("bush3", "shake-small")}`}
+          onClick={() => {
+            poke("bush3");
+            spawnParticles({ x: 860, y: 498, spread: 35 }, "leaf-green", 5);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "860px 500px" }}
+        >
+          <Bush x={860} y={490} scale={0.85} darkness={darkness} color="#5a8a4a" />
+        </g>
 
-        <Mushroom x={280} y={500} scale={1.2} darkness={darkness} />
-        <Mushroom x={300} y={508} scale={0.9} darkness={darkness} />
-        <Mushroom x={420} y={518} scale={1.1} darkness={darkness} />
+        <g
+          className={`clickable ${pokedClass("mush1", "wobble")}`}
+          onClick={() => poke("mush1")}
+          style={{ transformBox: "fill-box", transformOrigin: "280px 530px" }}
+        >
+          <Mushroom x={280} y={500} scale={1.2} darkness={darkness} />
+        </g>
+        <g
+          className={`clickable ${pokedClass("mush2", "wobble")}`}
+          onClick={() => poke("mush2")}
+          style={{ transformBox: "fill-box", transformOrigin: "300px 536px" }}
+        >
+          <Mushroom x={300} y={508} scale={0.9} darkness={darkness} />
+        </g>
+        <g
+          className={`clickable ${pokedClass("mush3", "wobble")}`}
+          onClick={() => poke("mush3")}
+          style={{ transformBox: "fill-box", transformOrigin: "420px 546px" }}
+        >
+          <Mushroom x={420} y={518} scale={1.1} darkness={darkness} />
+        </g>
 
-        <StoneLantern x={120} y={470} scale={1.15} darkness={darkness} isNight={isNight} />
+        <g
+          className={`clickable ${pokedClass("lantern", "glow-pulse", 2000)}`}
+          onClick={() => poke("lantern")}
+        >
+          <StoneLantern x={120} y={470} scale={1.15} darkness={darkness} isNight={isNight} />
+        </g>
 
-        <g>
+        <g
+          className={`clickable ${pokedClass("pond", "pond-splash")}`}
+          onClick={() => {
+            poke("pond");
+            spawnParticles({ x: 600, y: 510, spread: 40, dy: -30 }, "droplet", 8);
+          }}
+          style={{ transformBox: "fill-box", transformOrigin: "600px 510px" }}
+        >
           <ellipse
             cx="600"
             cy="510"
@@ -472,7 +624,19 @@ export function GardenScene({ owned }: GardenSceneProps) {
 
         {([[240, 498, "#b85a3a"], [260, 508, "#e88ca0"], [380, 516, "#e8c040"], [460, 508, "#b85a3a"], [740, 510, "#e8c040"], [820, 520, "#e88ca0"]] as const).map(
           ([x, y, c], i) => (
-            <g key={i} style={{ filter: `brightness(${1 - darkness * 0.5})` }}>
+            <g
+              key={i}
+              className={`clickable ${pokedClass(`flower${i}`, "bloom")}`}
+              onClick={() => {
+                poke(`flower${i}`);
+                spawnParticles({ x, y, spread: 10, dy: -20 }, "sparkle", 4);
+              }}
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: `${x}px ${y + 10}px`,
+                filter: `brightness(${1 - darkness * 0.5})`,
+              }}
+            >
               <line x1={x} y1={y} x2={x} y2={y + 10} stroke="#5a8a4a" strokeWidth="1" />
               <circle cx={x} cy={y} r="3" fill={c} stroke={INK} strokeWidth="0.7" />
               <circle cx={x} cy={y} r="0.8" fill={INK} />
@@ -496,6 +660,10 @@ export function GardenScene({ owned }: GardenSceneProps) {
             />
           );
         })}
+
+        {particles.map((p) => (
+          <Particle key={p.id} {...p} />
+        ))}
 
         {motes.map((m) => (
           <circle
@@ -534,13 +702,13 @@ export function GardenScene({ owned }: GardenSceneProps) {
       </svg>
 
       {/* creature layer */}
-      {ownCat && <WanderingCreature id="cat" path="left" isNight={isNight} />}
-      {ownFox && <WanderingCreature id="fox" path="right" isNight={isNight} />}
-      {ownFrog && <HoppingFrog isNight={isNight} />}
-      {ownSnail && <CrawlingSnail isNight={isNight} />}
-      {ownOwl && <FlyingOwl isNight={isNight} />}
-      <FlyingVisitor kind="butterfly" isNight={isNight} />
-      <FlyingVisitor kind="bee" isNight={isNight} />
+      {ownCat && <WanderingCreature id="cat" path="left" isNight={isNight} pokes={pokes} onPoke={poke} />}
+      {ownFox && <WanderingCreature id="fox" path="right" isNight={isNight} pokes={pokes} onPoke={poke} />}
+      {ownFrog && <HoppingFrog isNight={isNight} pokes={pokes} onPoke={poke} />}
+      {ownSnail && <CrawlingSnail isNight={isNight} pokes={pokes} onPoke={poke} />}
+      {ownOwl && <FlyingOwl isNight={isNight} pokes={pokes} onPoke={poke} />}
+      <FlyingVisitor kind="butterfly" isNight={isNight} pokes={pokes} onPoke={poke} spawnParticles={spawnParticles} />
+      <FlyingVisitor kind="bee" isNight={isNight} pokes={pokes} onPoke={poke} spawnParticles={spawnParticles} />
 
       <div className="garden-hud">
         <div className="hud-time">{formatTime(dayT)}</div>
@@ -554,18 +722,27 @@ export function GardenScene({ owned }: GardenSceneProps) {
 
 // ── Animated creatures ──
 
+type PokeMap = Record<string, number>;
+const wasPoked = (pokes: PokeMap, key: string, ms = 1200) =>
+  Date.now() - (pokes[key] ?? 0) < ms;
+
 function WanderingCreature({
   id,
   path,
   isNight,
+  pokes,
+  onPoke,
 }: {
   id: "cat" | "fox";
   path: "left" | "right";
   isNight: boolean;
+  pokes: PokeMap;
+  onPoke: (key: string) => void;
 }) {
   const size = id === "cat" ? 90 : 96;
   const speedSec = id === "cat" ? 140 : 130;
   const bottom = path === "left" ? "14%" : "18%";
+  const poked = wasPoked(pokes, id);
   return (
     <div
       style={{
@@ -574,21 +751,38 @@ function WanderingCreature({
         width: size,
         height: size,
         animation: `wander-ground-${path} ${speedSec}s ease-in-out infinite`,
+        animationPlayState: poked ? "paused" : "running",
         zIndex: 2,
         cursor: "pointer",
         filter: isNight ? "brightness(0.78)" : undefined,
       }}
       aria-label={id}
       title={id}
+      onClick={(e) => {
+        e.stopPropagation();
+        onPoke(id);
+      }}
     >
-      <div style={{ animation: "bob 2.6s ease-in-out infinite" }}>
+      <div
+        className={poked ? (id === "cat" ? "cat-stretch" : "fox-wag") : ""}
+        style={{ animation: "bob 2.6s ease-in-out infinite" }}
+      >
         <CreatureArt id={id} />
       </div>
     </div>
   );
 }
 
-function HoppingFrog({ isNight }: { isNight: boolean }) {
+function HoppingFrog({
+  isNight,
+  pokes,
+  onPoke,
+}: {
+  isNight: boolean;
+  pokes: PokeMap;
+  onPoke: (key: string) => void;
+}) {
+  const poked = wasPoked(pokes, "frog");
   return (
     <div
       style={{
@@ -597,19 +791,35 @@ function HoppingFrog({ isNight }: { isNight: boolean }) {
         width: 74,
         height: 74,
         animation: "frog-hop 22s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        animationPlayState: poked ? "paused" : "running",
         zIndex: 2,
         cursor: "pointer",
         filter: isNight ? "brightness(0.78)" : undefined,
       }}
       aria-label="frog"
       title="frog"
+      onClick={(e) => {
+        e.stopPropagation();
+        onPoke("frog");
+      }}
     >
-      <CreatureArt id="frog" />
+      <div className={poked ? "frog-tongue" : ""}>
+        <CreatureArt id="frog" />
+      </div>
     </div>
   );
 }
 
-function CrawlingSnail({ isNight }: { isNight: boolean }) {
+function CrawlingSnail({
+  isNight,
+  pokes,
+  onPoke,
+}: {
+  isNight: boolean;
+  pokes: PokeMap;
+  onPoke: (key: string) => void;
+}) {
+  const poked = wasPoked(pokes, "snail", 1600);
   return (
     <div
       style={{
@@ -618,21 +828,38 @@ function CrawlingSnail({ isNight }: { isNight: boolean }) {
         width: 76,
         height: 76,
         animation: "snail-crawl 280s linear infinite",
+        animationPlayState: poked ? "paused" : "running",
         zIndex: 2,
         cursor: "pointer",
         filter: isNight ? "brightness(0.78)" : undefined,
       }}
       aria-label="snail"
       title="snail"
+      onClick={(e) => {
+        e.stopPropagation();
+        onPoke("snail");
+      }}
     >
-      <div style={{ animation: "snail-sway 7s ease-in-out infinite" }}>
+      <div
+        className={poked ? "snail-retract" : ""}
+        style={{ animation: "snail-sway 7s ease-in-out infinite" }}
+      >
         <CreatureArt id="snail" />
       </div>
     </div>
   );
 }
 
-function FlyingOwl({ isNight }: { isNight: boolean }) {
+function FlyingOwl({
+  isNight,
+  pokes,
+  onPoke,
+}: {
+  isNight: boolean;
+  pokes: PokeMap;
+  onPoke: (key: string) => void;
+}) {
+  const poked = wasPoked(pokes, "owl");
   if (!isNight) {
     return (
       <div
@@ -648,8 +875,14 @@ function FlyingOwl({ isNight }: { isNight: boolean }) {
         }}
         aria-label="owl"
         title="owl"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPoke("owl");
+        }}
       >
-        <CreatureArt id="owl" />
+        <div className={poked ? "owl-blink" : ""}>
+          <CreatureArt id="owl" />
+        </div>
       </div>
     );
   }
@@ -660,22 +893,47 @@ function FlyingOwl({ isNight }: { isNight: boolean }) {
         width: 70,
         height: 70,
         animation: "owl-path 90s linear infinite",
+        animationPlayState: poked ? "paused" : "running",
         zIndex: 2,
         cursor: "pointer",
         filter: "brightness(0.85)",
       }}
       aria-label="owl"
       title="owl"
+      onClick={(e) => {
+        e.stopPropagation();
+        onPoke("owl");
+      }}
     >
-      <div style={{ animation: "flap-owl 1.8s ease-in-out infinite" }}>
+      <div
+        className={poked ? "owl-blink" : ""}
+        style={{ animation: "flap-owl 1.8s ease-in-out infinite" }}
+      >
         <CreatureArt id="owl" />
       </div>
     </div>
   );
 }
 
-function FlyingVisitor({ kind, isNight }: { kind: "butterfly" | "bee"; isNight: boolean }) {
+function FlyingVisitor({
+  kind,
+  isNight,
+  pokes,
+  onPoke,
+  spawnParticles,
+}: {
+  kind: "butterfly" | "bee";
+  isNight: boolean;
+  pokes: PokeMap;
+  onPoke: (key: string) => void;
+  spawnParticles: (
+    origin: { x: number; y: number; spread?: number; dy?: number },
+    kind: ParticleKind,
+    count?: number,
+  ) => void;
+}) {
   if (isNight) return null;
+  const poked = wasPoked(pokes, kind);
   const cfg =
     kind === "butterfly"
       ? { size: 40, dur: 70, path: "butterfly-path", flap: "flap-fast", flapDur: "1.2s" }
@@ -687,17 +945,134 @@ function FlyingVisitor({ kind, isNight }: { kind: "butterfly" | "bee"; isNight: 
         width: cfg.size,
         height: cfg.size,
         animation: `${cfg.path} ${cfg.dur}s linear infinite`,
+        animationPlayState: poked ? "paused" : "running",
         zIndex: 2,
         cursor: "pointer",
       }}
       aria-label={kind}
       title={kind}
+      onClick={(e) => {
+        e.stopPropagation();
+        onPoke(kind);
+        const rect = e.currentTarget.getBoundingClientRect();
+        const parent = e.currentTarget.parentElement?.getBoundingClientRect();
+        if (!parent) return;
+        const relX = ((rect.left + rect.width / 2 - parent.left) / parent.width) * 1000;
+        const relY = ((rect.top + rect.height / 2 - parent.top) / parent.height) * 560;
+        spawnParticles({ x: relX, y: relY, spread: 8, dy: -30 }, "heart", 3);
+      }}
     >
-      <div style={{ animation: `${cfg.flap} ${cfg.flapDur} ease-in-out infinite` }}>
+      <div
+        className={poked ? "flutter-fast" : ""}
+        style={{ animation: `${cfg.flap} ${cfg.flapDur} ease-in-out infinite` }}
+      >
         <VisitorArt kind={kind} />
       </div>
     </div>
   );
+}
+
+function Particle({ kind, x, y, dx, dy, rot, delay, dur }: ParticleItem) {
+  const style: React.CSSProperties = {
+    ["--dx" as string]: `${dx}px`,
+    ["--dy" as string]: `${dy}px`,
+    ["--rot" as string]: `${rot}deg`,
+    pointerEvents: "none",
+  };
+  const anim = {
+    petal: "particle-fall",
+    "leaf-oak": "particle-fall",
+    "leaf-green": "particle-fall",
+    "pine-needle": "particle-fall",
+    droplet: "droplet-splash",
+    sparkle: "sparkle-pop",
+    heart: "heart-float",
+  } as const;
+  const animStyle = { ...style, animation: `${anim[kind]} ${dur}s cubic-bezier(0.4, 0.6, 0.6, 1) ${delay}s forwards` };
+  if (kind === "petal") {
+    return (
+      <g style={animStyle}>
+        <ellipse cx={x} cy={y} rx="3" ry="2" fill="#f2c4cf" stroke={INK} strokeWidth="0.5" />
+      </g>
+    );
+  }
+  if (kind === "leaf-oak") {
+    return (
+      <g style={animStyle}>
+        <ellipse
+          cx={x}
+          cy={y}
+          rx="3.5"
+          ry="2"
+          fill="#8aa556"
+          stroke={INK}
+          strokeWidth="0.5"
+          transform={`rotate(${rot} ${x} ${y})`}
+        />
+      </g>
+    );
+  }
+  if (kind === "leaf-green") {
+    return (
+      <g style={animStyle}>
+        <ellipse
+          cx={x}
+          cy={y}
+          rx="3"
+          ry="1.8"
+          fill="#6a9a5a"
+          stroke={INK}
+          strokeWidth="0.5"
+          transform={`rotate(${rot} ${x} ${y})`}
+        />
+      </g>
+    );
+  }
+  if (kind === "pine-needle") {
+    return (
+      <g style={animStyle}>
+        <line
+          x1={x - 3}
+          y1={y}
+          x2={x + 3}
+          y2={y}
+          stroke="#4a7a4a"
+          strokeWidth="1"
+          transform={`rotate(${rot} ${x} ${y})`}
+        />
+      </g>
+    );
+  }
+  if (kind === "droplet") {
+    return (
+      <g style={animStyle}>
+        <ellipse cx={x} cy={y} rx="1.5" ry="2.5" fill="#7ab5c9" stroke={INK} strokeWidth="0.4" />
+      </g>
+    );
+  }
+  if (kind === "sparkle") {
+    return (
+      <g style={animStyle}>
+        <path
+          d={`M ${x} ${y - 3} L ${x + 0.7} ${y - 0.7} L ${x + 3} ${y} L ${x + 0.7} ${y + 0.7} L ${x} ${y + 3} L ${x - 0.7} ${y + 0.7} L ${x - 3} ${y} L ${x - 0.7} ${y - 0.7} Z`}
+          fill="#f4c978"
+        />
+      </g>
+    );
+  }
+  if (kind === "heart") {
+    return (
+      <g style={animStyle}>
+        <path
+          d={`M ${x} ${y + 2} Q ${x - 3} ${y - 1} ${x - 1.5} ${y - 2.5} Q ${x} ${y - 1.5} ${x} ${y} Q ${x} ${y - 1.5} ${x + 1.5} ${y - 2.5} Q ${x + 3} ${y - 1} ${x} ${y + 2} Z`}
+          fill="#e88ca0"
+          stroke={INK}
+          strokeWidth="0.4"
+        />
+      </g>
+    );
+  }
+  return null;
 }
 
 function VisitorArt({ kind }: { kind: "butterfly" | "bee" }) {
