@@ -14,6 +14,11 @@ const TEST_NOTIFICATIONS = [
 ] as const;
 
 const THEMES = ["terracotta", "olive", "dusk"] as const;
+const THEME_COLOR: Record<(typeof THEMES)[number], string> = {
+  terracotta: "#b85a3a",
+  olive: "#8b6f28",
+  dusk: "#d48b58",
+};
 
 type SettingsPanelProps = {
   settings: TrackerSettings;
@@ -60,19 +65,7 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
 
   return (
     <section className="view">
-      <h2
-        style={{
-          fontFamily: "var(--font-serif), Georgia, serif",
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: 48,
-          margin: "0 0 36px",
-          letterSpacing: "-0.03em",
-          lineHeight: 1,
-        }}
-      >
-        Quiet <em style={{ color: "var(--accent)" }}>preferences</em>.
-      </h2>
+      <h2 className="settings-head">Preferences.</h2>
 
       <div className="settings-list">
         <Row
@@ -86,6 +79,9 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
                 key={t}
                 type="button"
                 className={settings.theme === t ? "on" : ""}
+                style={{ background: THEME_COLOR[t] }}
+                aria-label={t}
+                title={t}
                 onClick={() => setSettings((current) => ({ ...current, theme: t }))}
               >
                 {t}
