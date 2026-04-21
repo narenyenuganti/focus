@@ -33,7 +33,7 @@ describe("ShopPanel", () => {
       .filter((card) => card.disabled);
     expect(disabled.length).toBeGreaterThan(0);
     disabled.forEach((card) => {
-      expect(card.querySelector(".label")).toHaveTextContent(/Save up/);
+      expect(card.querySelector(".price")).toHaveTextContent(/\d+h/);
     });
   });
 

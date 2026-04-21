@@ -43,21 +43,21 @@ test("renders focus timer transport controls", async () => {
     />,
   );
 
-  expect(screen.getByRole("button", { name: /^Begin session/ })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Begin" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "End early" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Reset" })).not.toBeInTheDocument();
   expect(screen.getByRole("tab", { name: /25m/ })).toBeInTheDocument();
   expect(screen.getByRole("tab", { name: /90m/ })).toBeInTheDocument();
 
-  await user.click(screen.getByRole("button", { name: /^Begin session/ }));
+  await user.click(screen.getByRole("button", { name: "Begin" }));
 
-  expect(screen.getByRole("button", { name: /^Pause session/ })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /^Begin session/ })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Begin" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "End early" })).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
 
-  await user.click(screen.getByRole("button", { name: /^Pause session/ }));
+  await user.click(screen.getByRole("button", { name: "Pause" }));
 
-  expect(screen.getByRole("button", { name: /^Resume session/ })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Resume" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "End early" })).toBeInTheDocument();
 });

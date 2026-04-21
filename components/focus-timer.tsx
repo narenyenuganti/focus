@@ -292,7 +292,7 @@ export function FocusTimer({
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [status, syncCountdown]);
+  }, [notificationSound, status, syncCountdown]);
 
   useEffect(() => {
     if (status === "running" || status === "paused") {
