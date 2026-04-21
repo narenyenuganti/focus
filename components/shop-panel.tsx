@@ -30,8 +30,8 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
       <div className="market-head">
         <h2>Market</h2>
         <div className="balance">
-          <div className="label">Hours balance</div>
-          <span className="val">{socks}</span>
+          <div className="label">Balance</div>
+          <span className="val">{socks}h</span>
         </div>
       </div>
 
@@ -69,17 +69,11 @@ export function ShopPanel({ socks, purchased, onPurchase }: ShopPanelProps) {
               <div className="art">
                 <GardenGlyph kind={item.glyph} size={96} />
               </div>
-              <div>
-                <div className="kind">{item.cat.replace(/s$/, "")}</div>
-                <h3 className="name">{item.name}</h3>
-              </div>
+              <h3 className="name">{item.name}</h3>
               <div className="meta">
-                <span className="price">{item.cost} hours</span>
-                {!owned ? (
-                  <span className="label" aria-hidden="true">
-                    {canAfford ? "Add →" : "Save up"}
-                  </span>
-                ) : null}
+                <span className={`price ${owned ? "owned-tag" : ""}`}>
+                  {owned ? "Owned" : `${item.cost}h`}
+                </span>
               </div>
             </button>
           );
