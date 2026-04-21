@@ -76,52 +76,43 @@ export function LedgerView({
     return days.reduce((sum, d) => sum + (byDate.get(d.date)?.minutes ?? 0 > 0 ? 1 : 0), 0);
   }, [heatmap, days]);
 
+  const firstDay = days[0]?.date.slice(5);
+  const lastDay = days[days.length - 1]?.date.slice(5);
+
   return (
     <section className="view">
-      <h2
-        style={{
-          fontFamily: "var(--font-serif), Georgia, serif",
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: 48,
-          margin: "0 0 32px",
-          letterSpacing: "-0.03em",
-          lineHeight: 1,
-        }}
-      >
-        A record of <em style={{ color: "var(--accent)" }}>quiet hours</em>.
-      </h2>
+      <h2 className="stats-head">Record.</h2>
 
       <div className="stats-grid">
         <div className="stat-cell">
-          <div className="k">Sessions, 30d</div>
+          <div className="k">Sessions</div>
           <div className="v">{last30Sessions}</div>
         </div>
         <div className="stat-cell">
-          <div className="k">Hours, total</div>
+          <div className="k">Hours</div>
           <div className="v">
             {hours}
             <span className="u">h {leftoverMin}m</span>
           </div>
         </div>
         <div className="stat-cell">
-          <div className="k">Current streak</div>
+          <div className="k">Streak</div>
           <div className="v">
             {streakDays}
-            <span className="u">days</span>
+            <span className="u">d</span>
           </div>
         </div>
         <div className="stat-cell">
-          <div className="k">Longest streak</div>
+          <div className="k">Longest</div>
           <div className="v">
             {longest}
-            <span className="u">days</span>
+            <span className="u">d</span>
           </div>
         </div>
       </div>
 
-      <div className="label" style={{ marginBottom: 4 }}>
-        Daily minutes, last 30 days
+      <div className="label" style={{ marginBottom: 16 }}>
+        Last 30 days
       </div>
       <div className="streak-bars" aria-label="Daily minutes, last 30 days">
         {days.map((d, i) => {
@@ -136,8 +127,12 @@ export function LedgerView({
           );
         })}
       </div>
+      <div className="bars-axis">
+        <span>{firstDay}</span>
+        <span>{lastDay}</span>
+      </div>
 
-      <div className="label" style={{ marginTop: 40 }}>
+      <div className="label" style={{ marginBottom: 16 }}>
         Lifetime · {totalSessions} sessions
       </div>
     </section>
