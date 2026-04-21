@@ -1,452 +1,694 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type GardenSceneProps = {
   theme?: string;
   owned?: ReadonlySet<string>;
 };
 
-const FIREFLY_COUNT = 14;
-const CREATURE_IDS = ["cat", "frog", "snail", "fox", "owl"] as const;
-type CreatureId = (typeof CREATURE_IDS)[number];
+const INK = "#2a1f16";
 
-type CreaturePlacement = {
-  id: CreatureId;
-  left: string;
-  bottom?: string;
-  top?: string;
-  size: number;
-};
+function getDayT() {
+  const d = new Date();
+  return (d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600) / 24;
+}
 
-const PLACEMENTS: CreaturePlacement[] = [
-  { id: "cat", left: "12%", bottom: "22%", size: 80 },
-  { id: "frog", left: "62%", bottom: "12%", size: 60 },
-  { id: "snail", left: "36%", bottom: "16%", size: 70 },
-  { id: "fox", left: "78%", bottom: "32%", size: 74 },
-  { id: "owl", left: "14%", top: "24%", size: 58 },
+function sunPosition(t: number) {
+  const p = (t - 0.25) / 0.5;
+  const aboveHorizon = p >= 0 && p <= 1;
+  const x = 80 + p * 840;
+  const y = 440 - Math.sin(Math.max(0, Math.min(1, p)) * Math.PI) * 380;
+  return { x, y, aboveHorizon };
+}
+
+function moonPosition(t: number) {
+  let p: number;
+  if (t >= 0.75) p = (t - 0.75) / 0.5;
+  else if (t < 0.25) p = (t + 0.25) / 0.5;
+  else p = -1;
+  const aboveHorizon = p >= 0 && p <= 1;
+  const x = 80 + (p < 0 ? 0.5 : p) * 840;
+  const y = 440 - Math.sin(Math.max(0, Math.min(1, p)) * Math.PI) * 360;
+  return { x, y, aboveHorizon };
+}
+
+function hexToRgb(h: string): [number, number, number] {
+  const m = h.replace("#", "");
+  return [
+    parseInt(m.slice(0, 2), 16),
+    parseInt(m.slice(2, 4), 16),
+    parseInt(m.slice(4, 6), 16),
+  ];
+}
+
+function mix(a: string, b: string, f: number) {
+  const [r1, g1, b1] = hexToRgb(a);
+  const [r2, g2, b2] = hexToRgb(b);
+  const r = Math.round(r1 + (r2 - r1) * f);
+  const g = Math.round(g1 + (g2 - g1) * f);
+  const bl = Math.round(b1 + (b2 - b1) * f);
+  return `rgb(${r},${g},${bl})`;
+}
+
+type GradientNode = [number, string, string];
+const SKY_NODES: GradientNode[] = [
+  [0.0, "#1a1420", "#2a1f28"],
+  [0.22, "#3a2a3a", "#b85a3a"],
+  [0.28, "#e8a878", "#f0c8a8"],
+  [0.4, "#d8c8a8", "#f2ebe0"],
+  [0.5, "#c8b898", "#ece3d3"],
+  [0.65, "#d8a878", "#e8c8a0"],
+  [0.75, "#b85a3a", "#e8986a"],
+  [0.82, "#3a2a48", "#6a3a38"],
+  [0.92, "#1a1420", "#2a1f28"],
+  [1.0, "#1a1420", "#2a1f28"],
 ];
 
-export function GardenScene({ theme = "terracotta", owned }: GardenSceneProps) {
-  const isDusk = theme === "dusk";
-  const [fireflies, setFireflies] = useState<
-    Array<{ id: number; x: number; y: number; delay: number; dur: number }>
-  >([]);
+function skyGradient(t: number) {
+  for (let i = 0; i < SKY_NODES.length - 1; i += 1) {
+    const [t1, top1, bot1] = SKY_NODES[i];
+    const [t2, top2, bot2] = SKY_NODES[i + 1];
+    if (t >= t1 && t <= t2) {
+      const f = (t - t1) / (t2 - t1);
+      return { top: mix(top1, top2, f), bot: mix(bot1, bot2, f) };
+    }
+  }
+  return { top: SKY_NODES[0][1], bot: SKY_NODES[0][2] };
+}
+
+function darknessAt(t: number) {
+  if (t >= 0.3 && t <= 0.72) return 0;
+  if (t > 0.22 && t < 0.3) return 1 - (t - 0.22) / 0.08;
+  if (t > 0.72 && t < 0.78) return (t - 0.72) / 0.06;
+  if (t >= 0.78 || t < 0.22) return 1;
+  return 0;
+}
+
+function formatTime(t: number) {
+  const h = Math.floor(t * 24);
+  const m = Math.floor((t * 24 - h) * 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+// ── Scene props ──────────────────────────────────────────────────
+
+function OakTree({ x, y, scale = 1, darkness }: { x: number; y: number; scale?: number; darkness: number }) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <ellipse cx="0" cy="122" rx="56" ry="6" fill={INK} opacity="0.2" />
+      <path
+        d="M -8 122 Q -10 100 -6 80 Q -4 70 -8 60 L 8 60 Q 4 70 6 80 Q 10 100 8 122 Z"
+        fill="#7a4a2a"
+        stroke={INK}
+        strokeWidth="1.8"
+      />
+      <line x1="-4" y1="80" x2="-3" y2="116" stroke={INK} strokeWidth="0.8" opacity="0.5" />
+      <line x1="3" y1="82" x2="4" y2="116" stroke={INK} strokeWidth="0.8" opacity="0.5" />
+      <circle cx="0" cy="20" r="54" fill="#5a8a4a" stroke={INK} strokeWidth="2" />
+      <circle cx="-34" cy="10" r="30" fill="#6a9a5a" stroke={INK} strokeWidth="1.8" />
+      <circle cx="32" cy="0" r="34" fill="#6a9a5a" stroke={INK} strokeWidth="1.8" />
+      <circle cx="14" cy="34" r="26" fill="#7ba866" stroke={INK} strokeWidth="1.6" />
+      <ellipse cx="-28" cy="-4" rx="9" ry="5" fill="#a3c47a" opacity="0.7" />
+      <ellipse cx="22" cy="-12" rx="10" ry="5" fill="#a3c47a" opacity="0.7" />
+      <ellipse cx="-6" cy="14" rx="7" ry="4" fill="#a3c47a" opacity="0.6" />
+    </g>
+  );
+}
+
+function PineTree({ x, y, scale = 1, darkness }: { x: number; y: number; scale?: number; darkness: number }) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <ellipse cx="0" cy="96" rx="32" ry="4" fill={INK} opacity="0.2" />
+      <rect x="-5" y="80" width="10" height="16" fill="#7a4a2a" stroke={INK} strokeWidth="1.5" />
+      <path d="M 0 -10 L 26 30 L -26 30 Z" fill="#4a7a4a" stroke={INK} strokeWidth="1.8" />
+      <path d="M 0 14 L 32 54 L -32 54 Z" fill="#5a8a5a" stroke={INK} strokeWidth="1.8" />
+      <path d="M 0 40 L 38 80 L -38 80 Z" fill="#6a9a6a" stroke={INK} strokeWidth="1.8" />
+      <path d="M 0 -10 L 8 4 L -8 4 Z" fill="#a3c47a" opacity="0.7" />
+    </g>
+  );
+}
+
+function PineFar({ x, y, scale = 1, darkness }: { x: number; y: number; scale?: number; darkness: number }) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <ellipse cx="0" cy="80" rx="26" ry="3" fill={INK} opacity="0.2" />
+      <rect x="-4" y="66" width="8" height="14" fill="#7a4a2a" stroke={INK} strokeWidth="1.4" />
+      <path d="M 0 -4 L 20 26 L -20 26 Z" fill="#4a7a4a" stroke={INK} strokeWidth="1.6" />
+      <path d="M 0 14 L 26 44 L -26 44 Z" fill="#5a8a5a" stroke={INK} strokeWidth="1.6" />
+      <path d="M 0 34 L 30 66 L -30 66 Z" fill="#6a9a6a" stroke={INK} strokeWidth="1.6" />
+    </g>
+  );
+}
+
+function CherryTree({ x, y, scale = 1, darkness }: { x: number; y: number; scale?: number; darkness: number }) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <ellipse cx="0" cy="100" rx="40" ry="5" fill={INK} opacity="0.2" />
+      <rect x="-6" y="56" width="12" height="44" fill="#7a4a2a" stroke={INK} strokeWidth="1.5" />
+      <circle cx="0" cy="20" r="40" fill="#f2c4cf" stroke={INK} strokeWidth="1.8" />
+      <circle cx="-24" cy="10" r="22" fill="#f7d6df" stroke={INK} strokeWidth="1.6" />
+      <circle cx="26" cy="6" r="24" fill="#f7d6df" stroke={INK} strokeWidth="1.6" />
+      <circle cx="14" cy="34" r="18" fill="#eab2c0" stroke={INK} strokeWidth="1.4" />
+      {[[-18, -6], [14, -14], [2, 22], [-6, 8], [28, 24]].map(([dx, dy], i) => (
+        <g key={i}>
+          <circle cx={dx} cy={dy} r="3" fill="#e88ca0" stroke={INK} strokeWidth="0.6" />
+          <circle cx={dx} cy={dy} r="0.8" fill="#b85a3a" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Bush({
+  x,
+  y,
+  scale = 1,
+  darkness,
+  color = "#6a9a5a",
+}: {
+  x: number;
+  y: number;
+  scale?: number;
+  darkness: number;
+  color?: string;
+}) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <ellipse cx="0" cy="20" rx="28" ry="4" fill={INK} opacity="0.18" />
+      <circle cx="-12" cy="8" r="14" fill={color} stroke={INK} strokeWidth="1.5" />
+      <circle cx="10" cy="4" r="16" fill={color} stroke={INK} strokeWidth="1.5" />
+      <circle cx="0" cy="14" r="12" fill={color} stroke={INK} strokeWidth="1.4" />
+      <ellipse cx="-10" cy="-2" rx="4" ry="2" fill="#b5d08a" opacity="0.7" />
+      <ellipse cx="10" cy="-6" rx="5" ry="2" fill="#b5d08a" opacity="0.7" />
+    </g>
+  );
+}
+
+function Mushroom({ x, y, scale = 1, darkness }: { x: number; y: number; scale?: number; darkness: number }) {
+  const fade = 1 - darkness * 0.5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      <rect x="-3" y="0" width="6" height="10" fill="#f0e0c0" stroke={INK} strokeWidth="1" />
+      <path d="M -10 0 Q -10 -10 0 -12 Q 10 -10 10 0 Z" fill="#b85a3a" stroke={INK} strokeWidth="1.2" />
+      <circle cx="-4" cy="-5" r="1.5" fill="#f4ede1" />
+      <circle cx="4" cy="-3" r="1" fill="#f4ede1" />
+    </g>
+  );
+}
+
+function StoneLantern({
+  x,
+  y,
+  scale = 1,
+  darkness,
+  isNight,
+}: {
+  x: number;
+  y: number;
+  scale?: number;
+  darkness: number;
+  isNight: boolean;
+}) {
+  const fade = 1 - darkness * 0.35;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`} style={{ filter: `brightness(${fade})` }}>
+      {isNight && <circle cx="0" cy="0" r="50" fill="#ffb068" opacity="0.25" />}
+      <rect x="-14" y="30" width="28" height="6" fill="#5a4838" stroke={INK} strokeWidth="1.3" />
+      <rect x="-10" y="36" width="20" height="4" fill="#4a3828" stroke={INK} strokeWidth="1.2" />
+      <path d="M -12 -8 L 12 -8 L 10 30 L -10 30 Z" fill="#6b5544" stroke={INK} strokeWidth="1.5" />
+      <rect
+        x="-6"
+        y="0"
+        width="12"
+        height="18"
+        fill={isNight ? "#ffb068" : "#b85a3a"}
+        stroke={INK}
+        strokeWidth="1.2"
+      />
+      <line x1="0" y1="0" x2="0" y2="18" stroke={INK} strokeWidth="0.8" />
+      <line x1="-6" y1="9" x2="6" y2="9" stroke={INK} strokeWidth="0.8" />
+      <path d="M -16 -8 L 16 -8 L 12 -16 L -12 -16 Z" fill="#5a4838" stroke={INK} strokeWidth="1.4" />
+      <rect x="-2" y="-22" width="4" height="6" fill="#5a4838" stroke={INK} strokeWidth="1" />
+    </g>
+  );
+}
+
+type Mote = { id: number; x: number; y: number; delay: number; dur: number };
+
+// ── Scene ────────────────────────────────────────────────────────
+
+export function GardenScene({ owned }: GardenSceneProps) {
+  const [dayT, setDayT] = useState(0.5);
+  const [simulating, setSimulating] = useState(false);
+  const [motes, setMotes] = useState<Mote[]>([]);
 
   useEffect(() => {
-    setFireflies(
-      Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
+    setDayT(getDayT());
+  }, []);
+
+  useEffect(() => {
+    if (simulating) return;
+    const id = window.setInterval(() => setDayT(getDayT()), 30_000);
+    return () => window.clearInterval(id);
+  }, [simulating]);
+
+  useEffect(() => {
+    if (!simulating) return;
+    const id = window.setInterval(() => {
+      setDayT((t) => (t + 0.003) % 1);
+    }, 40);
+    return () => window.clearInterval(id);
+  }, [simulating]);
+
+  useEffect(() => {
+    setMotes(
+      Array.from({ length: 16 }, (_, i) => ({
         id: i,
-        x: Math.random() * 100,
-        y: 20 + Math.random() * 60,
-        delay: Math.random() * 8,
-        dur: 12 + Math.random() * 10,
+        x: Math.random() * 1000,
+        y: 120 + Math.random() * 240,
+        delay: Math.random() * 6,
+        dur: 16 + Math.random() * 12,
       })),
     );
   }, []);
 
-  const has = (id: CreatureId) => !owned || owned.has(id);
+  const sun = useMemo(() => sunPosition(dayT), [dayT]);
+  const moon = useMemo(() => moonPosition(dayT), [dayT]);
+  const sky = useMemo(() => skyGradient(dayT), [dayT]);
+  const darkness = useMemo(() => darknessAt(dayT), [dayT]);
+  const isNight = darkness > 0.5;
+
+  const ownCat = !owned || owned.has("cat");
+  const ownFrog = !owned || owned.has("frog");
+  const ownSnail = !owned || owned.has("snail");
+  const ownFox = !owned || owned.has("fox");
+  const ownOwl = !owned || owned.has("owl");
 
   return (
-    <div className={`garden-frame ${isDusk ? "mood-dusk" : ""}`}>
-      <svg className="garden-svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice">
+    <div className="garden-full">
+      <svg className="garden-sky" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <filter id="garden-paper" x="0" y="0" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
-            <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0" />
-            <feComposite in2="SourceGraphic" operator="in" />
-          </filter>
-          <linearGradient id="sky-fade" x1="0" y1="0" x2="0" y2="1">
-            {isDusk ? (
-              <>
-                <stop offset="0" stopColor="#4a3a40" />
-                <stop offset="0.6" stopColor="#2a2120" />
-                <stop offset="1" stopColor="#1a1412" />
-              </>
-            ) : (
-              <>
-                <stop offset="0" stopColor="var(--paper-3)" stopOpacity="0.9" />
-                <stop offset="0.5" stopColor="var(--paper-2)" stopOpacity="0.4" />
-                <stop offset="1" stopColor="var(--paper-2)" stopOpacity="0" />
-              </>
-            )}
+          <linearGradient id="sky-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={sky.top} />
+            <stop offset="1" stopColor={sky.bot} />
+          </linearGradient>
+          <radialGradient id="sun-glow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor="#ffb068" stopOpacity="0.45" />
+            <stop offset="1" stopColor="#ffb068" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="moon-glow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor="#f0e4d2" stopOpacity="0.3" />
+            <stop offset="1" stopColor="#f0e4d2" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="ground-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#8fa86a" />
+            <stop offset="1" stopColor="#5a7a4a" />
           </linearGradient>
         </defs>
 
-        {/* sky wash */}
-        <rect width="1000" height="340" fill="url(#sky-fade)" />
+        <rect width="1000" height="560" fill="url(#sky-grad)" />
 
-        {/* sun / moon */}
-        {isDusk ? (
+        {isNight &&
+          Array.from({ length: 40 }, (_, i) => {
+            const x = (i * 97) % 1000;
+            const y = (i * 53) % 340;
+            return (
+              <circle
+                key={i}
+                cx={x}
+                cy={y}
+                r={0.8 + (i % 3) * 0.4}
+                fill="#f0e4d2"
+                opacity={0.4 + (i % 5) * 0.12}
+              >
+                <animate
+                  attributeName="opacity"
+                  values={`${0.3 + (i % 3) * 0.1};0.8;${0.3 + (i % 3) * 0.1}`}
+                  dur={`${3 + (i % 5)}s`}
+                  repeatCount="indefinite"
+                />
+              </circle>
+            );
+          })}
+
+        {sun.aboveHorizon && (
           <g>
-            <circle cx="820" cy="110" r="40" fill="#e8d0a0" opacity="0.85" />
-            <circle cx="820" cy="110" r="70" fill="#e8d0a0" opacity="0.15" />
-            <circle cx="810" cy="100" r="6" fill="#3a2a28" opacity="0.3" />
-            <circle cx="830" cy="120" r="4" fill="#3a2a28" opacity="0.25" />
+            <circle cx={sun.x} cy={sun.y} r="110" fill="url(#sun-glow)" />
+            <circle
+              cx={sun.x}
+              cy={sun.y}
+              r="46"
+              fill="#f4a860"
+              stroke="#b85a3a"
+              strokeWidth="1.5"
+              opacity="0.95"
+            />
           </g>
-        ) : (
+        )}
+        {moon.aboveHorizon && (
           <g>
-            <circle cx="780" cy="120" r="52" fill="var(--ochre)" opacity="0.3" />
-            <circle cx="780" cy="120" r="36" fill="var(--ochre)" opacity="0.55" />
+            <circle cx={moon.x} cy={moon.y} r="90" fill="url(#moon-glow)" />
+            <circle
+              cx={moon.x}
+              cy={moon.y}
+              r="32"
+              fill="#f0e4d2"
+              stroke="#d4c490"
+              strokeWidth="1.2"
+              opacity="0.95"
+            />
+            <circle cx={moon.x - 8} cy={moon.y - 6} r="5" fill="#c8b8a2" opacity="0.5" />
+            <circle cx={moon.x + 10} cy={moon.y + 8} r="3" fill="#c8b8a2" opacity="0.4" />
           </g>
         )}
 
-        {/* far mountains */}
-        <g opacity={isDusk ? 0.6 : 0.45}>
-          <path
-            d="M 0 300 L 120 220 L 240 280 L 380 200 L 520 270 L 680 210 L 820 280 L 1000 240 L 1000 340 L 0 340 Z"
-            fill={isDusk ? "#342826" : "var(--ink-muted)"}
-            opacity="0.6"
+        {!isNight &&
+          [
+            [140, 110, 0.9],
+            [520, 80, 1.1],
+            [760, 140, 0.8],
+          ].map(([cx, cy, s], i) => (
+            <g key={i} opacity={0.7 - darkness * 0.3}>
+              <ellipse cx={cx} cy={cy} rx={30 * s} ry={10 * s} fill="#ffffff" opacity="0.7" />
+              <ellipse cx={cx - 14 * s} cy={cy + 3} rx={20 * s} ry={8 * s} fill="#ffffff" opacity="0.7" />
+              <ellipse cx={cx + 16 * s} cy={cy + 2} rx={18 * s} ry={7 * s} fill="#ffffff" opacity="0.7" />
+            </g>
+          ))}
+
+        <path
+          d="M 0 380 Q 200 330 420 360 Q 640 390 860 340 Q 930 325 1000 335 L 1000 460 L 0 460 Z"
+          fill="#9b7a5a"
+          opacity={0.55 + darkness * 0.25}
+        />
+        <path
+          d="M 0 380 Q 200 330 420 360 Q 640 390 860 340 Q 930 325 1000 335"
+          stroke={INK}
+          strokeWidth="1.3"
+          fill="none"
+          opacity={0.4 - darkness * 0.2}
+        />
+
+        <path
+          d="M 0 430 Q 280 390 560 420 Q 780 440 1000 410 L 1000 470 L 0 470 Z"
+          fill="#7a8a5a"
+          opacity={0.75 + darkness * 0.15}
+        />
+        <path
+          d="M 0 430 Q 280 390 560 420 Q 780 440 1000 410"
+          stroke={INK}
+          strokeWidth="1.3"
+          fill="none"
+          opacity={0.5 - darkness * 0.25}
+        />
+
+        <PineFar x={880} y={412} scale={0.6} darkness={darkness + 0.3} />
+        <PineFar x={920} y={420} scale={0.5} darkness={darkness + 0.3} />
+        <Bush x={720} y={416} scale={0.7} darkness={darkness + 0.2} color="#7a9a6a" />
+        <Bush x={80} y={418} scale={0.8} darkness={darkness + 0.2} color="#7a9a6a" />
+
+        <rect
+          y="460"
+          width="1000"
+          height="100"
+          fill="url(#ground-grad)"
+          style={{ filter: `brightness(${1 - darkness * 0.55})` }}
+        />
+        <path d="M 0 460 L 1000 460" stroke={INK} strokeWidth="1.3" opacity={0.4 - darkness * 0.2} />
+
+        <path
+          d="M 440 560 Q 500 520 520 490 Q 540 470 580 464 L 620 464 Q 660 470 680 490 Q 700 520 760 560 Z"
+          fill="#c9a878"
+          stroke={INK}
+          strokeWidth="1.2"
+          opacity={0.85 - darkness * 0.3}
+        />
+        {[[480, 520], [540, 500], [620, 500], [680, 520], [560, 540]].map(([x, y], i) => (
+          <ellipse key={i} cx={x} cy={y} rx="4" ry="2" fill="#8a7868" opacity={0.7 - darkness * 0.3} />
+        ))}
+
+        <OakTree x={180} y={350} scale={1.1} darkness={darkness} />
+        <CherryTree x={780} y={380} scale={0.85} darkness={darkness} />
+        <PineTree x={880} y={400} scale={0.9} darkness={darkness} />
+        <PineTree x={940} y={420} scale={0.7} darkness={darkness} />
+
+        <Bush x={60} y={482} scale={1.1} darkness={darkness} color="#5a8a4a" />
+        <Bush x={340} y={490} scale={0.9} darkness={darkness} color="#6a9a5a" />
+        <Bush x={860} y={490} scale={0.85} darkness={darkness} color="#5a8a4a" />
+
+        <Mushroom x={280} y={500} scale={1.2} darkness={darkness} />
+        <Mushroom x={300} y={508} scale={0.9} darkness={darkness} />
+        <Mushroom x={420} y={518} scale={1.1} darkness={darkness} />
+
+        <StoneLantern x={120} y={470} scale={1.15} darkness={darkness} isNight={isNight} />
+
+        <g>
+          <ellipse
+            cx="600"
+            cy="510"
+            rx="140"
+            ry="16"
+            fill={isNight ? "#1a2838" : "#7ab5c9"}
+            stroke={INK}
+            strokeWidth="1.3"
+            opacity="0.95"
           />
-          <path
-            d="M 0 320 L 160 260 L 320 310 L 500 250 L 680 305 L 860 270 L 1000 300 L 1000 360 L 0 360 Z"
-            fill={isDusk ? "#2a1f1e" : "var(--ink-soft)"}
-            opacity="0.4"
-          />
+          <ellipse cx="600" cy="508" rx="120" ry="10" fill={isNight ? "#2a3848" : "#a8d0de"} opacity="0.7" />
+          <path d="M 540 506 Q 560 504 580 506" stroke="#f4ede1" strokeWidth="0.8" fill="none" opacity="0.7" />
+          <path d="M 610 510 Q 630 508 650 510" stroke="#f4ede1" strokeWidth="0.8" fill="none" opacity="0.5" />
+          <ellipse cx="550" cy="508" rx="10" ry="3" fill="#5a8a4a" stroke={INK} strokeWidth="1" />
+          <circle cx="550" cy="506" r="2" fill="#f2c4cf" stroke={INK} strokeWidth="0.5" />
         </g>
+        {moon.aboveHorizon && (
+          <ellipse cx="600" cy="508" rx="18" ry="2.5" fill="#f0e4d2" opacity="0.55">
+            <animate attributeName="rx" values="14;22;14" dur="5s" repeatCount="indefinite" />
+          </ellipse>
+        )}
 
-        {/* mid trees silhouette row */}
-        <g opacity={isDusk ? 0.85 : 0.75}>
-          {Array.from({ length: 14 }).map((_, i) => {
-            const x = i * 72 + 10;
-            const h = 60 + (i % 3) * 14;
-            const color = isDusk ? "#1a1210" : "var(--moss-deep)";
-            return (
-              <g key={i} transform={`translate(${x}, ${360 - h})`}>
-                <path
-                  d={`M 20 0 L 36 22 L 28 22 L 40 42 L 30 42 L 44 ${h} L -4 ${h} L 10 42 L 0 42 L 12 22 L 4 22 Z`}
-                  fill={color}
-                />
-              </g>
-            );
-          })}
-        </g>
+        {([[240, 498, "#b85a3a"], [260, 508, "#e88ca0"], [380, 516, "#e8c040"], [460, 508, "#b85a3a"], [740, 510, "#e8c040"], [820, 520, "#e88ca0"]] as const).map(
+          ([x, y, c], i) => (
+            <g key={i} style={{ filter: `brightness(${1 - darkness * 0.5})` }}>
+              <line x1={x} y1={y} x2={x} y2={y + 10} stroke="#5a8a4a" strokeWidth="1" />
+              <circle cx={x} cy={y} r="3" fill={c} stroke={INK} strokeWidth="0.7" />
+              <circle cx={x} cy={y} r="0.8" fill={INK} />
+            </g>
+          ),
+        )}
 
-        {/* ground */}
-        <path
-          d="M 0 360 Q 500 340 1000 360 L 1000 560 L 0 560 Z"
-          fill={isDusk ? "#1a1412" : "var(--paper-2)"}
-          filter="url(#garden-paper)"
-        />
-        <path
-          d="M 0 380 Q 500 360 1000 380 L 1000 460 L 0 460 Z"
-          fill={isDusk ? "#221815" : "color-mix(in oklab, var(--moss) 20%, var(--paper-2))"}
-          opacity="0.5"
-        />
-
-        {/* pond */}
-        <ellipse
-          cx="720"
-          cy="480"
-          rx="160"
-          ry="36"
-          fill={isDusk ? "#2a3438" : "color-mix(in oklab, var(--moss-deep) 30%, var(--paper-2))"}
-          opacity="0.7"
-        />
-        <ellipse
-          cx="720"
-          cy="478"
-          rx="150"
-          ry="28"
-          fill={isDusk ? "#3a4a50" : "color-mix(in oklab, var(--moss) 40%, var(--paper-3))"}
-          opacity="0.5"
-        />
-        <ellipse
-          cx="720"
-          cy="478"
-          rx="40"
-          ry="8"
-          fill="none"
-          stroke={isDusk ? "#5a6a70" : "rgba(255,255,255,0.3)"}
-          strokeWidth="0.6"
-        />
-        <ellipse
-          cx="720"
-          cy="478"
-          rx="80"
-          ry="16"
-          fill="none"
-          stroke={isDusk ? "#4a5a60" : "rgba(255,255,255,0.2)"}
-          strokeWidth="0.5"
-        />
-
-        {/* path */}
-        <path
-          d="M 200 560 Q 300 500 420 480 Q 540 460 560 440"
-          stroke={isDusk ? "#3a2a26" : "var(--paper-3)"}
-          strokeWidth="44"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.6"
-        />
-
-        {/* foreground grass tufts */}
-        {Array.from({ length: 40 }).map((_, i) => {
-          const x = ((i * 227) % 1000);
-          const y = 380 + ((i * 71) % 170);
-          const h = 6 + ((i * 13) % 10);
+        {Array.from({ length: 30 }, (_, i) => {
+          const x = (i * 37) % 1000;
+          const y = 472 + ((i * 13) % 70);
+          const h = 5 + (i % 4) * 2;
           return (
             <path
               key={i}
-              d={`M ${x} ${y} Q ${x - 1} ${y - h} ${x + 2} ${y - h - 2} M ${x} ${y} Q ${x + 2} ${y - h + 2} ${x + 4} ${y - h}`}
-              stroke={isDusk ? "#3a4028" : "var(--moss)"}
-              strokeWidth="0.8"
+              d={`M ${x} ${y} Q ${x - 1} ${y - h} ${x + 2} ${y - h}`}
+              stroke="#5a7a4a"
+              strokeWidth="1"
               fill="none"
-              strokeLinecap="round"
-              opacity={0.5 + ((i * 23) % 40) / 100}
+              opacity={0.6 - darkness * 0.3}
+              style={{ filter: `brightness(${1 - darkness * 0.4})` }}
             />
           );
         })}
 
-        {/* stone lantern */}
-        <g transform="translate(140, 380)">
-          <rect x="-4" y="60" width="8" height="18" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
-          <rect x="-14" y="48" width="28" height="14" rx="2" fill={isDusk ? "#5a4a42" : "var(--ink-muted)"} />
-          <rect x="-10" y="24" width="20" height="24" fill={isDusk ? "#3a2a26" : "var(--ink)"} opacity="0.8" />
-          <rect x="-6" y="30" width="12" height="12" fill={isDusk ? "#ffb060" : "var(--ochre)"} opacity={isDusk ? 0.9 : 0.6} />
-          <path d="M -18 24 L 18 24 L 14 16 L -14 16 Z" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
-          <rect x="-4" y="8" width="8" height="10" fill={isDusk ? "#4a3a34" : "var(--ink-soft)"} />
-          {isDusk ? <circle cx="0" cy="36" r="34" fill="#ffb060" opacity="0.15" /> : null}
-        </g>
-
-        {/* big tree left */}
-        <g transform="translate(160, 240)" filter="url(#garden-paper)">
-          <path d="M -4 140 Q -6 80 -2 20 Q 0 10 2 20 Q 4 80 6 140 Z" fill={isDusk ? "#2a1a14" : "var(--clay)"} />
-          <ellipse cx="0" cy="20" rx="70" ry="50" fill={isDusk ? "#2a3020" : "var(--moss-deep)"} opacity="0.9" />
-          <ellipse cx="-30" cy="30" rx="38" ry="28" fill={isDusk ? "#2a3020" : "var(--moss)"} opacity="0.8" />
-          <ellipse cx="30" cy="10" rx="36" ry="30" fill={isDusk ? "#1a2418" : "var(--moss-deep)"} opacity="0.85" />
-        </g>
-
-        {/* small plants scattered */}
-        <g transform="translate(340, 460)">
-          <path
-            d="M 0 0 Q -4 -16 -10 -24 M 0 0 Q 4 -18 10 -22 M 0 0 Q 0 -20 0 -28"
-            stroke={isDusk ? "#4a5028" : "var(--moss)"}
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </g>
-        <g transform="translate(520, 490)">
-          <ellipse cx="0" cy="0" rx="22" ry="8" fill={isDusk ? "#2a3020" : "var(--moss)"} opacity="0.7" />
-          <ellipse cx="-8" cy="-6" rx="10" ry="8" fill={isDusk ? "#3a4028" : "var(--moss)"} />
-          <ellipse cx="8" cy="-5" rx="12" ry="9" fill={isDusk ? "#3a4028" : "var(--moss-deep)"} />
-        </g>
-        <g transform="translate(860, 430)">
-          <rect x="-2" y="0" width="4" height="30" fill={isDusk ? "#2a1a14" : "var(--clay)"} />
-          <circle cx="0" cy="-4" r="14" fill={isDusk ? "#2a3020" : "var(--moss)"} />
-          <circle cx="-8" cy="-2" r="8" fill={isDusk ? "#2a3020" : "var(--moss)"} />
-          <circle cx="8" cy="-6" r="7" fill={isDusk ? "#3a4028" : "var(--moss-deep)"} />
-        </g>
-
-        {/* stones by pond */}
-        <g transform="translate(600, 484)">
-          <ellipse cx="0" cy="0" rx="14" ry="6" fill={isDusk ? "#3a2e2a" : "var(--clay)"} />
-          <ellipse cx="0" cy="-2" rx="12" ry="5" fill={isDusk ? "#4a3a34" : "var(--paper-3)"} />
-        </g>
-        <g transform="translate(850, 500)">
-          <ellipse cx="0" cy="0" rx="18" ry="8" fill={isDusk ? "#3a2e2a" : "var(--clay)"} />
-          <ellipse cx="0" cy="-2" rx="16" ry="7" fill={isDusk ? "#4a3a34" : "var(--paper-3)"} />
-        </g>
-
-        {/* fireflies (dusk) / pollen (day) */}
-        {fireflies.map((f) => (
+        {motes.map((m) => (
           <circle
-            key={f.id}
-            cx={f.x * 10}
-            cy={f.y * 5.6}
-            r={isDusk ? 1.8 : 1}
-            fill={isDusk ? "#ffd080" : "var(--ochre)"}
-            opacity={isDusk ? 0.9 : 0.4}
+            key={m.id}
+            cx={m.x}
+            cy={m.y}
+            r={isNight ? 2.4 : 1.4}
+            fill={isNight ? "#ffd080" : "#f4ede1"}
+            opacity={isNight ? 0.95 : 0.55}
           >
             <animate
               attributeName="cx"
-              values={`${f.x * 10};${f.x * 10 + 40};${f.x * 10 - 20};${f.x * 10}`}
-              dur={`${f.dur}s`}
+              values={`${m.x};${m.x + 80};${m.x - 40};${m.x}`}
+              dur={`${m.dur}s`}
               repeatCount="indefinite"
-              begin={`-${f.delay}s`}
+              begin={`-${m.delay}s`}
             />
             <animate
               attributeName="cy"
-              values={`${f.y * 5.6};${f.y * 5.6 - 30};${f.y * 5.6 + 10};${f.y * 5.6}`}
-              dur={`${f.dur}s`}
+              values={`${m.y};${m.y - 60};${m.y + 30};${m.y}`}
+              dur={`${m.dur}s`}
               repeatCount="indefinite"
-              begin={`-${f.delay}s`}
+              begin={`-${m.delay}s`}
             />
-            {isDusk ? (
+            {isNight && (
               <animate
                 attributeName="opacity"
                 values="0.2;1;0.4;0.9;0.2"
-                dur="3s"
+                dur="3.5s"
                 repeatCount="indefinite"
-                begin={`-${f.delay}s`}
+                begin={`-${m.delay}s`}
               />
-            ) : null}
+            )}
           </circle>
         ))}
       </svg>
 
-      {/* caption */}
-      <div className="garden-caption">{isDusk ? "The garden at dusk" : "The garden, midday"}</div>
+      {/* creature layer */}
+      {ownCat && <StaticCreature id="cat" left="10%" bottom="16%" size={90} isNight={isNight} />}
+      {ownFox && <StaticCreature id="fox" left="78%" bottom="18%" size={96} isNight={isNight} />}
+      {ownFrog && <StaticCreature id="frog" left="52%" bottom="10%" size={74} isNight={isNight} />}
+      {ownSnail && <StaticCreature id="snail" left="30%" bottom="9%" size={76} isNight={isNight} />}
+      {ownOwl && !isNight && <StaticCreature id="owl" left="16%" top="28%" size={70} isNight={isNight} />}
 
-      {/* clickable creatures */}
-      {PLACEMENTS.map((p) => (has(p.id) ? <CreatureSlot key={p.id} placement={p} isDusk={isDusk} /> : null))}
+      <div className="garden-hud">
+        <div className="hud-time">{formatTime(dayT)}</div>
+        <button type="button" className="hud-sim" onClick={() => setSimulating((s) => !s)}>
+          {simulating ? "Pause" : "Simulate day"}
+        </button>
+      </div>
     </div>
   );
 }
 
-function CreatureSlot({
-  placement,
-  isDusk,
+// ── Static creatures (animation layers come in follow-up commits) ──
+
+function StaticCreature({
+  id,
+  left,
+  bottom,
+  top,
+  size,
+  isNight,
 }: {
-  placement: CreaturePlacement;
-  isDusk: boolean;
+  id: "cat" | "frog" | "snail" | "fox" | "owl";
+  left: string;
+  bottom?: string;
+  top?: string;
+  size: number;
+  isNight: boolean;
 }) {
   const [bounce, setBounce] = useState(false);
-  const onClick = () => {
+  const handleClick = () => {
     setBounce(true);
-    setTimeout(() => setBounce(false), 600);
+    window.setTimeout(() => setBounce(false), 600);
   };
-
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleClick}
       className={`creature-btn ${bounce ? "bounce" : ""}`}
       style={{
-        left: placement.left,
-        bottom: placement.bottom,
-        top: placement.top,
-        width: placement.size,
-        height: placement.size,
-        filter: isDusk ? "brightness(0.85)" : undefined,
+        left,
+        bottom,
+        top,
+        width: size,
+        height: size,
+        filter: isNight ? "brightness(0.82)" : undefined,
       }}
-      aria-label={placement.id}
-      title={placement.id}
+      aria-label={id}
+      title={id}
     >
-      <CreatureArt id={placement.id} />
+      <CreatureArt id={id} />
     </button>
   );
 }
 
-function CreatureArt({ id }: { id: CreatureId }) {
+function CreatureArt({ id }: { id: "cat" | "frog" | "snail" | "fox" | "owl" }) {
   switch (id) {
     case "cat":
       return (
         <svg viewBox="0 0 100 100">
-          <g>
-            <ellipse cx="50" cy="70" rx="28" ry="16" fill="var(--ink)" />
-            <circle cx="32" cy="58" r="14" fill="var(--ink)" />
-            <path d="M 22 52 L 26 42 L 32 50 Z M 38 50 L 42 42 L 44 52 Z" fill="var(--ink)" />
-            <path
-              d="M 78 72 Q 88 60 84 48"
-              stroke="var(--ink)"
-              strokeWidth="5"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <circle cx="28" cy="56" r="1.2" fill="var(--accent)" />
-            <circle cx="36" cy="56" r="1.2" fill="var(--accent)" />
-          </g>
+          <ellipse cx="50" cy="70" rx="28" ry="16" fill={INK} />
+          <circle cx="32" cy="58" r="14" fill={INK} />
+          <path d="M 22 52 L 26 42 L 32 50 Z M 38 50 L 42 42 L 44 52 Z" fill={INK} />
+          <path d="M 78 72 Q 88 60 84 48" stroke={INK} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <circle cx="28" cy="56" r="1.2" fill="#b85a3a" />
+          <circle cx="36" cy="56" r="1.2" fill="#b85a3a" />
         </svg>
       );
     case "frog":
       return (
         <svg viewBox="0 0 100 100">
-          <g>
-            <ellipse cx="50" cy="66" rx="30" ry="18" fill="var(--moss)" />
-            <ellipse cx="34" cy="48" rx="10" ry="9" fill="var(--moss)" />
-            <ellipse cx="66" cy="48" rx="10" ry="9" fill="var(--moss)" />
-            <circle cx="34" cy="46" r="4" fill="var(--paper)" />
-            <circle cx="66" cy="46" r="4" fill="var(--paper)" />
-            <circle cx="34" cy="47" r="2" fill="var(--ink)" />
-            <circle cx="66" cy="47" r="2" fill="var(--ink)" />
-            <path
-              d="M 40 70 Q 50 76 60 70"
-              stroke="var(--ink)"
-              strokeWidth="1.2"
-              fill="none"
-              strokeLinecap="round"
-            />
-          </g>
+          <ellipse cx="50" cy="66" rx="30" ry="18" fill="#6a9a5a" stroke={INK} strokeWidth="1.2" />
+          <ellipse cx="34" cy="48" rx="10" ry="9" fill="#6a9a5a" stroke={INK} strokeWidth="1" />
+          <ellipse cx="66" cy="48" rx="10" ry="9" fill="#6a9a5a" stroke={INK} strokeWidth="1" />
+          <circle cx="34" cy="46" r="4" fill="#f4ede1" />
+          <circle cx="66" cy="46" r="4" fill="#f4ede1" />
+          <circle cx="34" cy="47" r="2" fill={INK} />
+          <circle cx="66" cy="47" r="2" fill={INK} />
+          <path d="M 40 70 Q 50 76 60 70" stroke={INK} strokeWidth="1.2" fill="none" strokeLinecap="round" />
         </svg>
       );
     case "snail":
       return (
         <svg viewBox="0 0 100 100">
-          <g>
-            <path
-              d="M 16 78 Q 50 78 76 72 Q 80 68 76 64"
-              stroke="var(--clay)"
-              strokeWidth="12"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <circle cx="56" cy="50" r="22" fill="var(--ochre)" />
-            <path
-              d="M 56 50 m -14 0 a 14 14 0 1 1 28 0 a 10 10 0 1 1 -20 0 a 6 6 0 1 1 12 0"
-              stroke="var(--clay)"
-              strokeWidth="1.4"
-              fill="none"
-            />
-            <line x1="20" y1="74" x2="14" y2="64" stroke="var(--clay)" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="14" cy="63" r="1.5" fill="var(--ink)" />
-            <line x1="26" y1="72" x2="22" y2="62" stroke="var(--clay)" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="22" cy="61" r="1.5" fill="var(--ink)" />
-          </g>
+          <path
+            d="M 16 78 Q 50 78 76 72 Q 80 68 76 64"
+            stroke="#a5624a"
+            strokeWidth="12"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <circle cx="56" cy="50" r="22" fill="#c99443" stroke={INK} strokeWidth="1" />
+          <path
+            d="M 56 50 m -14 0 a 14 14 0 1 1 28 0 a 10 10 0 1 1 -20 0 a 6 6 0 1 1 12 0"
+            stroke="#a5624a"
+            strokeWidth="1.4"
+            fill="none"
+          />
+          <line x1="20" y1="74" x2="14" y2="64" stroke="#a5624a" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="14" cy="63" r="1.5" fill={INK} />
+          <line x1="26" y1="72" x2="22" y2="62" stroke="#a5624a" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="22" cy="61" r="1.5" fill={INK} />
         </svg>
       );
     case "fox":
       return (
         <svg viewBox="0 0 100 100">
-          <g>
-            <path
-              d="M 70 70 Q 88 62 82 42"
-              stroke="var(--accent)"
-              strokeWidth="8"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 82 44 Q 88 40 84 36"
-              stroke="var(--paper)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <ellipse cx="48" cy="66" rx="26" ry="14" fill="var(--accent)" />
-            <circle cx="34" cy="52" r="14" fill="var(--accent)" />
-            <path d="M 24 46 L 26 34 L 34 46 Z M 36 46 L 42 34 L 42 46 Z" fill="var(--accent)" />
-            <path d="M 30 54 Q 34 56 38 54 L 34 58 Z" fill="var(--paper)" />
-            <circle cx="28" cy="50" r="1.3" fill="var(--ink)" />
-            <circle cx="38" cy="50" r="1.3" fill="var(--ink)" />
-            <circle cx="34" cy="56" r="1" fill="var(--ink)" />
-          </g>
+          <path
+            d="M 70 70 Q 88 62 82 42"
+            stroke="#b85a3a"
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 82 44 Q 88 40 84 36"
+            stroke="#f4ede1"
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <ellipse cx="48" cy="66" rx="26" ry="14" fill="#b85a3a" stroke={INK} strokeWidth="1" />
+          <circle cx="34" cy="52" r="14" fill="#b85a3a" stroke={INK} strokeWidth="1" />
+          <path d="M 24 46 L 26 34 L 34 46 Z M 36 46 L 42 34 L 42 46 Z" fill="#b85a3a" stroke={INK} strokeWidth="0.8" />
+          <path d="M 30 54 Q 34 56 38 54 L 34 58 Z" fill="#f4ede1" />
+          <circle cx="28" cy="50" r="1.3" fill={INK} />
+          <circle cx="38" cy="50" r="1.3" fill={INK} />
+          <circle cx="34" cy="56" r="1" fill={INK} />
         </svg>
       );
     case "owl":
       return (
         <svg viewBox="0 0 100 100">
-          <g>
-            <ellipse cx="50" cy="58" rx="24" ry="28" fill="var(--clay)" />
-            <path
-              d="M 28 38 L 34 46 M 72 38 L 66 46"
-              stroke="var(--clay)"
-              strokeWidth="6"
-              strokeLinecap="round"
-            />
-            <circle cx="40" cy="52" r="9" fill="var(--paper)" />
-            <circle cx="60" cy="52" r="9" fill="var(--paper)" />
-            <circle cx="40" cy="53" r="4" fill="var(--ink)" />
-            <circle cx="60" cy="53" r="4" fill="var(--ink)" />
-            <path d="M 46 62 L 50 68 L 54 62 Z" fill="var(--ochre)" />
-            <path
-              d="M 40 76 L 42 84 M 60 76 L 58 84"
-              stroke="var(--ochre)"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </g>
+          <ellipse cx="50" cy="58" rx="24" ry="28" fill="#a5624a" stroke={INK} strokeWidth="1.2" />
+          <path
+            d="M 28 38 L 34 46 M 72 38 L 66 46"
+            stroke="#a5624a"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+          <circle cx="40" cy="52" r="9" fill="#f4ede1" />
+          <circle cx="60" cy="52" r="9" fill="#f4ede1" />
+          <circle cx="40" cy="53" r="4" fill={INK} />
+          <circle cx="60" cy="53" r="4" fill={INK} />
+          <path d="M 46 62 L 50 68 L 54 62 Z" fill="#c99443" />
+          <path
+            d="M 40 76 L 42 84 M 60 76 L 58 84"
+            stroke="#c99443"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </svg>
       );
     default:
