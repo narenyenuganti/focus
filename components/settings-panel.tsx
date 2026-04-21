@@ -6,6 +6,7 @@ import type { TrackerSettings } from "@/lib/server/schema";
 import { SOUND_LIBRARY, playSound } from "@/lib/sounds";
 import type { SoundId } from "@/lib/sounds";
 import { requestNotificationPermission, notify } from "@/lib/notifications";
+import { logoutTracker } from "@/app/actions/auth";
 
 const TEST_NOTIFICATIONS = [
   { title: "Focus session complete!", body: "Time for a break." },
@@ -282,6 +283,14 @@ export function SettingsPanel({ settings: initialSettings }: SettingsPanelProps)
             </svg>
           </button>
           <span className="label">{status}</span>
+        </Row>
+
+        <Row name="Session" hint="Sign out" description="Clear the local session and return to sign-in.">
+          <form action={logoutTracker}>
+            <button type="submit" className="btn-ghost" style={{ padding: "10px 20px" }}>
+              Sign out
+            </button>
+          </form>
         </Row>
       </div>
     </section>

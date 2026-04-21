@@ -2859,45 +2859,45 @@ a {
 
 /* ---------- revamped app shell ---------- */
 .app {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 40px;
   position: relative;
   z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 64px 120px;
+  min-height: 100vh;
+}
+@media (max-width: 960px) {
+  .app {
+    padding: 32px 40px 80px;
+  }
 }
 
 .topbar {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  padding: 0 0 18px;
-  border-bottom: 1px solid var(--rule);
+  padding-bottom: 28px;
+  margin-bottom: 96px;
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .topbar .mark {
   font-family: var(--font-serif), Georgia, serif;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 22px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--ink);
-}
-
-.topbar .dateline {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-muted);
-  text-transform: uppercase;
-}
-
-.topbar-right {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 12px;
+}
+.topbar .mark::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .wallet {
@@ -2945,77 +2945,47 @@ a {
   background: var(--accent);
 }
 
-.nav {
+.tabs {
   display: flex;
-  gap: 28px;
-  padding: 10px 0 0;
-  border-bottom: 1px solid var(--rule);
-  position: relative;
+  gap: 36px;
 }
-
-.nav button {
-  font: inherit;
-  color: var(--ink-muted);
+.tab {
   background: none;
   border: 0;
-  cursor: pointer;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  padding: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  padding: 10px 0 14px;
-  position: relative;
+  color: var(--ink-muted);
+  cursor: pointer;
   transition: color 300ms ease;
+  position: relative;
 }
-
-.nav button:hover {
+.tab:hover {
   color: var(--ink-soft);
 }
-
-.nav button.is-active {
+.tab.active {
   color: var(--ink);
 }
-
-.nav-underline {
+.tab.active::after {
+  content: "";
   position: absolute;
   left: 0;
-  bottom: -1px;
+  right: 0;
+  bottom: -31px;
   height: 1px;
   background: var(--accent);
-  transition: transform 420ms cubic-bezier(.7, 0, .2, 1),
-    width 420ms cubic-bezier(.7, 0, .2, 1);
-  will-change: transform, width;
 }
 
 .stage {
   position: relative;
-  padding: 48px 0 80px;
   min-height: 640px;
 }
 
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28px 0;
-  border-top: 1px solid var(--rule);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.footer .colophon em {
-  font-style: italic;
-  color: var(--ink);
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-@media (max-width: 720px) {
-  .app {
-    padding: 0 20px;
-  }
+.view {
+  animation: viewIn 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .card {

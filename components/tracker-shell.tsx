@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { logoutTracker } from "@/app/actions/auth";
 import { FocusTimer } from "@/components/focus-timer";
 import { SettingsPanel } from "@/components/settings-panel";
 import { LedgerView } from "@/components/ledger-view";
@@ -13,18 +12,6 @@ import type { Wallet, Inventory } from "@/lib/economy-types";
 
 type TrackerSnapshot = Awaited<ReturnType<typeof getTrackerSnapshot>>;
 
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-function buildDateline(totalSessions: number) {
-  const now = new Date();
-  const issue = String(Math.max(1, totalSessions)).padStart(3, "0");
-  const dow = DAYS_OF_WEEK[now.getDay()];
-  const dd = String(now.getDate()).padStart(2, "0");
-  const mon = MONTHS[now.getMonth()];
-  return `Vol. II · No. ${issue} · ${dow} ${dd} ${mon}`;
-}
-
 type TrackerShellProps = {
   snapshot: TrackerSnapshot;
 };
@@ -35,16 +22,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
   const [inventory, setInventory] = useState<Inventory>(snapshot.economy.inventory);
 
   const streakDays = snapshot.focus.currentStreakDays ?? 0;
-  const weekMinutes = snapshot.focus.weeklyMinutes;
-  const goalMinutes = snapshot.settings.weeklyFocusGoalMinutes;
-  const totalSessions = snapshot.focus.totalSessions ?? 0;
-  const weekPct = goalMinutes > 0
-    ? Math.min(100, Math.round((weekMinutes / goalMinutes) * 100))
-    : 0;
-  const [dateline, setDateline] = useState("");
-  useEffect(() => {
-    setDateline(buildDateline(totalSessions));
-  }, [totalSessions]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", snapshot.settings.theme);
@@ -72,43 +49,16 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
     }));
   }
 
+  const isGarden = activeTab === "garden";
+
   return (
-    <div className="app">
-      <header className="topbar">
+    <div className={`app ${isGarden ? "app-garden" : ""}`}>
+      <header className={`topbar ${isGarden ? "topbar-float" : ""}`}>
         <div className="mark">Focus</div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: 24,
-          }}
-        >
-          <div className="dateline">{dateline}</div>
-          <form action={logoutTracker}>
-            <button
-              type="submit"
-              aria-label="Log out"
-              style={{
-                font: "inherit",
-                background: "none",
-                border: 0,
-                cursor: "pointer",
-                fontFamily: "var(--font-mono), monospace",
-                fontSize: 11,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "var(--ink-muted)",
-              }}
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
+        <TopNav activeTab={activeTab} onTabChange={setActiveTab} />
       </header>
 
-      <TopNav activeTab={activeTab} onTabChange={setActiveTab} />
-
-      <main className="stage">
+      <main className={isGarden ? "garden-wrap" : "stage"}>
         {activeTab === "focus" && (
           <FocusTimer
             todayMinutes={snapshot.focus.todayMinutes}
@@ -156,12 +106,6 @@ export function TrackerShell({ snapshot }: TrackerShellProps) {
 
         {activeTab === "settings" && <SettingsPanel settings={snapshot.settings} />}
       </main>
-
-      <footer className="footer">
-        <div>
-          v2 · <span className="mono">{weekPct}% of weekly goal</span>
-        </div>
-      </footer>
     </div>
   );
 }
